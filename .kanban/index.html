@@ -131,9 +131,15 @@
     .checklist-item input[type=checkbox] { margin-top: 2px; accent-color: var(--orange); cursor: pointer; width: 14px; height: 14px; flex-shrink: 0; }
     .checklist-item label { font-size: 13px; cursor: pointer; line-height: 1.5; }
     .checklist-item.checked label { text-decoration: line-through; color: var(--muted); }
-    .execution-plan { background: var(--sidebar); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 12.5px; line-height: 1.6; color: var(--text); font-family: var(--mono); }
+    .execution-plan-textarea {
+      width: 100%; background: var(--sidebar); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; font-size: 12.5px; line-height: 1.6; color: var(--text); font-family: var(--mono);
+      resize: vertical; min-height: 80px; outline: none; transition: border-color 0.15s;
+    }
+    .execution-plan-textarea:focus { border-color: var(--orange); }
+    .execution-plan-row { display: flex; gap: 8px; align-items: stretch; margin-top: 6px; }
     .btn-execute {
-      display: flex; align-items: center; gap: 8px; width: 100%;
+      display: flex; align-items: center; gap: 8px; flex: 1;
       background: var(--orange); color: white; border: none; border-radius: 8px;
       padding: 11px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
       transition: background 0.15s;
@@ -141,6 +147,15 @@
     .btn-execute:hover { background: #c44d0a; }
     .btn-execute-icon { font-size: 16px; }
     .copied-msg { font-size: 12px; opacity: 0.85; margin-left: auto; }
+    .btn-save-plan {
+      background: white; border: 1.5px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 0 14px; font-size: 12px; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-save-plan:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-save-plan.saved { border-color: #16a34a; color: #16a34a; }
+    .checklist-progress-label { font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .checklist-complete-badge { font-size: 11px; font-family: var(--mono); font-weight: 600; color: #16a34a; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 5px; padding: 2px 8px; }
     .history-item { font-size: 12px; font-family: var(--mono); color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--border); }
     .history-item:last-child { border-bottom: none; }
     .column-select { font-family: var(--font); font-size: 13px; border: 1px solid var(--border); border-radius: 7px; padding: 6px 10px; background: white; color: var(--text); cursor: pointer; width: 100%; }
@@ -426,9 +441,24 @@
     }
 
     // Checklist
+    const checklistSection = document.createElement('div');
     if (activeCard.checklist && activeCard.checklist.length) {
-      const s = document.createElement('div');
-      s.innerHTML = `<div class="modal-section-label">Checklist</div>`;
+      const updateChecklistHeader = () => {
+        const doneCount = activeCard.checklist.filter(c => c.done).length;
+        const totalCount = activeCard.checklist.length;
+        const pct = Math.round((doneCount / totalCount) * 100);
+        const allDone = doneCount === totalCount;
+        checklistSection.querySelector('.checklist-progress-label').innerHTML =
+          `<span>Checklist</span>${allDone ? '<span class="checklist-complete-badge">✓ Complete</span>' : `<span>${doneCount}/${totalCount} · ${pct}%</span>`}`;
+        checklistSection.querySelector('.checklist-progress-fill').style.width = pct + '%';
+      };
+
+      checklistSection.innerHTML = `
+        <div class="checklist-progress-label"><span>Checklist</span><span></span></div>
+        <div style="margin-bottom:8px">
+          <div class="checklist-progress" style="height:4px"><div class="checklist-progress-fill" style="width:0%"></div></div>
+        </div>
+      `;
       const list = document.createElement('div');
       activeCard.checklist.forEach((item, i) => {
         const row = document.createElement('div');
@@ -438,6 +468,7 @@
         row.querySelector('input').addEventListener('change', async (e) => {
           activeCard.checklist[i].done = e.target.checked;
           row.classList.toggle('checked', e.target.checked);
+          updateChecklistHeader();
           await fetch(`/api/cards/${activeCard.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -449,25 +480,53 @@
         });
         list.appendChild(row);
       });
-      s.appendChild(list);
-      body.appendChild(s);
+      checklistSection.appendChild(list);
+      body.appendChild(checklistSection);
+      updateChecklistHeader();
     }
 
-    // Execution plan
-    if (activeCard.executionPlan) {
-      const s = document.createElement('div');
-      s.innerHTML = `<div class="modal-section-label">Execution Plan</div><div class="execution-plan">${activeCard.executionPlan}</div>`;
-      const btn = document.createElement('button');
-      btn.className = 'btn-execute';
-      btn.innerHTML = `<span class="btn-execute-icon">⚡</span> Execute with Claude Code <span class="copied-msg" id="copied-msg"></span>`;
-      btn.onclick = () => {
-        navigator.clipboard.writeText(activeCard.executionPlan);
-        document.getElementById('copied-msg').textContent = '✓ Copied!';
-        setTimeout(() => { document.getElementById('copied-msg').textContent = ''; }, 2000);
-      };
-      s.appendChild(btn);
-      body.appendChild(s);
-    }
+    // Execution plan — editable
+    const planSection = document.createElement('div');
+    planSection.innerHTML = `<div class="modal-section-label">Execution Plan</div>`;
+    const textarea = document.createElement('textarea');
+    textarea.className = 'execution-plan-textarea';
+    textarea.value = activeCard.executionPlan || '';
+    textarea.placeholder = 'Describe what needs to be done…';
+    planSection.appendChild(textarea);
+
+    const planRow = document.createElement('div');
+    planRow.className = 'execution-plan-row';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn-save-plan';
+    saveBtn.textContent = 'Save';
+    saveBtn.onclick = async () => {
+      activeCard.executionPlan = textarea.value;
+      await fetch(`/api/cards/${activeCard.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ executionPlan: textarea.value }),
+      });
+      const idx = board.cards.findIndex(c => c.id === activeCard.id);
+      board.cards[idx].executionPlan = textarea.value;
+      saveBtn.textContent = '✓ Saved';
+      saveBtn.classList.add('saved');
+      setTimeout(() => { saveBtn.textContent = 'Save'; saveBtn.classList.remove('saved'); }, 2000);
+    };
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'btn-execute';
+    copyBtn.innerHTML = `<span class="btn-execute-icon">⚡</span> Copy for Claude Code <span class="copied-msg" id="copied-msg"></span>`;
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(textarea.value);
+      document.getElementById('copied-msg').textContent = '✓ Copied!';
+      setTimeout(() => { document.getElementById('copied-msg').textContent = ''; }, 2000);
+    };
+
+    planRow.appendChild(copyBtn);
+    planRow.appendChild(saveBtn);
+    planSection.appendChild(planRow);
+    body.appendChild(planSection);
 
     // History
     const historyDiv = document.createElement('div');
