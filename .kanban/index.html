@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guitar Mastery Hub — Kanban</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #ea580c;
+      --orange-light: #fff4ee;
+      --bg: #ffffff;
+      --sidebar: #f7f5f2;
+      --border: #e5e0df;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      --radius: 10px;
+      --font: 'Inter', sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    body { font-family: var(--font); background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── Top Bar ── */
+    .topbar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .topbar-title { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .topbar-title span { color: var(--orange); }
+    .topbar-stats { display: flex; gap: 16px; margin-left: auto; align-items: center; }
+    .stat-pill { font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--sidebar); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; }
+    .stat-pill b { color: var(--text); }
+    .progress-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .progress-bar { width: 120px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--orange); border-radius: 3px; transition: width 0.4s; }
+    .progress-pct { font-family: var(--mono); font-size: 11px; color: var(--orange); font-weight: 500; }
+
+    /* ── Epic Filter ── */
+    .filter-bar {
+      display: flex; align-items: center; gap: 8px; padding: 10px 20px;
+      border-bottom: 1px solid var(--border); background: var(--sidebar); flex-shrink: 0; overflow-x: auto;
+    }
+    .filter-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+    .epic-pill {
+      font-family: var(--mono); font-size: 11px; font-weight: 500;
+      padding: 3px 10px; border-radius: 20px; border: 1.5px solid transparent;
+      cursor: pointer; white-space: nowrap; transition: opacity 0.15s, transform 0.1s;
+      background: white;
+    }
+    .epic-pill:hover { transform: translateY(-1px); }
+    .epic-pill.active { border-color: currentColor; }
+    .epic-pill.all { color: var(--muted); border-color: var(--border); }
+    .epic-pill.all.active { color: var(--text); border-color: var(--text); background: var(--text); color: white; }
+
+    /* ── Board ── */
+    .board-wrap { flex: 1; overflow-x: auto; padding: 16px 20px 20px; }
+    .board { display: flex; gap: 12px; height: 100%; min-width: fit-content; }
+
+    /* ── Column ── */
+    .column { width: 272px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--sidebar); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .column-header { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .column-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .column-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .column-count { font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--border); border-radius: 4px; padding: 1px 6px; }
+    .column-cards { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; min-height: 80px; }
+    .column-cards::-webkit-scrollbar { width: 3px; }
+    .column-cards::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .column.drag-over { background: #f0efed; }
+    .column.drag-over .column-cards { outline: 2px dashed var(--border); outline-offset: -4px; border-radius: 6px; }
+
+    /* ── Card ── */
+    .card {
+      background: white; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px; cursor: grab; user-select: none;
+      box-shadow: var(--card-shadow); transition: box-shadow 0.15s, transform 0.1s;
+      position: relative;
+    }
+    .card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.1); transform: translateY(-1px); }
+    .card.dragging { opacity: 0.4; cursor: grabbing; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .card-title { font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--text); flex: 1; }
+    .priority-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .priority-dot.high { background: #ef4444; }
+    .priority-dot.medium { background: #ea580c; }
+    .priority-dot.low { background: #9ca3af; }
+    .card-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+    .epic-badge { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 20px; color: white; white-space: nowrap; }
+    .card-id { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+    .card-checklist-bar { margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+    .checklist-progress { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .checklist-progress-fill { height: 100%; background: #16a34a; border-radius: 2px; }
+    .checklist-count { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: white; border-radius: 14px; width: 100%; max-width: 540px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      transform: translateY(12px); transition: transform 0.2s;
+    }
+    .modal-backdrop.open .modal { transform: translateY(0); }
+    .modal::-webkit-scrollbar { width: 4px; }
+    .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .modal-header { padding: 20px 20px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .modal-header-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .modal-title { font-size: 17px; font-weight: 600; line-height: 1.35; color: var(--text); }
+    .modal-close { font-size: 20px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 6px; flex-shrink: 0; line-height: 1; }
+    .modal-close:hover { background: var(--sidebar); }
+    .modal-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
+    .modal-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+    .modal-labels { display: flex; flex-wrap: wrap; gap: 6px; }
+    .label-tag { font-family: var(--mono); font-size: 11px; background: var(--sidebar); border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; color: var(--muted); }
+    .checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item input[type=checkbox] { margin-top: 2px; accent-color: var(--orange); cursor: pointer; width: 14px; height: 14px; flex-shrink: 0; }
+    .checklist-item label { font-size: 13px; cursor: pointer; line-height: 1.5; }
+    .checklist-item.checked label { text-decoration: line-through; color: var(--muted); }
+    .execution-plan { background: var(--sidebar); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 12.5px; line-height: 1.6; color: var(--text); font-family: var(--mono); }
+    .btn-execute {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      background: var(--orange); color: white; border: none; border-radius: 8px;
+      padding: 11px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-execute:hover { background: #c44d0a; }
+    .btn-execute-icon { font-size: 16px; }
+    .copied-msg { font-size: 12px; opacity: 0.85; margin-left: auto; }
+    .history-item { font-size: 12px; font-family: var(--mono); color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--border); }
+    .history-item:last-child { border-bottom: none; }
+    .column-select { font-family: var(--font); font-size: 13px; border: 1px solid var(--border); border-radius: 7px; padding: 6px 10px; background: white; color: var(--text); cursor: pointer; width: 100%; }
+    .column-select:focus { outline: 2px solid var(--orange); outline-offset: 1px; }
+
+    /* ── Priority badge ── */
+    .priority-badge { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 20px; }
+    .priority-badge.high { background: #fee2e2; color: #991b1b; }
+    .priority-badge.medium { background: #fff4ee; color: #9a3412; }
+    .priority-badge.low { background: #f3f4f6; color: #6b7280; }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-title">🎸 <span>Guitar Mastery Hub</span> &mdash; Board</div>
+  <div class="topbar-stats">
+    <div class="stat-pill">Total: <b id="stat-total">0</b></div>
+    <div class="stat-pill">In Progress: <b id="stat-inprogress">0</b></div>
+    <div class="stat-pill">Done: <b id="stat-done">0</b></div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-pct" id="progress-pct">0%</div>
+    </div>
+  </div>
+</div>
+
+<!-- Epic Filter -->
+<div class="filter-bar">
+  <span class="filter-label">Epic</span>
+  <button class="epic-pill all active" data-epic="all" onclick="filterEpic('all', this)">All</button>
+</div>
+
+<!-- Board -->
+<div class="board-wrap">
+  <div class="board" id="board"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal" id="modal-inner">
+    <div class="modal-header">
+      <div style="flex:1">
+        <div class="modal-header-meta" id="modal-meta"></div>
+        <div class="modal-title" id="modal-title"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+  let board = null;
+  let activeEpic = 'all';
+  let activeCard = null;
+  let dragCardId = null;
+
+  // ─── Init ──────────────────────────────────────────────────────────────────
+
+  async function init() {
+    board = await fetch('/api/board').then(r => r.json());
+    renderEpicPills();
+    renderBoard();
+    updateStats();
+  }
+
+  // ─── Stats ─────────────────────────────────────────────────────────────────
+
+  async function updateStats() {
+    const stats = await fetch('/api/stats').then(r => r.json());
+    document.getElementById('stat-total').textContent = stats.total;
+    document.getElementById('stat-inprogress').textContent = stats.inProgress;
+    document.getElementById('stat-done').textContent = stats.done;
+    document.getElementById('progress-fill').style.width = stats.completionPct + '%';
+    document.getElementById('progress-pct').textContent = stats.completionPct + '%';
+  }
+
+  // ─── Epic Pills ────────────────────────────────────────────────────────────
+
+  function renderEpicPills() {
+    const bar = document.querySelector('.filter-bar');
+    // Clear all except label + "all" button
+    [...bar.querySelectorAll('.epic-pill:not(.all)')].forEach(el => el.remove());
+    board.epics.forEach(epic => {
+      const btn = document.createElement('button');
+      btn.className = 'epic-pill';
+      btn.dataset.epic = epic.id;
+      btn.textContent = epic.title;
+      btn.style.color = epic.color;
+      btn.style.borderColor = 'transparent';
+      btn.onclick = () => filterEpic(epic.id, btn);
+      bar.appendChild(btn);
+    });
+  }
+
+  function filterEpic(epicId, btn) {
+    activeEpic = epicId;
+    document.querySelectorAll('.epic-pill').forEach(p => {
+      p.classList.remove('active');
+      p.style.background = 'white';
+      p.style.color = p.dataset.epic === 'all' ? '' : getEpicColor(p.dataset.epic);
+    });
+    btn.classList.add('active');
+    if (epicId !== 'all') {
+      btn.style.background = getEpicColor(epicId);
+      btn.style.color = 'white';
+    }
+    renderBoard();
+  }
+
+  function getEpicColor(epicId) {
+    const epic = board.epics.find(e => e.id === epicId);
+    return epic ? epic.color : '#6b7280';
+  }
+
+  // ─── Board Render ──────────────────────────────────────────────────────────
+
+  function renderBoard() {
+    const container = document.getElementById('board');
+    container.innerHTML = '';
+    board.columns.forEach(col => {
+      const cards = board.cards.filter(c => c.column === col.id && (activeEpic === 'all' || c.epic === activeEpic));
+      container.appendChild(buildColumn(col, cards));
+    });
+  }
+
+  function buildColumn(col, cards) {
+    const el = document.createElement('div');
+    el.className = 'column';
+    el.dataset.colId = col.id;
+
+    el.innerHTML = `
+      <div class="column-header">
+        <div class="column-title">
+          <div class="column-dot" style="background:${col.color}"></div>
+          ${col.title}
+        </div>
+        <div class="column-count">${cards.length}</div>
+      </div>
+      <div class="column-cards" id="cards-${col.id}"></div>
+    `;
+
+    const cardContainer = el.querySelector(`#cards-${col.id}`);
+    cards.forEach(card => cardContainer.appendChild(buildCard(card)));
+
+    // Drag-over
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      el.classList.add('drag-over');
+    });
+    el.addEventListener('dragleave', e => {
+      if (!el.contains(e.relatedTarget)) el.classList.remove('drag-over');
+    });
+    el.addEventListener('drop', async e => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      if (!dragCardId) return;
+      const card = board.cards.find(c => c.id === dragCardId);
+      if (!card || card.column === col.id) return;
+      await moveCard(dragCardId, col.id);
+    });
+
+    return el;
+  }
+
+  function buildCard(card) {
+    const epic = board.epics.find(e => e.id === card.epic);
+    const done = (card.checklist || []).filter(c => c.done).length;
+    const total = (card.checklist || []).length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.draggable = true;
+    el.dataset.id = card.id;
+
+    el.innerHTML = `
+      <div class="card-top">
+        <div class="card-title">${card.title}</div>
+        <div class="priority-dot ${card.priority || 'low'}"></div>
+      </div>
+      <div class="card-meta">
+        ${epic ? `<div class="epic-badge" style="background:${epic.color}">${epic.title}</div>` : ''}
+        <div class="card-id">${card.id}</div>
+      </div>
+      ${total > 0 ? `
+      <div class="card-checklist-bar">
+        <div class="checklist-progress"><div class="checklist-progress-fill" style="width:${pct}%"></div></div>
+        <div class="checklist-count">${done}/${total}</div>
+      </div>` : ''}
+    `;
+
+    el.addEventListener('dragstart', () => {
+      dragCardId = card.id;
+      setTimeout(() => el.classList.add('dragging'), 0);
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      dragCardId = null;
+    });
+    el.addEventListener('click', () => openModal(card.id));
+
+    return el;
+  }
+
+  // ─── Move Card ─────────────────────────────────────────────────────────────
+
+  async function moveCard(cardId, toColumn) {
+    const resp = await fetch(`/api/cards/${cardId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ column: toColumn }),
+    });
+    const updated = await resp.json();
+    const idx = board.cards.findIndex(c => c.id === cardId);
+    board.cards[idx] = updated;
+    renderBoard();
+    updateStats();
+  }
+
+  // ─── Modal ─────────────────────────────────────────────────────────────────
+
+  function openModal(cardId) {
+    activeCard = board.cards.find(c => c.id === cardId);
+    if (!activeCard) return;
+    const epic = board.epics.find(e => e.id === activeCard.epic);
+
+    // Meta
+    document.getElementById('modal-meta').innerHTML = `
+      ${epic ? `<div class="epic-badge" style="background:${epic.color}">${epic.title}</div>` : ''}
+      <span class="priority-badge ${activeCard.priority || 'low'}">${(activeCard.priority || 'low').toUpperCase()}</span>
+      <span class="card-id" style="font-family:var(--mono);font-size:11px;color:var(--muted)">${activeCard.id}</span>
+    `;
+
+    // Title
+    document.getElementById('modal-title').textContent = activeCard.title;
+
+    // Body
+    const body = document.getElementById('modal-body');
+    body.innerHTML = '';
+
+    // Description
+    if (activeCard.description) {
+      const s = document.createElement('div');
+      s.innerHTML = `<div class="modal-section-label">Description</div><div class="modal-desc">${activeCard.description}</div>`;
+      body.appendChild(s);
+    }
+
+    // Story
+    if (activeCard.story) {
+      const s = document.createElement('div');
+      s.innerHTML = `<div class="modal-section-label">Story</div><div class="modal-desc">${activeCard.story}</div>`;
+      body.appendChild(s);
+    }
+
+    // Move to column
+    const moveDiv = document.createElement('div');
+    moveDiv.innerHTML = `<div class="modal-section-label">Column</div>`;
+    const select = document.createElement('select');
+    select.className = 'column-select';
+    board.columns.forEach(col => {
+      const opt = document.createElement('option');
+      opt.value = col.id;
+      opt.textContent = col.title;
+      if (col.id === activeCard.column) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.addEventListener('change', async () => {
+      await moveCard(activeCard.id, select.value);
+      activeCard = board.cards.find(c => c.id === activeCard.id);
+      renderHistory(historyDiv);
+    });
+    moveDiv.appendChild(select);
+    body.appendChild(moveDiv);
+
+    // Labels
+    if (activeCard.labels && activeCard.labels.length) {
+      const s = document.createElement('div');
+      s.innerHTML = `<div class="modal-section-label">Labels</div><div class="modal-labels">${activeCard.labels.map(l => `<span class="label-tag">${l}</span>`).join('')}</div>`;
+      body.appendChild(s);
+    }
+
+    // Checklist
+    if (activeCard.checklist && activeCard.checklist.length) {
+      const s = document.createElement('div');
+      s.innerHTML = `<div class="modal-section-label">Checklist</div>`;
+      const list = document.createElement('div');
+      activeCard.checklist.forEach((item, i) => {
+        const row = document.createElement('div');
+        row.className = 'checklist-item' + (item.done ? ' checked' : '');
+        const cbId = `chk-${activeCard.id}-${i}`;
+        row.innerHTML = `<input type="checkbox" id="${cbId}" ${item.done ? 'checked' : ''} /><label for="${cbId}">${item.text}</label>`;
+        row.querySelector('input').addEventListener('change', async (e) => {
+          activeCard.checklist[i].done = e.target.checked;
+          row.classList.toggle('checked', e.target.checked);
+          await fetch(`/api/cards/${activeCard.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ checklist: activeCard.checklist }),
+          });
+          const idx = board.cards.findIndex(c => c.id === activeCard.id);
+          board.cards[idx].checklist = activeCard.checklist;
+          renderBoard();
+        });
+        list.appendChild(row);
+      });
+      s.appendChild(list);
+      body.appendChild(s);
+    }
+
+    // Execution plan
+    if (activeCard.executionPlan) {
+      const s = document.createElement('div');
+      s.innerHTML = `<div class="modal-section-label">Execution Plan</div><div class="execution-plan">${activeCard.executionPlan}</div>`;
+      const btn = document.createElement('button');
+      btn.className = 'btn-execute';
+      btn.innerHTML = `<span class="btn-execute-icon">⚡</span> Execute with Claude Code <span class="copied-msg" id="copied-msg"></span>`;
+      btn.onclick = () => {
+        navigator.clipboard.writeText(activeCard.executionPlan);
+        document.getElementById('copied-msg').textContent = '✓ Copied!';
+        setTimeout(() => { document.getElementById('copied-msg').textContent = ''; }, 2000);
+      };
+      s.appendChild(btn);
+      body.appendChild(s);
+    }
+
+    // History
+    const historyDiv = document.createElement('div');
+    renderHistory(historyDiv);
+    body.appendChild(historyDiv);
+
+    document.getElementById('modal-backdrop').classList.add('open');
+  }
+
+  function renderHistory(container) {
+    const card = board.cards.find(c => c.id === activeCard.id);
+    container.innerHTML = `<div class="modal-section-label">History</div>`;
+    if (!card.history || !card.history.length) {
+      container.innerHTML += `<div class="modal-desc">No history yet.</div>`;
+      return;
+    }
+    [...card.history].reverse().forEach(h => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.textContent = h.from ? `${h.from} → ${h.to}  ·  ${h.at}` : `Created in ${h.to}  ·  ${h.at}`;
+      container.appendChild(div);
+    });
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal-backdrop')) closeModalDirect();
+  }
+
+  function closeModalDirect() {
+    document.getElementById('modal-backdrop').classList.remove('open');
+    activeCard = null;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModalDirect();
+  });
+
+  init();
+</script>
+</body>
+</html>
