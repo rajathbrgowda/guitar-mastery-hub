@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = 4444;
@@ -97,6 +98,60 @@ app.get('/api/stats', (req, res) => {
     done,
     completionPct: total > 0 ? Math.round((done / total) * 100) : 0,
   });
+});
+
+// POST /api/execute/:id — launch Claude Code session (1 per card per day)
+app.post('/api/execute/:id', (req, res) => {
+  const board = readBoard();
+  const idx = board.cards.findIndex(c => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Card not found' });
+
+  const card = board.cards[idx];
+  const today = new Date().toISOString().split('T')[0];
+
+  if (card.lastExecuted === today) {
+    return res.status(429).json({ error: 'Session already active today', lastExecuted: today });
+  }
+
+  // Build task file content
+  const remaining = (card.checklist || []).filter(c => !c.done);
+  const taskContent = [
+    `# ${card.id}: ${card.title}`,
+    '',
+    `**Epic:** ${card.epic}   **Story:** ${card.story || '—'}`,
+    '',
+    '## Plan',
+    card.executionPlan || '(no plan set)',
+    '',
+    remaining.length ? '## Remaining Checklist' : '',
+    ...remaining.map(c => `- [ ] ${c.text}`),
+  ].filter(l => l !== undefined).join('\n');
+
+  // Write .current-task.md to project root
+  const projectDir = path.join(__dirname, '..');
+  const taskFile = path.join(projectDir, '.current-task.md');
+  fs.writeFileSync(taskFile, taskContent);
+
+  // Track execution on the card
+  card.lastExecuted = today;
+  if (!card.executionLog) card.executionLog = [];
+  card.executionLog.push({ date: today, plan: card.executionPlan });
+  board.cards[idx] = card;
+  writeBoard(board);
+
+  // Open VS Code with the task file, then open integrated terminal
+  const escapedFile = taskFile.replace(/"/g, '\\"');
+  const escapedDir = projectDir.replace(/"/g, '\\"');
+
+  // Try VS Code first (user is already there), fall back to Terminal
+  exec(`code "${escapedFile}"`, (err) => {
+    if (err) {
+      // Fallback: open Terminal at project dir
+      exec(`osascript -e 'tell application "Terminal" to activate' -e 'tell application "Terminal" to do script "cd \\"${escapedDir}\\""'`);
+    }
+  });
+
+  res.json({ ok: true, taskFile: '.current-task.md', message: 'Task written — see .current-task.md in project root' });
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

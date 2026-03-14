@@ -440,7 +440,44 @@
       body.appendChild(s);
     }
 
-    // Checklist
+    // ── Plan textarea (created early so checklist handlers can reference it) ──
+    const textarea = document.createElement('textarea');
+    textarea.className = 'execution-plan-textarea';
+    textarea.value = activeCard.executionPlan || '';
+    textarea.placeholder = 'Describe what needs to be done…';
+
+    // Syncs a single checkbox change into the plan textarea
+    function syncPlanItem(itemText, isDone) {
+      const lines = textarea.value.split('\n');
+      const keyword = itemText.toLowerCase().trim();
+      let found = false;
+      const updated = lines.map(line => {
+        const stripped = line.replace(/^[✓→]\s*/, '').trim();
+        if (stripped.toLowerCase() === keyword || stripped.toLowerCase().includes(keyword.split(' ').slice(0, 3).join(' '))) {
+          found = true;
+          return isDone ? `✓ ${stripped}` : `→ ${stripped}`;
+        }
+        return line;
+      });
+      if (!found) {
+        textarea.value = textarea.value + (textarea.value ? '\n' : '') + (isDone ? `✓ ${itemText}` : `→ ${itemText}`);
+      } else {
+        textarea.value = updated.join('\n');
+      }
+    }
+
+    async function savePlan() {
+      activeCard.executionPlan = textarea.value;
+      await fetch(`/api/cards/${activeCard.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ executionPlan: textarea.value }),
+      });
+      const idx = board.cards.findIndex(c => c.id === activeCard.id);
+      board.cards[idx].executionPlan = textarea.value;
+    }
+
+    // ── Checklist ──────────────────────────────────────────────────────────────
     const checklistSection = document.createElement('div');
     if (activeCard.checklist && activeCard.checklist.length) {
       const updateChecklistHeader = () => {
@@ -469,13 +506,16 @@
           activeCard.checklist[i].done = e.target.checked;
           row.classList.toggle('checked', e.target.checked);
           updateChecklistHeader();
+          // Sync this item into the plan textarea immediately
+          syncPlanItem(item.text, e.target.checked);
           await fetch(`/api/cards/${activeCard.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ checklist: activeCard.checklist }),
+            body: JSON.stringify({ checklist: activeCard.checklist, executionPlan: textarea.value }),
           });
           const idx = board.cards.findIndex(c => c.id === activeCard.id);
           board.cards[idx].checklist = activeCard.checklist;
+          board.cards[idx].executionPlan = textarea.value;
           renderBoard();
         });
         list.appendChild(row);
@@ -485,47 +525,95 @@
       updateChecklistHeader();
     }
 
-    // Execution plan — editable
+    // ── Execution Plan ─────────────────────────────────────────────────────────
     const planSection = document.createElement('div');
     planSection.innerHTML = `<div class="modal-section-label">Execution Plan</div>`;
-    const textarea = document.createElement('textarea');
-    textarea.className = 'execution-plan-textarea';
-    textarea.value = activeCard.executionPlan || '';
-    textarea.placeholder = 'Describe what needs to be done…';
     planSection.appendChild(textarea);
 
-    const planRow = document.createElement('div');
-    planRow.className = 'execution-plan-row';
+    // Row 1: Validate + Save
+    const planTopRow = document.createElement('div');
+    planTopRow.className = 'execution-plan-row';
+    planTopRow.style.marginTop = '6px';
+
+    const validateBtn = document.createElement('button');
+    validateBtn.className = 'btn-save-plan';
+    validateBtn.style.flex = '1';
+    validateBtn.textContent = '↻ Validate Plan';
+    validateBtn.title = 'Rebuild plan from current checklist state';
+    validateBtn.onclick = async () => {
+      if (!activeCard.checklist || !activeCard.checklist.length) return;
+      const done = activeCard.checklist.filter(c => c.done);
+      const remaining = activeCard.checklist.filter(c => !c.done);
+      const lines = [];
+      done.forEach(c => lines.push(`✓ ${c.text}`));
+      remaining.forEach(c => lines.push(`→ ${c.text}`));
+      textarea.value = lines.join('\n');
+      await savePlan();
+      validateBtn.textContent = '✓ Plan updated';
+      validateBtn.classList.add('saved');
+      setTimeout(() => { validateBtn.textContent = '↻ Validate Plan'; validateBtn.classList.remove('saved'); }, 2000);
+    };
 
     const saveBtn = document.createElement('button');
     saveBtn.className = 'btn-save-plan';
     saveBtn.textContent = 'Save';
     saveBtn.onclick = async () => {
-      activeCard.executionPlan = textarea.value;
-      await fetch(`/api/cards/${activeCard.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ executionPlan: textarea.value }),
-      });
-      const idx = board.cards.findIndex(c => c.id === activeCard.id);
-      board.cards[idx].executionPlan = textarea.value;
+      await savePlan();
       saveBtn.textContent = '✓ Saved';
       saveBtn.classList.add('saved');
       setTimeout(() => { saveBtn.textContent = 'Save'; saveBtn.classList.remove('saved'); }, 2000);
     };
 
-    const copyBtn = document.createElement('button');
-    copyBtn.className = 'btn-execute';
-    copyBtn.innerHTML = `<span class="btn-execute-icon">⚡</span> Copy for Claude Code <span class="copied-msg" id="copied-msg"></span>`;
-    copyBtn.onclick = () => {
-      navigator.clipboard.writeText(textarea.value);
-      document.getElementById('copied-msg').textContent = '✓ Copied!';
-      setTimeout(() => { document.getElementById('copied-msg').textContent = ''; }, 2000);
+    planTopRow.appendChild(validateBtn);
+    planTopRow.appendChild(saveBtn);
+    planSection.appendChild(planTopRow);
+
+    // Row 2: Execute button (connected to Claude Code, one session/day)
+    const today = new Date().toISOString().split('T')[0];
+    const alreadyRan = activeCard.lastExecuted === today;
+
+    const executeBtn = document.createElement('button');
+    executeBtn.className = 'btn-execute';
+    executeBtn.style.marginTop = '8px';
+    executeBtn.style.width = '100%';
+
+    function setExecuteState(ran) {
+      if (ran) {
+        executeBtn.innerHTML = `<span class="btn-execute-icon">✓</span> Session active today <span style="font-size:11px;opacity:0.7;margin-left:auto">1/day limit</span>`;
+        executeBtn.style.background = '#16a34a';
+        executeBtn.disabled = false;
+      } else {
+        executeBtn.innerHTML = `<span class="btn-execute-icon">⚡</span> Execute with Claude Code <span style="font-size:11px;opacity:0.7;margin-left:auto" id="exec-status"></span>`;
+        executeBtn.style.background = '';
+        executeBtn.disabled = false;
+      }
+    }
+    setExecuteState(alreadyRan);
+
+    executeBtn.onclick = async () => {
+      const currentCard = board.cards.find(c => c.id === activeCard.id);
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (currentCard.lastExecuted === todayStr) {
+        // Already ran today — allow re-open but warn
+        document.getElementById('exec-status') && (document.getElementById('exec-status').textContent = 'already ran today');
+        return;
+      }
+      // Save latest plan first
+      await savePlan();
+      const resp = await fetch(`/api/execute/${activeCard.id}`, { method: 'POST' });
+      const data = await resp.json();
+      if (resp.ok) {
+        activeCard.lastExecuted = todayStr;
+        const idx = board.cards.findIndex(c => c.id === activeCard.id);
+        board.cards[idx].lastExecuted = todayStr;
+        setExecuteState(true);
+      } else {
+        const statusEl = document.getElementById('exec-status');
+        if (statusEl) statusEl.textContent = data.error || 'failed';
+      }
     };
 
-    planRow.appendChild(copyBtn);
-    planRow.appendChild(saveBtn);
-    planSection.appendChild(planRow);
+    planSection.appendChild(executeBtn);
     body.appendChild(planSection);
 
     // History
