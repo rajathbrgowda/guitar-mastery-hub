@@ -1,5 +1,5 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { useAuth } from './context/AuthContext';
@@ -22,7 +22,9 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <Box
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}
+      >
         <CircularProgress color="primary" />
       </Box>
     );

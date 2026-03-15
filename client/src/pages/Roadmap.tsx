@@ -16,7 +16,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { useProgressStore } from '../store/progressStore';
-import { Phase } from '../types/progress';
+import type { Phase } from '../types/progress';
 
 const CURRICULUM: Phase[] = [
   {
@@ -145,10 +145,20 @@ function PhaseCard({
                 Phase {phaseIndex + 1}
               </Typography>
               {isCurrent && (
-                <Chip label="current" size="small" color="primary" sx={{ height: 18, fontSize: '0.65rem' }} />
+                <Chip
+                  label="current"
+                  size="small"
+                  color="primary"
+                  sx={{ height: 18, fontSize: '0.65rem' }}
+                />
               )}
               {allDone && (
-                <Chip label="complete" size="small" color="success" sx={{ height: 18, fontSize: '0.65rem' }} />
+                <Chip
+                  label="complete"
+                  size="small"
+                  color="success"
+                  sx={{ height: 18, fontSize: '0.65rem' }}
+                />
               )}
             </Box>
             <Typography variant="h6" fontWeight={700}>
@@ -205,7 +215,9 @@ function PhaseCard({
                       checked={isSkillCompleted(i)}
                       onChange={(e) => toggleSkill(phaseIndex, i, e.target.checked)}
                       icon={<RadioButtonUncheckedIcon sx={{ fontSize: 20 }} />}
-                      checkedIcon={<CheckCircleOutlineIcon sx={{ fontSize: 20, color: 'primary.main' }} />}
+                      checkedIcon={
+                        <CheckCircleOutlineIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                      }
                       size="small"
                     />
                   }
@@ -230,7 +242,10 @@ function PhaseCard({
                 <Button
                   size="small"
                   variant="outlined"
-                  onClick={(e) => { e.stopPropagation(); onSetCurrent(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSetCurrent();
+                  }}
                 >
                   Set as current phase
                 </Button>
@@ -275,7 +290,11 @@ export default function Roadmap() {
         </Typography>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       {CURRICULUM.map((phase, i) => (
         <PhaseCard

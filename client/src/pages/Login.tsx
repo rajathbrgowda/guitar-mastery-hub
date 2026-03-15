@@ -80,7 +80,7 @@ export default function Login() {
             supabaseClient={supabase}
             view={initialView}
             appearance={authAppearance}
-            providers={[]}
+            providers={['google']}
             redirectTo={`${window.location.origin}/app`}
             showLinks
           />

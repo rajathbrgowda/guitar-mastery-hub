@@ -1,22 +1,11 @@
 import { Router } from 'express';
-import { z } from 'zod';
-import { requireAuth, AuthRequest } from '../middleware/auth';
+import { requireAuth } from '../middleware/auth';
+import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
+import { logSessionSchema } from '../schemas/practice';
 
 const router = Router();
 router.use(requireAuth);
-
-const sectionSchema = z.object({
-  name: z.string().min(1),
-  duration_min: z.number().int().positive(),
-});
-
-const logSessionSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'),
-  duration_min: z.number().int().positive(),
-  sections: z.array(sectionSchema).optional(),
-  notes: z.string().max(1000).optional(),
-});
 
 // GET /api/practice?from=YYYY-MM-DD&to=YYYY-MM-DD
 router.get('/', async (req: AuthRequest, res) => {
@@ -30,7 +19,7 @@ router.get('/', async (req: AuthRequest, res) => {
     .order('date', { ascending: false });
 
   if (typeof from === 'string') query = query.gte('date', from);
-  if (typeof to === 'string')   query = query.lte('date', to);
+  if (typeof to === 'string') query = query.lte('date', to);
 
   const { data, error } = await query;
 
@@ -55,7 +44,13 @@ router.post('/', async (req: AuthRequest, res) => {
 
   const { data, error } = await supabase
     .from('practice_sessions')
-    .insert({ user_id: req.user!.id, date, duration_min, sections: sections ?? null, notes: notes ?? null })
+    .insert({
+      user_id: req.user!.id,
+      date,
+      duration_min,
+      sections: sections ?? null,
+      notes: notes ?? null,
+    })
     .select()
     .single();
 

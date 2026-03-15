@@ -54,13 +54,19 @@ export default function Settings() {
 
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingGoals, setSavingGoals] = useState(false);
-  const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [goalsMsg, setGoalsMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(
+    null,
+  );
+  const [goalsMsg, setGoalsMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(
+    null,
+  );
 
   const [exporting, setExporting] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [resetMsg, setResetMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [resetMsg, setResetMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!profile) fetchProfile();
@@ -118,7 +124,9 @@ export default function Settings() {
       a.download = 'practice-sessions.csv';
       a.click();
       URL.revokeObjectURL(url);
-    } catch { /* silent */ } finally {
+    } catch {
+      /* silent */
+    } finally {
       setExporting(false);
     }
   }
@@ -161,18 +169,23 @@ export default function Settings() {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>Settings</Typography>
+      <Typography variant="h4" fontWeight={700} gutterBottom>
+        Settings
+      </Typography>
 
       {profileFailed && (
         <Alert severity="warning" sx={{ mb: 3 }}>
-          Could not load your profile — changes may not save correctly. Check that the server is running and migration 005 has been applied.
+          Could not load your profile — changes may not save correctly. Check that the server is
+          running and migration 005 has been applied.
         </Alert>
       )}
 
       {/* ── Profile ── */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="overline" color="text.secondary">Profile</Typography>
+          <Typography variant="overline" color="text.secondary">
+            Profile
+          </Typography>
 
           {/* Avatar */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2.5 }}>
@@ -210,7 +223,9 @@ export default function Settings() {
               fullWidth
             >
               {GUITAR_TYPES.map((t) => (
-                <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>
+                <MenuItem key={t.value} value={t.value}>
+                  {t.label}
+                </MenuItem>
               ))}
             </TextField>
             <TextField
@@ -232,7 +247,11 @@ export default function Settings() {
             />
           </Box>
 
-          {profileMsg && <Alert severity={profileMsg.type} sx={{ mt: 2 }}>{profileMsg.text}</Alert>}
+          {profileMsg && (
+            <Alert severity={profileMsg.type} sx={{ mt: 2 }}>
+              {profileMsg.text}
+            </Alert>
+          )}
 
           <Button
             variant="contained"
@@ -249,7 +268,9 @@ export default function Settings() {
       {/* ── Practice Goals ── */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="overline" color="text.secondary">Practice Goals</Typography>
+          <Typography variant="overline" color="text.secondary">
+            Practice Goals
+          </Typography>
 
           <Box sx={{ mt: 2 }}>
             <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
@@ -280,7 +301,11 @@ export default function Settings() {
               size="small"
             >
               {[1, 2, 3, 4, 5, 6, 7].map((d) => (
-                <ToggleButton key={d} value={d} sx={{ px: 1.5, textTransform: 'none', fontSize: '0.8rem' }}>
+                <ToggleButton
+                  key={d}
+                  value={d}
+                  sx={{ px: 1.5, textTransform: 'none', fontSize: '0.8rem' }}
+                >
                   {d}
                 </ToggleButton>
               ))}
@@ -290,7 +315,11 @@ export default function Settings() {
             </Typography>
           </Box>
 
-          {goalsMsg && <Alert severity={goalsMsg.type} sx={{ mt: 2 }}>{goalsMsg.text}</Alert>}
+          {goalsMsg && (
+            <Alert severity={goalsMsg.type} sx={{ mt: 2 }}>
+              {goalsMsg.text}
+            </Alert>
+          )}
 
           <Button
             variant="contained"
@@ -307,58 +336,65 @@ export default function Settings() {
       {/* ── Appearance ── */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="overline" color="text.secondary">Appearance</Typography>
+          <Typography variant="overline" color="text.secondary">
+            Appearance
+          </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
             Theme color — applied instantly across the app.
           </Typography>
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-            {(Object.entries(THEME_COLORS) as [ThemeKey, { name: string; color: string }][]).map(([key, { name, color }]) => {
-              const selected = (profile?.theme_color ?? 'helix') === key;
-              return (
-                <Box
-                  key={key}
-                  onClick={() => updateProfile({ theme_color: key })}
-                  title={name}
-                  sx={{
-                    position: 'relative',
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    bgcolor: color,
-                    cursor: 'pointer',
-                    border: selected ? '2px solid' : '2px solid transparent',
-                    borderColor: selected ? 'text.primary' : 'transparent',
-                    outline: selected ? '2px solid' : 'none',
-                    outlineColor: selected ? color : 'transparent',
-                    outlineOffset: '2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'transform 0.1s',
-                    '&:hover': { transform: 'scale(1.12)' },
-                  }}
-                >
-                  {selected && <CheckIcon sx={{ fontSize: 16, color: '#fff' }} />}
-                </Box>
-              );
-            })}
+            {(Object.entries(THEME_COLORS) as [ThemeKey, { name: string; color: string }][]).map(
+              ([key, { name, color }]) => {
+                const selected = (profile?.theme_color ?? 'helix') === key;
+                return (
+                  <Box
+                    key={key}
+                    onClick={() => updateProfile({ theme_color: key })}
+                    title={name}
+                    sx={{
+                      position: 'relative',
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      bgcolor: color,
+                      cursor: 'pointer',
+                      border: selected ? '2px solid' : '2px solid transparent',
+                      borderColor: selected ? 'text.primary' : 'transparent',
+                      outline: selected ? '2px solid' : 'none',
+                      outlineColor: selected ? color : 'transparent',
+                      outlineOffset: '2px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'transform 0.1s',
+                      '&:hover': { transform: 'scale(1.12)' },
+                    }}
+                  >
+                    {selected && <CheckIcon sx={{ fontSize: 16, color: '#fff' }} />}
+                  </Box>
+                );
+              },
+            )}
           </Box>
           <Box sx={{ mt: 1.5, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-            {(Object.entries(THEME_COLORS) as [ThemeKey, { name: string; color: string }][]).map(([key, { name }]) => (
-              <Typography
-                key={key}
-                variant="caption"
-                sx={{
-                  width: 32,
-                  textAlign: 'center',
-                  fontSize: '0.6rem',
-                  color: (profile?.theme_color ?? 'helix') === key ? 'text.primary' : 'text.disabled',
-                  fontWeight: (profile?.theme_color ?? 'helix') === key ? 600 : 400,
-                }}
-              >
-                {name}
-              </Typography>
-            ))}
+            {(Object.entries(THEME_COLORS) as [ThemeKey, { name: string; color: string }][]).map(
+              ([key, { name }]) => (
+                <Typography
+                  key={key}
+                  variant="caption"
+                  sx={{
+                    width: 32,
+                    textAlign: 'center',
+                    fontSize: '0.6rem',
+                    color:
+                      (profile?.theme_color ?? 'helix') === key ? 'text.primary' : 'text.disabled',
+                    fontWeight: (profile?.theme_color ?? 'helix') === key ? 600 : 400,
+                  }}
+                >
+                  {name}
+                </Typography>
+              ),
+            )}
           </Box>
         </CardContent>
       </Card>
@@ -366,10 +402,14 @@ export default function Settings() {
       {/* ── Account ── */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="overline" color="text.secondary">Account</Typography>
+          <Typography variant="overline" color="text.secondary">
+            Account
+          </Typography>
 
           <Box sx={{ mt: 2, mb: 2 }}>
-            <Typography variant="caption" color="text.secondary">Email</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Email
+            </Typography>
             <Typography variant="body2">{user?.email}</Typography>
           </Box>
 
@@ -401,20 +441,33 @@ export default function Settings() {
       {/* ── Danger zone ── */}
       <Card sx={{ border: '1px solid', borderColor: 'error.light' }}>
         <CardContent>
-          <Typography variant="overline" color="error">Danger zone</Typography>
+          <Typography variant="overline" color="error">
+            Danger zone
+          </Typography>
 
-          {resetMsg && <Alert severity={resetMsg.type} sx={{ mt: 1.5, mb: 1 }}>{resetMsg.text}</Alert>}
+          {resetMsg && (
+            <Alert severity={resetMsg.type} sx={{ mt: 1.5, mb: 1 }}>
+              {resetMsg.text}
+            </Alert>
+          )}
 
           <Divider sx={{ my: 1.5 }} />
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box>
-              <Typography variant="body2" fontWeight={500}>Reset all progress</Typography>
+              <Typography variant="body2" fontWeight={500}>
+                Reset all progress
+              </Typography>
               <Typography variant="caption" color="text.secondary">
                 Clears all skill checkboxes and resets phase to Foundation.
               </Typography>
             </Box>
-            <Button variant="outlined" color="error" size="small" onClick={() => setResetOpen(true)}>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={() => setResetOpen(true)}
+            >
               Reset
             </Button>
           </Box>
@@ -426,12 +479,14 @@ export default function Settings() {
         <DialogTitle>Reset all progress?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This will clear all skill checkboxes and reset your phase to Foundation.
-            Practice sessions will not be affected.
+            This will clear all skill checkboxes and reset your phase to Foundation. Practice
+            sessions will not be affected.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setResetOpen(false)} disabled={resetting}>Cancel</Button>
+          <Button onClick={() => setResetOpen(false)} disabled={resetting}>
+            Cancel
+          </Button>
           <Button
             color="error"
             variant="contained"

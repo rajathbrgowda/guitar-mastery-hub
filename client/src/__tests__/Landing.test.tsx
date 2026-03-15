@@ -26,7 +26,7 @@ function renderLanding() {
       <MemoryRouter>
         <Landing />
       </MemoryRouter>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
 

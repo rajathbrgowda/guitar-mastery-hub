@@ -7,7 +7,9 @@ vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
       getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
-      onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+      onAuthStateChange: vi
+        .fn()
+        .mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
     },
   },
 }));
@@ -42,7 +44,7 @@ function renderDashboard() {
       <ThemeProvider theme={theme}>
         <Dashboard />
       </ThemeProvider>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 

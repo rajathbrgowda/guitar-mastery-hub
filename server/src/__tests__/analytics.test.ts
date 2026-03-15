@@ -39,11 +39,12 @@ function mockChain(resolved: { data: unknown; error: null | { message: string } 
 describe('GET /api/analytics/summary', () => {
   beforeEach(() => {
     // First from() call = practice_sessions, second = users
-    const sessionsChain = mockChain({ data: [{ date: '2026-03-15', duration_min: 45 }], error: null });
+    const sessionsChain = mockChain({
+      data: [{ date: '2026-03-15', duration_min: 45 }],
+      error: null,
+    });
     const usersChain = mockChain({ data: { current_phase: 1, timezone: 'UTC' }, error: null });
-    mockFrom
-      .mockReturnValueOnce(sessionsChain as never)
-      .mockReturnValueOnce(usersChain as never);
+    mockFrom.mockReturnValueOnce(sessionsChain as never).mockReturnValueOnce(usersChain as never);
   });
 
   it('returns 200', async () => {

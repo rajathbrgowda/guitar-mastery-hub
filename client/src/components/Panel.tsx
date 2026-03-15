@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface PanelProps {
   title?: string;
@@ -17,15 +17,16 @@ export default function Panel({ title, children, action, noPadding = false }: Pa
       {(title || action) && (
         <Box
           sx={{
-            px: 2.5, pt: 2, pb: title ? 0 : 1,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            px: 2.5,
+            pt: 2,
+            pb: title ? 0 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
           {title && (
-            <Typography
-              variant="overline"
-              color="text.secondary"
-            >
+            <Typography variant="overline" color="text.secondary">
               {title}
             </Typography>
           )}

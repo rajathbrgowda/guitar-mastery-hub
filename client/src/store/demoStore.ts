@@ -17,13 +17,90 @@ function daysAgo(n: number): string {
 }
 
 const DEMO_SESSIONS: PracticeSession[] = [
-  { id: 'd1', user_id: 'demo', date: daysAgo(0),  duration_min: 22, notes: 'F chord finally clicking.', sections: [{ name: 'Warm-up', duration_min: 5 }, { name: 'Chords', duration_min: 12 }, { name: 'Song', duration_min: 5 }], created_at: daysAgo(0) },
-  { id: 'd2', user_id: 'demo', date: daysAgo(1),  duration_min: 18, notes: 'Worked on chord changes, smoother now.', sections: [{ name: 'Chords', duration_min: 10 }, { name: 'Fingerpicking', duration_min: 8 }], created_at: daysAgo(1) },
-  { id: 'd3', user_id: 'demo', date: daysAgo(2),  duration_min: 30, notes: 'Long session. JG Grade 1 full run.', sections: [{ name: 'Warm-up', duration_min: 5 }, { name: 'Chords', duration_min: 12 }, { name: 'Theory', duration_min: 8 }, { name: 'Song', duration_min: 5 }], created_at: daysAgo(2) },
-  { id: 'd4', user_id: 'demo', date: daysAgo(3),  duration_min: 15, notes: 'Short session, just scales.', sections: [{ name: 'Scales', duration_min: 15 }], created_at: daysAgo(3) },
-  { id: 'd5', user_id: 'demo', date: daysAgo(4),  duration_min: 25, notes: 'Strumming patterns — getting more natural.', sections: [{ name: 'Strumming', duration_min: 15 }, { name: 'Song', duration_min: 10 }], created_at: daysAgo(4) },
-  { id: 'd6', user_id: 'demo', date: daysAgo(6),  duration_min: 20, notes: 'Skipped yesterday but back at it.', sections: [{ name: 'Warm-up', duration_min: 5 }, { name: 'Chords', duration_min: 15 }], created_at: daysAgo(6) },
-  { id: 'd7', user_id: 'demo', date: daysAgo(7),  duration_min: 28, notes: 'Nailed the intro to Wonderwall.', sections: [{ name: 'Chords', duration_min: 10 }, { name: 'Song', duration_min: 18 }], created_at: daysAgo(7) },
+  {
+    id: 'd1',
+    user_id: 'demo',
+    date: daysAgo(0),
+    duration_min: 22,
+    notes: 'F chord finally clicking.',
+    sections: [
+      { name: 'Warm-up', duration_min: 5 },
+      { name: 'Chords', duration_min: 12 },
+      { name: 'Song', duration_min: 5 },
+    ],
+    created_at: daysAgo(0),
+  },
+  {
+    id: 'd2',
+    user_id: 'demo',
+    date: daysAgo(1),
+    duration_min: 18,
+    notes: 'Worked on chord changes, smoother now.',
+    sections: [
+      { name: 'Chords', duration_min: 10 },
+      { name: 'Fingerpicking', duration_min: 8 },
+    ],
+    created_at: daysAgo(1),
+  },
+  {
+    id: 'd3',
+    user_id: 'demo',
+    date: daysAgo(2),
+    duration_min: 30,
+    notes: 'Long session. JG Grade 1 full run.',
+    sections: [
+      { name: 'Warm-up', duration_min: 5 },
+      { name: 'Chords', duration_min: 12 },
+      { name: 'Theory', duration_min: 8 },
+      { name: 'Song', duration_min: 5 },
+    ],
+    created_at: daysAgo(2),
+  },
+  {
+    id: 'd4',
+    user_id: 'demo',
+    date: daysAgo(3),
+    duration_min: 15,
+    notes: 'Short session, just scales.',
+    sections: [{ name: 'Scales', duration_min: 15 }],
+    created_at: daysAgo(3),
+  },
+  {
+    id: 'd5',
+    user_id: 'demo',
+    date: daysAgo(4),
+    duration_min: 25,
+    notes: 'Strumming patterns — getting more natural.',
+    sections: [
+      { name: 'Strumming', duration_min: 15 },
+      { name: 'Song', duration_min: 10 },
+    ],
+    created_at: daysAgo(4),
+  },
+  {
+    id: 'd6',
+    user_id: 'demo',
+    date: daysAgo(6),
+    duration_min: 20,
+    notes: 'Skipped yesterday but back at it.',
+    sections: [
+      { name: 'Warm-up', duration_min: 5 },
+      { name: 'Chords', duration_min: 15 },
+    ],
+    created_at: daysAgo(6),
+  },
+  {
+    id: 'd7',
+    user_id: 'demo',
+    date: daysAgo(7),
+    duration_min: 28,
+    notes: 'Nailed the intro to Wonderwall.',
+    sections: [
+      { name: 'Chords', duration_min: 10 },
+      { name: 'Song', duration_min: 18 },
+    ],
+    created_at: daysAgo(7),
+  },
 ];
 
 // Summary stats
@@ -34,7 +111,7 @@ export const DEMO_SUMMARY = {
   currentPhase: 1, // Beginner (0-indexed)
   last7: [
     { date: daysAgo(6), duration_min: 20 },
-    { date: daysAgo(5), duration_min: 0  },
+    { date: daysAgo(5), duration_min: 0 },
     { date: daysAgo(4), duration_min: 25 },
     { date: daysAgo(3), duration_min: 15 },
     { date: daysAgo(2), duration_min: 30 },

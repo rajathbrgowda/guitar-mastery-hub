@@ -60,7 +60,13 @@ function SectionLabel({ children }: { children: string }) {
   return (
     <Typography
       variant="overline"
-      sx={{ color: 'primary.main', fontWeight: 700, letterSpacing: '0.12em', mb: 1, display: 'block' }}
+      sx={{
+        color: 'primary.main',
+        fontWeight: 700,
+        letterSpacing: '0.12em',
+        mb: 1,
+        display: 'block',
+      }}
     >
       {children}
     </Typography>
@@ -77,7 +83,6 @@ export default function Landing() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <Box
         component="nav"
@@ -199,7 +204,14 @@ export default function Landing() {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {MOCK_SESSIONS.map((s) => (
               <Paper key={s.date} variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    mb: 1,
+                  }}
+                >
                   <Typography variant="body2" fontWeight={600}>
                     {s.date}
                   </Typography>
@@ -209,7 +221,12 @@ export default function Landing() {
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 1 }}>
                   {s.sections.map((sec) => (
-                    <Chip key={sec} label={sec} size="small" sx={{ fontSize: '0.7rem', height: 22 }} />
+                    <Chip
+                      key={sec}
+                      label={sec}
+                      size="small"
+                      sx={{ fontSize: '0.7rem', height: 22 }}
+                    />
                   ))}
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
@@ -233,12 +250,26 @@ export default function Landing() {
           </Typography>
 
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-            <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: 'block', mb: 2 }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              fontWeight={600}
+              sx={{ display: 'block', mb: 2 }}
+            >
               Target BPM — Major scale (6-week trend)
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, height: 120 }}>
               {BPM_DATA.map((d, i) => (
-                <Box key={d.week} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                <Box
+                  key={d.week}
+                  sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 0.5,
+                  }}
+                >
                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
                     {d.bpm}
                   </Typography>
@@ -251,7 +282,7 @@ export default function Landing() {
                       opacity: 0.5 + (i / BPM_DATA.length) * 0.5,
                       '@keyframes growUp': {
                         from: { transform: 'scaleY(0)', transformOrigin: 'bottom' },
-                        to:   { transform: 'scaleY(1)', transformOrigin: 'bottom' },
+                        to: { transform: 'scaleY(1)', transformOrigin: 'bottom' },
                       },
                       animation: 'growUp 0.5s ease forwards',
                       animationDelay: `${i * 80}ms`,
@@ -277,7 +308,8 @@ export default function Landing() {
             A path, not a playlist
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 5 }}>
-            Five structured phases from your first chord to confident playing. Always know what's next.
+            Five structured phases from your first chord to confident playing. Always know what's
+            next.
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -311,7 +343,11 @@ export default function Landing() {
                     flexShrink: 0,
                   }}
                 >
-                  <Typography variant="caption" fontWeight={700} sx={{ color: i === 1 ? 'inherit' : 'text.secondary' }}>
+                  <Typography
+                    variant="caption"
+                    fontWeight={700}
+                    sx={{ color: i === 1 ? 'inherit' : 'text.secondary' }}
+                  >
                     {i + 1}
                   </Typography>
                 </Box>
@@ -336,7 +372,13 @@ export default function Landing() {
                       </Box>
                     )}
                   </Typography>
-                  <Typography variant="caption" sx={{ opacity: i === 1 ? 0.8 : 1, color: i === 1 ? 'inherit' : 'text.secondary' }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      opacity: i === 1 ? 0.8 : 1,
+                      color: i === 1 ? 'inherit' : 'text.secondary',
+                    }}
+                  >
                     {phase.desc}
                   </Typography>
                 </Box>
@@ -412,7 +454,6 @@ export default function Landing() {
           Guitar Mastery Hub — built to learn, built to last
         </Typography>
       </Box>
-
     </Box>
   );
 }

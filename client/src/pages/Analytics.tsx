@@ -8,15 +8,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Alert from '@mui/material/Alert';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { useTheme } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles';
@@ -36,17 +28,36 @@ interface DayData {
 
 type Range = '30' | '90';
 
-function StatCard({ label, value, loading }: { label: string; value: string | number; loading: boolean }) {
+function StatCard({
+  label,
+  value,
+  loading,
+}: {
+  label: string;
+  value: string | number;
+  loading: boolean;
+}) {
   return (
     <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}>
       <CardContent>
-        <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+        >
           {label}
         </Typography>
         {loading ? (
           <Skeleton width={60} height={36} />
         ) : (
-          <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '1.5rem', fontWeight: 700, mt: 0.5 }}>
+          <Typography
+            sx={{
+              fontFamily: '"IBM Plex Mono", monospace',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              mt: 0.5,
+            }}
+          >
             {value}
           </Typography>
         )}
@@ -59,11 +70,22 @@ function StatCard({ label, value, loading }: { label: string; value: string | nu
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 1, px: 1.5, py: 1 }}>
+    <Box
+      sx={{
+        bgcolor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 1,
+        px: 1.5,
+        py: 1,
+      }}
+    >
       <Typography variant="caption" color="text.secondary">
         {format(parseISO(label), 'EEE, MMM d')}
       </Typography>
-      <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.85rem' }}>
+      <Typography
+        sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.85rem' }}
+      >
         {payload[0].value} min
       </Typography>
     </Box>
@@ -124,7 +146,11 @@ export default function Analytics() {
         Analytics
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       {/* Summary stats */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -143,7 +169,9 @@ export default function Analytics() {
       {/* Chart */}
       <Card>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}
+          >
             <Typography variant="overline" color="text.secondary">
               Practice minutes
             </Typography>
@@ -165,7 +193,9 @@ export default function Analytics() {
           {loading ? (
             <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 1 }} />
           ) : history.every((d) => d.duration_min === 0) ? (
-            <Box sx={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Box
+              sx={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
               <Typography variant="body2" color="text.secondary">
                 No sessions in this period yet.
               </Typography>
@@ -182,25 +212,67 @@ export default function Analytics() {
                     axisLine={false}
                     tickLine={false}
                   />
-                  <YAxis tick={{ fontSize: 10, fill: '#5c5858' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: alpha(primaryColor, 0.08) }} />
-                  <Bar dataKey="duration_min" fill={primaryColor} radius={[3, 3, 0, 0]} maxBarSize={20} />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: '#5c5858' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: alpha(primaryColor, 0.08) }}
+                  />
+                  <Bar
+                    dataKey="duration_min"
+                    fill={primaryColor}
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={20}
+                  />
                 </BarChart>
               ) : (
                 <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e0df" vertical={false} />
-                  <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#5c5858' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: '#5c5858' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: alpha(primaryColor, 0.08) }} />
-                  <Bar dataKey="duration_min" fill={primaryColor} radius={[3, 3, 0, 0]} maxBarSize={32} />
+                  <XAxis
+                    dataKey="week"
+                    tick={{ fontSize: 10, fill: '#5c5858' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: '#5c5858' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: alpha(primaryColor, 0.08) }}
+                  />
+                  <Bar
+                    dataKey="duration_min"
+                    fill={primaryColor}
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={32}
+                  />
                 </BarChart>
               )}
             </ResponsiveContainer>
           )}
 
-          <Box sx={{ display: 'flex', gap: 3, mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 3,
+              mt: 2,
+              pt: 2,
+              borderTop: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
             <Box>
-              <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+              >
                 Active days
               </Typography>
               <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 600 }}>
@@ -208,7 +280,11 @@ export default function Analytics() {
               </Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+              >
                 Total in period
               </Typography>
               <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 600 }}>

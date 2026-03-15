@@ -13,13 +13,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LinearProgress from '@mui/material/LinearProgress';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';
@@ -80,15 +74,20 @@ function StatCard({
   accent?: boolean;
 }) {
   return (
-    <Card sx={{ borderLeft: '3px solid', borderLeftColor: accent ? 'success.main' : 'primary.main' }}>
+    <Card
+      sx={{ borderLeft: '3px solid', borderLeftColor: accent ? 'success.main' : 'primary.main' }}
+    >
       <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
           <Box
             sx={{
-              width: 28, height: 28,
+              width: 28,
+              height: 28,
               bgcolor: (t) => alpha(t.palette.primary.main, 0.1),
               borderRadius: 1,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
             }}
           >
@@ -107,7 +106,12 @@ function StatCard({
         ) : (
           <>
             <Typography
-              sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '1.4rem', fontWeight: 700, lineHeight: 1 }}
+              sx={{
+                fontFamily: '"IBM Plex Mono", monospace',
+                fontSize: '1.4rem',
+                fontWeight: 700,
+                lineHeight: 1,
+              }}
             >
               {value}
             </Typography>
@@ -229,12 +233,18 @@ export default function Dashboard() {
             {/* Streak */}
             <Grid size={{ xs: 4 }}>
               <StatCard
-                icon={<LocalFireDepartmentOutlinedIcon sx={{ color: 'primary.main', fontSize: 16 }} />}
+                icon={
+                  <LocalFireDepartmentOutlinedIcon sx={{ color: 'primary.main', fontSize: 16 }} />
+                }
                 label="Streak"
                 value={loading ? '—' : `${summary?.streak ?? 0}d`}
                 sub={
                   !loading && (
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: '0.65rem' }}
+                    >
                       {streakCopy(summary?.streak ?? 0)}
                     </Typography>
                   )
@@ -282,7 +292,13 @@ export default function Dashboard() {
                 <Typography
                   variant="caption"
                   color="text.secondary"
-                  sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500, display: 'block', mb: 1 }}
+                  sx={{
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontWeight: 500,
+                    display: 'block',
+                    mb: 1,
+                  }}
                 >
                   Last 7 days
                 </Typography>
@@ -290,16 +306,29 @@ export default function Dashboard() {
                   <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <XAxis
                       dataKey="day"
-                      tick={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: 10, fill: '#5c5858' }}
+                      tick={{
+                        fontFamily: '"IBM Plex Mono", monospace',
+                        fontSize: 10,
+                        fill: '#5c5858',
+                      }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
                       formatter={(v) => [`${v ?? 0} min`, '']}
-                      contentStyle={{ fontSize: '0.75rem', borderRadius: 6, border: '1px solid #e5e0df' }}
+                      contentStyle={{
+                        fontSize: '0.75rem',
+                        borderRadius: 6,
+                        border: '1px solid #e5e0df',
+                      }}
                       cursor={{ fill: alpha(primaryColor, 0.08) }}
                     />
-                    <Bar dataKey="mins" fill={primaryColor} radius={[3, 3, 0, 0]} minPointSize={2} />
+                    <Bar
+                      dataKey="mins"
+                      fill={primaryColor}
+                      radius={[3, 3, 0, 0]}
+                      minPointSize={2}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -314,13 +343,32 @@ export default function Dashboard() {
           {!loading && summary && (
             <Card sx={{ mb: 2 }}>
               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 0.25 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    mb: 0.25,
+                  }}
+                >
                   <Typography
-                    sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.6rem', letterSpacing: '0.08em', color: 'text.secondary', textTransform: 'uppercase' }}
+                    sx={{
+                      fontFamily: '"IBM Plex Mono", monospace',
+                      fontSize: '0.6rem',
+                      letterSpacing: '0.08em',
+                      color: 'text.secondary',
+                      textTransform: 'uppercase',
+                    }}
                   >
                     Current Phase
                   </Typography>
-                  <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.7rem', color: 'text.secondary' }}>
+                  <Typography
+                    sx={{
+                      fontFamily: '"IBM Plex Mono", monospace',
+                      fontSize: '0.7rem',
+                      color: 'text.secondary',
+                    }}
+                  >
                     {storePhase + 1} / {PHASE_LABELS.length}
                   </Typography>
                 </Box>
@@ -358,7 +406,14 @@ export default function Dashboard() {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500, px: 1, display: 'block', mb: 0.5 }}
+                sx={{
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  fontWeight: 500,
+                  px: 1,
+                  display: 'block',
+                  mb: 0.5,
+                }}
               >
                 Sections
               </Typography>
@@ -378,10 +433,13 @@ export default function Dashboard() {
                     <ListItemIcon sx={{ minWidth: 30 }}>
                       <Box
                         sx={{
-                          width: 24, height: 24,
+                          width: 24,
+                          height: 24,
                           bgcolor: alpha(primaryColor, 0.1),
                           borderRadius: 1,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
                         {item.icon}
@@ -390,10 +448,16 @@ export default function Dashboard() {
                     <ListItemText
                       primary={item.label}
                       secondary={item.status}
-                      primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: 600, lineHeight: 1.3 }}
+                      primaryTypographyProps={{
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        lineHeight: 1.3,
+                      }}
                       secondaryTypographyProps={{ fontSize: '0.68rem', noWrap: true }}
                     />
-                    <ChevronRightIcon sx={{ fontSize: 14, color: 'text.disabled', flexShrink: 0 }} />
+                    <ChevronRightIcon
+                      sx={{ fontSize: 14, color: 'text.disabled', flexShrink: 0 }}
+                    />
                   </ListItemButton>
                 ))}
               </List>

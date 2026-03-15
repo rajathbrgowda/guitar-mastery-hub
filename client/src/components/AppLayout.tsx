@@ -67,10 +67,20 @@ export default function AppLayout() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
           <PlayCircleIcon sx={{ fontSize: 30, color: 'primary.main', flexShrink: 0 }} />
           <Box>
-            <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, lineHeight: 1.2, color: 'text.primary' }}>
+            <Typography
+              sx={{ fontSize: '0.8rem', fontWeight: 700, lineHeight: 1.2, color: 'text.primary' }}
+            >
               Guitar Mastery Hub
             </Typography>
-            <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.6rem', letterSpacing: '0.08em', color: 'text.secondary', lineHeight: 1 }}>
+            <Typography
+              sx={{
+                fontFamily: '"IBM Plex Mono", monospace',
+                fontSize: '0.6rem',
+                letterSpacing: '0.08em',
+                color: 'text.secondary',
+                lineHeight: 1,
+              }}
+            >
               PRACTICE TRACKER
             </Typography>
           </Box>
@@ -100,7 +110,10 @@ export default function AppLayout() {
       {/* Avatar footer */}
       <Box
         sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.25, cursor: 'pointer' }}
-        onClick={() => { navigate('/app/settings'); setMobileOpen(false); }}
+        onClick={() => {
+          navigate('/app/settings');
+          setMobileOpen(false);
+        }}
       >
         <Avatar
           src={profile?.avatar_url ?? undefined}
@@ -109,10 +122,25 @@ export default function AppLayout() {
           {avatarInitials}
         </Avatar>
         <Box sx={{ overflow: 'hidden' }}>
-          <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <Typography
+            sx={{
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              lineHeight: 1.2,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {profile?.display_name ?? user?.email?.split('@')[0] ?? 'Profile'}
           </Typography>
-          <Typography sx={{ fontSize: '0.65rem', color: 'text.secondary', fontFamily: '"IBM Plex Mono", monospace' }}>
+          <Typography
+            sx={{
+              fontSize: '0.65rem',
+              color: 'text.secondary',
+              fontFamily: '"IBM Plex Mono", monospace',
+            }}
+          >
             {profile?.guitar_type ?? 'acoustic'}
           </Typography>
         </Box>
@@ -153,10 +181,7 @@ export default function AppLayout() {
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* Mobile AppBar */}
-      <AppBar
-        position="fixed"
-        sx={{ display: { sm: 'none' }, zIndex: (t) => t.zIndex.drawer + 1 }}
-      >
+      <AppBar position="fixed" sx={{ display: { sm: 'none' }, zIndex: (t) => t.zIndex.drawer + 1 }}>
         <Toolbar>
           <Tooltip title="Menu">
             <IconButton edge="start" onClick={() => setMobileOpen(true)} sx={{ mr: 1 }}>

@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { z } from 'zod';
-import { requireAuth, AuthRequest } from '../middleware/auth';
+import { requireAuth } from '../middleware/auth';
+import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
+import { updateCompletionSchema } from '../schemas/resources';
 
 const router = Router();
 router.use(requireAuth);
@@ -16,10 +17,7 @@ router.get('/', async (req: AuthRequest, res) => {
       .select('id, phase_index, title, url, description, type, is_featured, sort_order')
       .order('phase_index', { ascending: true })
       .order('sort_order', { ascending: true }),
-    supabase
-      .from('resource_completions')
-      .select('resource_id, completion')
-      .eq('user_id', userId),
+    supabase.from('resource_completions').select('resource_id, completion').eq('user_id', userId),
   ]);
 
   if (resourcesRes.error) {
@@ -41,12 +39,8 @@ router.get('/', async (req: AuthRequest, res) => {
 });
 
 // PATCH /api/resources/:id — upsert completion %
-const completionSchema = z.object({
-  completion: z.number().int().min(0).max(100),
-});
-
 router.patch('/:id', async (req: AuthRequest, res) => {
-  const parsed = completionSchema.safeParse(req.body);
+  const parsed = updateCompletionSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
     return;
@@ -59,7 +53,7 @@ router.patch('/:id', async (req: AuthRequest, res) => {
     .from('resource_completions')
     .upsert(
       { user_id: userId, resource_id: resourceId, completion: parsed.data.completion },
-      { onConflict: 'user_id,resource_id' }
+      { onConflict: 'user_id,resource_id' },
     )
     .select()
     .single();

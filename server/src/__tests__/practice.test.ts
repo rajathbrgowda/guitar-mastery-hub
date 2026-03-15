@@ -53,10 +53,7 @@ describe('POST /api/practice', () => {
   });
 
   it('returns 400 when duration_min is missing', async () => {
-    const res = await request(app)
-      .post('/api/practice')
-      .set(AUTH)
-      .send({ date: '2026-03-15' });
+    const res = await request(app).post('/api/practice').set(AUTH).send({ date: '2026-03-15' });
 
     expect(res.status).toBe(400);
   });
@@ -80,10 +77,7 @@ describe('POST /api/practice', () => {
   });
 
   it('returns 400 when body is empty', async () => {
-    const res = await request(app)
-      .post('/api/practice')
-      .set(AUTH)
-      .send({});
+    const res = await request(app).post('/api/practice').set(AUTH).send({});
 
     expect(res.status).toBe(400);
   });
@@ -97,9 +91,7 @@ describe('GET /api/practice', () => {
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
     mockFrom.mockReturnValue({ select: mockSelect } as never);
 
-    const res = await request(app)
-      .get('/api/practice')
-      .set(AUTH);
+    const res = await request(app).get('/api/practice').set(AUTH);
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);

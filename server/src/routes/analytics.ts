@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { requireAuth, AuthRequest } from '../middleware/auth';
+import { requireAuth } from '../middleware/auth';
+import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
 
 const router = Router();
@@ -10,7 +11,11 @@ router.get('/streak', async (req: AuthRequest, res) => {
   const userId = req.user!.id;
 
   const [sessionsRes, userRes] = await Promise.all([
-    supabase.from('practice_sessions').select('date').eq('user_id', userId).order('date', { ascending: false }),
+    supabase
+      .from('practice_sessions')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: false }),
     supabase.from('users').select('timezone').eq('id', userId).single(),
   ]);
 
@@ -34,11 +39,7 @@ router.get('/summary', async (req: AuthRequest, res) => {
       .select('date, duration_min')
       .eq('user_id', userId)
       .order('date', { ascending: false }),
-    supabase
-      .from('users')
-      .select('current_phase, timezone')
-      .eq('id', userId)
-      .single(),
+    supabase.from('users').select('current_phase, timezone').eq('id', userId).single(),
   ]);
 
   if (sessionsRes.error) {
@@ -50,7 +51,10 @@ router.get('/summary', async (req: AuthRequest, res) => {
   const timezone = userRes.data?.timezone ?? 'UTC';
   const totalMins = sessions.reduce((sum, s) => sum + s.duration_min, 0);
   const totalSessions = sessions.length;
-  const streak = calcStreak(sessions.map((s) => s.date), timezone);
+  const streak = calcStreak(
+    sessions.map((s) => s.date),
+    timezone,
+  );
   const currentPhase = userRes.data?.current_phase ?? 0;
 
   // Last 7 days activity for mini chart (in user's timezone)
@@ -71,8 +75,7 @@ router.get('/summary', async (req: AuthRequest, res) => {
 
 function todayInTz(timezone: string): string {
   try {
-    return new Intl.DateTimeFormat('en-CA', { timeZone: timezone })
-      .format(new Date()); // en-CA gives YYYY-MM-DD
+    return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date()); // en-CA gives YYYY-MM-DD
   } catch {
     return new Date().toISOString().split('T')[0];
   }

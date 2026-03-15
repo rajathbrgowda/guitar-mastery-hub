@@ -73,7 +73,8 @@ const TOOLS: Tool[] = [
   },
   {
     name: 'Ultimate Guitar',
-    description: 'Largest tab library online. Useful but varies in quality — verify against your ear.',
+    description:
+      'Largest tab library online. Useful but varies in quality — verify against your ear.',
     url: 'https://www.ultimate-guitar.com',
     category: 'practice',
     platform: 'Web + App',
@@ -139,7 +140,9 @@ function Stars({ rating }: { rating: number }) {
         <Box
           key={i}
           sx={{
-            width: 8, height: 8, borderRadius: '50%',
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
             bgcolor: i <= rating ? 'primary.main' : '#e5e0df',
           }}
         />
@@ -164,7 +167,11 @@ export default function Tools() {
         const items = TOOLS.filter((t) => t.category === key);
         return (
           <Box key={key} sx={{ mb: 4 }}>
-            <Typography variant="overline" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+            <Typography
+              variant="overline"
+              color="text.secondary"
+              sx={{ mb: 1.5, display: 'block' }}
+            >
               {label}
             </Typography>
             <Grid container spacing={2}>
@@ -172,25 +179,41 @@ export default function Tools() {
                 <Grid size={{ xs: 12, sm: 6 }} key={tool.name}>
                   <Card sx={{ height: '100%' }}>
                     <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-between',
+                          mb: 1,
+                        }}
+                      >
                         <Box
                           component="a"
                           href={tool.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           sx={{
-                            display: 'inline-flex', alignItems: 'center', gap: 0.5,
-                            color: 'text.primary', textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 0.5,
+                            color: 'text.primary',
+                            textDecoration: 'none',
                             '&:hover': { color: 'primary.main' },
                           }}
                         >
-                          <Typography variant="body2" fontWeight={700}>{tool.name}</Typography>
+                          <Typography variant="body2" fontWeight={700}>
+                            {tool.name}
+                          </Typography>
                           <OpenInNewOutlinedIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
                         </Box>
                         <Stars rating={tool.rating} />
                       </Box>
 
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.25, lineHeight: 1.5 }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: 'block', mb: 1.25, lineHeight: 1.5 }}
+                      >
                         {tool.description}
                       </Typography>
 

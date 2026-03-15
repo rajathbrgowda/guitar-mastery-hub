@@ -62,9 +62,7 @@ export default function Resources() {
     setUpdating(resourceId);
     try {
       await api.patch(`/api/resources/${resourceId}`, { completion });
-      setResources((prev) =>
-        prev.map((r) => (r.id === resourceId ? { ...r, completion } : r))
-      );
+      setResources((prev) => prev.map((r) => (r.id === resourceId ? { ...r, completion } : r)));
     } catch {
       // silent
     } finally {
@@ -97,7 +95,11 @@ export default function Resources() {
         </Typography>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       {byPhase.map(({ title, index, items }) => {
         const completed = items.filter((r) => r.completion === 100).length;
@@ -119,7 +121,13 @@ export default function Resources() {
                     {title}
                   </Typography>
                 </Box>
-                <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.85rem', color: 'text.secondary' }}>
+                <Typography
+                  sx={{
+                    fontFamily: '"IBM Plex Mono", monospace',
+                    fontSize: '0.85rem',
+                    color: 'text.secondary',
+                  }}
+                >
                   {completed}/{items.length}
                 </Typography>
                 {expanded === index ? (
@@ -155,9 +163,22 @@ export default function Resources() {
                       >
                         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 0.75 }}>
                           <Box sx={{ flex: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.25, flexWrap: 'wrap' }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                mb: 0.25,
+                                flexWrap: 'wrap',
+                              }}
+                            >
                               {r.is_featured && (
-                                <Chip label="featured" size="small" color="primary" sx={{ height: 16, fontSize: '0.6rem' }} />
+                                <Chip
+                                  label="featured"
+                                  size="small"
+                                  color="primary"
+                                  sx={{ height: 16, fontSize: '0.6rem' }}
+                                />
                               )}
                               <Chip
                                 label={r.type}
@@ -174,16 +195,23 @@ export default function Resources() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 sx={{
-                                  display: 'inline-flex', alignItems: 'center', gap: 0.5,
-                                  color: 'primary.main', textDecoration: 'none',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 0.5,
+                                  color: 'primary.main',
+                                  textDecoration: 'none',
                                   '&:hover': { textDecoration: 'underline' },
                                 }}
                               >
-                                <Typography variant="body2" fontWeight={600}>{r.title}</Typography>
+                                <Typography variant="body2" fontWeight={600}>
+                                  {r.title}
+                                </Typography>
                                 <OpenInNewOutlinedIcon sx={{ fontSize: 13 }} />
                               </Box>
                             ) : (
-                              <Typography variant="body2" fontWeight={600}>{r.title}</Typography>
+                              <Typography variant="body2" fontWeight={600}>
+                                {r.title}
+                              </Typography>
                             )}
                             {r.description && (
                               <Typography variant="caption" color="text.secondary">
@@ -193,7 +221,15 @@ export default function Resources() {
                           </Box>
 
                           {/* Completion selector */}
-                          <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: 0.5,
+                              flexShrink: 0,
+                              flexWrap: 'wrap',
+                              justifyContent: 'flex-end',
+                            }}
+                          >
                             {updating === r.id ? (
                               <CircularProgress size={16} />
                             ) : (
@@ -202,7 +238,12 @@ export default function Resources() {
                                   key={cl.value}
                                   label={cl.label}
                                   size="small"
-                                  variant={r.completion >= cl.value && (cl.value === 0 ? r.completion === 0 : true) ? 'filled' : 'outlined'}
+                                  variant={
+                                    r.completion >= cl.value &&
+                                    (cl.value === 0 ? r.completion === 0 : true)
+                                      ? 'filled'
+                                      : 'outlined'
+                                  }
                                   color={r.completion === cl.value ? 'primary' : 'default'}
                                   onClick={() => setCompletion(r.id, cl.value)}
                                   sx={{ cursor: 'pointer', height: 20, fontSize: '0.6rem' }}

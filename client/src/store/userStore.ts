@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import api from '../services/api';
-import { UserProfile } from '../types/user';
+import type { UserProfile } from '../types/user';
 
 interface UserStoreState {
   profile: UserProfile | null;
   loading: boolean;
   fetchProfile: () => Promise<void>;
-  updateProfile: (patch: Partial<Omit<UserProfile, 'id' | 'email' | 'current_phase' | 'created_at'>>) => Promise<void>;
+  updateProfile: (
+    patch: Partial<Omit<UserProfile, 'id' | 'email' | 'current_phase' | 'created_at'>>,
+  ) => Promise<void>;
   reset: () => void;
 }
 

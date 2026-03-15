@@ -9,7 +9,7 @@ function renderStatCard(props: Parameters<typeof StatCard>[0]) {
   return render(
     <ThemeProvider theme={theme}>
       <StatCard {...props} />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
 
@@ -30,7 +30,12 @@ describe('StatCard', () => {
   });
 
   it('shows skeleton when loading', () => {
-    const { container } = renderStatCard({ icon: null, label: 'Streak', value: '5d', loading: true });
+    const { container } = renderStatCard({
+      icon: null,
+      label: 'Streak',
+      value: '5d',
+      loading: true,
+    });
     expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
     expect(screen.queryByText('5d')).not.toBeInTheDocument();
   });

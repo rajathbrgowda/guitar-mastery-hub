@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface ListRowProps {
   primary: string;
@@ -12,7 +12,14 @@ interface ListRowProps {
   last?: boolean;
 }
 
-export default function ListRow({ primary, secondary, leading, trailing, onClick, last = false }: ListRowProps) {
+export default function ListRow({
+  primary,
+  secondary,
+  leading,
+  trailing,
+  onClick,
+  last = false,
+}: ListRowProps) {
   return (
     <Box
       onClick={onClick}

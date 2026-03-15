@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { z } from 'zod';
-import { requireAuth, AuthRequest } from '../middleware/auth';
+import { requireAuth } from '../middleware/auth';
+import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
+import { toggleSkillSchema, setPhaseSchema } from '../schemas/progress';
 
 const router = Router();
 router.use(requireAuth);
@@ -15,11 +16,7 @@ router.get('/', async (req: AuthRequest, res) => {
       .from('skill_progress')
       .select('id, phase_index, skill_index, completed, completed_at')
       .eq('user_id', userId),
-    supabase
-      .from('users')
-      .select('current_phase')
-      .eq('id', userId)
-      .single(),
+    supabase.from('users').select('current_phase').eq('id', userId).single(),
   ]);
 
   if (skillsRes.error) {
@@ -34,14 +31,8 @@ router.get('/', async (req: AuthRequest, res) => {
 });
 
 // PATCH /api/progress/skill — toggle a skill (upsert by phase_index + skill_index)
-const toggleSchema = z.object({
-  phase_index: z.number().int().min(0),
-  skill_index: z.number().int().min(0),
-  completed: z.boolean(),
-});
-
 router.patch('/skill', async (req: AuthRequest, res) => {
-  const parsed = toggleSchema.safeParse(req.body);
+  const parsed = toggleSkillSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
     return;
@@ -60,7 +51,7 @@ router.patch('/skill', async (req: AuthRequest, res) => {
         completed,
         completed_at: completed ? new Date().toISOString() : null,
       },
-      { onConflict: 'user_id,phase_index,skill_index' }
+      { onConflict: 'user_id,phase_index,skill_index' },
     )
     .select()
     .single();
@@ -74,12 +65,8 @@ router.patch('/skill', async (req: AuthRequest, res) => {
 });
 
 // PATCH /api/progress/phase — update current phase
-const phaseSchema = z.object({
-  current_phase: z.number().int().min(0).max(4),
-});
-
 router.patch('/phase', async (req: AuthRequest, res) => {
-  const parsed = phaseSchema.safeParse(req.body);
+  const parsed = setPhaseSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
     return;

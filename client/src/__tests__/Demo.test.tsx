@@ -6,8 +6,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 // Demo must NOT call api at all
 vi.mock('../services/api', () => ({
   default: {
-    get: vi.fn(() => { throw new Error('api.get called in demo mode — should never happen'); }),
-    post: vi.fn(() => { throw new Error('api.post called in demo mode — should never happen'); }),
+    get: vi.fn(() => {
+      throw new Error('api.get called in demo mode — should never happen');
+    }),
+    post: vi.fn(() => {
+      throw new Error('api.post called in demo mode — should never happen');
+    }),
   },
 }));
 
@@ -32,7 +36,7 @@ function renderDemo() {
       <MemoryRouter>
         <Demo />
       </MemoryRouter>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
 

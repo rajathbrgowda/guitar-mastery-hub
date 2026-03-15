@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import api from '../services/api';
-import { PracticeSession, NewSession } from '../types/practice';
+import type { PracticeSession, NewSession } from '../types/practice';
 
 interface PracticeState {
   sessions: PracticeSession[];

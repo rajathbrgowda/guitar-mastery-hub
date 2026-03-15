@@ -6,9 +6,27 @@ const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 // Realistic 3-week pattern: building momentum, current week is strongest
 const PRACTICED: boolean[] = [
-  false, true,  false, false, true,  false, false, // week 1 — casual start
-  true,  false, true,  true,  false, true,  false, // week 2 — picking up
-  true,  true,  true,  true,  true,  false, false, // week 3 — on a roll
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  false, // week 1 — casual start
+  true,
+  false,
+  true,
+  true,
+  false,
+  true,
+  false, // week 2 — picking up
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  false, // week 3 — on a roll
 ];
 
 export default function StreakCalendar() {
@@ -42,7 +60,7 @@ export default function StreakCalendar() {
               border: active ? 'none' : '1px solid rgba(255,255,255,0.1)',
               '@keyframes fadeInScale': {
                 from: { opacity: 0, transform: 'scale(0.5)' },
-                to:   { opacity: 1, transform: 'scale(1)' },
+                to: { opacity: 1, transform: 'scale(1)' },
               },
               animation: 'fadeInScale 0.35s ease forwards',
               animationDelay: `${i * 45}ms`,
@@ -55,7 +73,13 @@ export default function StreakCalendar() {
 
       <Typography
         variant="caption"
-        sx={{ display: 'block', textAlign: 'center', mt: 2, color: 'rgba(255,255,255,0.35)', fontSize: '0.6875rem' }}
+        sx={{
+          display: 'block',
+          textAlign: 'center',
+          mt: 2,
+          color: 'rgba(255,255,255,0.35)',
+          fontSize: '0.6875rem',
+        }}
       >
         12 practice days in the last 3 weeks
       </Typography>

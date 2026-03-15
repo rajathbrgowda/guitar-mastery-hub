@@ -28,17 +28,16 @@ describe('Auth middleware', () => {
   });
 
   it('returns 401 when Authorization header does not start with Bearer', async () => {
-    const res = await request(app)
-      .get('/api/practice')
-      .set('Authorization', 'Token abc123');
+    const res = await request(app).get('/api/practice').set('Authorization', 'Token abc123');
     expect(res.status).toBe(401);
   });
 
   it('returns 401 when token is invalid', async () => {
-    mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: 'invalid token' } } as never);
-    const res = await request(app)
-      .get('/api/practice')
-      .set('Authorization', 'Bearer bad-token');
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'invalid token' },
+    } as never);
+    const res = await request(app).get('/api/practice').set('Authorization', 'Bearer bad-token');
     expect(res.status).toBe(401);
     expect(res.body.error).toMatch(/Invalid or expired/i);
   });
@@ -57,9 +56,7 @@ describe('Auth middleware', () => {
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
     vi.mocked(supabase.from).mockReturnValue({ select: mockSelect } as never);
 
-    const res = await request(app)
-      .get('/api/practice')
-      .set('Authorization', 'Bearer valid-token');
+    const res = await request(app).get('/api/practice').set('Authorization', 'Bearer valid-token');
     expect(res.status).toBe(200);
   });
 });

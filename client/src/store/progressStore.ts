@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import api from '../services/api';
-import { SkillProgress } from '../types/progress';
+import type { SkillProgress } from '../types/progress';
 
 interface ProgressStoreState {
   skills: SkillProgress[];
@@ -21,7 +21,9 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
   fetchProgress: async () => {
     set({ loading: true, error: null });
     try {
-      const { data } = await api.get<{ skills: SkillProgress[]; currentPhase: number }>('/api/progress');
+      const { data } = await api.get<{ skills: SkillProgress[]; currentPhase: number }>(
+        '/api/progress',
+      );
       set({ skills: data.skills, currentPhase: data.currentPhase, loading: false });
     } catch {
       set({ error: 'Failed to load progress', loading: false });
@@ -33,14 +35,14 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
     const prev = get().skills;
     set((state) => {
       const existing = state.skills.find(
-        (s) => s.phase_index === phase_index && s.skill_index === skill_index
+        (s) => s.phase_index === phase_index && s.skill_index === skill_index,
       );
       if (existing) {
         return {
           skills: state.skills.map((s) =>
             s.phase_index === phase_index && s.skill_index === skill_index
               ? { ...s, completed, completed_at: completed ? new Date().toISOString() : null }
-              : s
+              : s,
           ),
         };
       }
@@ -68,7 +70,7 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       // Replace local entry with real DB row
       set((state) => ({
         skills: state.skills.map((s) =>
-          s.phase_index === phase_index && s.skill_index === skill_index ? data : s
+          s.phase_index === phase_index && s.skill_index === skill_index ? data : s,
         ),
       }));
     } catch {

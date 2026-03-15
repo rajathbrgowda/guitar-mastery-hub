@@ -1,18 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 
 export class AppError extends Error {
-  constructor(public statusCode: number, message: string) {
+  constructor(
+    public statusCode: number,
+    message: string,
+  ) {
     super(message);
     this.name = 'AppError';
   }
 }
 
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-): void {
+export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction): void {
   if (err.name === 'AppError') {
     const appErr = err as AppError;
     res.status(appErr.statusCode).json({ error: appErr.message });
