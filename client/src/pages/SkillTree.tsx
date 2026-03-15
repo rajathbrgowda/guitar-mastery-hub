@@ -42,7 +42,7 @@ interface NodeProps {
   onToggle: () => void;
 }
 
-function SkillNode({ phaseIndex, skillIndex: _skillIndex, name, completed, isCurrentPhase, onToggle }: NodeProps) {
+function SkillNode({ phaseIndex, name, completed, isCurrentPhase, onToggle }: NodeProps) {
   const phaseColor = PHASES[phaseIndex].color;
   const locked = !isCurrentPhase && !completed && phaseIndex > 0;
 
