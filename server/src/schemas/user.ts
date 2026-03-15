@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { UpdateProfileBody } from '@gmh/shared/types/user';
+import type { UpdateProfileBody, OnboardingBody } from '@gmh/shared/types/user';
 
 export const updateProfileSchema = z.object({
   display_name: z.string().min(1).max(50).nullable().optional(),
@@ -15,3 +15,13 @@ export const updateProfileSchema = z.object({
 // Type assertion — ensures Zod schema stays in sync with shared contract
 type _AssertProfile = z.infer<typeof updateProfileSchema> extends UpdateProfileBody ? true : never;
 declare const _s1: _AssertProfile;
+
+export const onboardingSchema = z.object({
+  experience_level: z.enum(['beginner', 'some', 'intermediate']),
+  curriculum_key: z.string().min(1).max(60),
+  daily_goal_min: z.number().int().min(5).max(480),
+  practice_days_target: z.number().int().min(1).max(7),
+});
+
+type _AssertOnboard = z.infer<typeof onboardingSchema> extends OnboardingBody ? true : never;
+declare const _s2: _AssertOnboard;

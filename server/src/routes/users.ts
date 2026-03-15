@@ -3,14 +3,14 @@ import type { Response } from 'express';
 import { requireAuth } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
-import { updateProfileSchema } from '../schemas/user';
+import { updateProfileSchema, onboardingSchema } from '../schemas/user';
 import { switchCurriculumSchema } from '../schemas/curriculum';
 
 const router = Router();
 router.use(requireAuth);
 
 const USER_FIELDS =
-  'id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase, theme_color, selected_curriculum_key, created_at';
+  'id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase, theme_color, selected_curriculum_key, onboarding_completed, created_at';
 
 // GET /api/users/me
 router.get('/me', async (req: AuthRequest, res: Response) => {
@@ -76,6 +76,53 @@ router.put('/me/curriculum', async (req: AuthRequest, res: Response) => {
     .from('users')
     .update({
       selected_curriculum_key: parsed.data.curriculum_key,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', req.user!.id)
+    .select(USER_FIELDS)
+    .single();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.json(data);
+});
+
+// POST /api/users/me/onboard — complete onboarding wizard
+// Maps experience_level → current_phase: beginner=0, some=1, intermediate=2
+router.post('/me/onboard', async (req: AuthRequest, res: Response) => {
+  const parsed = onboardingSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  const PHASE_MAP: Record<string, number> = { beginner: 0, some: 1, intermediate: 2 };
+  const current_phase = PHASE_MAP[parsed.data.experience_level];
+
+  // Verify curriculum exists and is active
+  const { data: curriculum, error: currErr } = await supabase
+    .from('curriculum_sources')
+    .select('key')
+    .eq('key', parsed.data.curriculum_key)
+    .eq('is_active', true)
+    .single();
+
+  if (currErr || !curriculum) {
+    res.status(422).json({ error: 'Unknown or inactive curriculum key' });
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('users')
+    .update({
+      current_phase,
+      selected_curriculum_key: parsed.data.curriculum_key,
+      daily_goal_min: parsed.data.daily_goal_min,
+      practice_days_target: parsed.data.practice_days_target,
+      onboarding_completed: true,
       updated_at: new Date().toISOString(),
     })
     .eq('id', req.user!.id)
