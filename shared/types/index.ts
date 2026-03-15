@@ -50,3 +50,5 @@ export type {
 } from './user';
 
 export type { Milestone, MilestonesResponse } from './milestones';
+
+export type { RoadmapSkill, RoadmapPhase, RoadmapResponse } from './roadmap';
