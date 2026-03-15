@@ -101,6 +101,7 @@ router.post('/today/items/:itemId/complete', async (req: AuthRequest, res: Respo
       completed: true,
       completed_at: now,
       actual_duration_min: parsed.data.actual_duration_min ?? null,
+      confidence_rating: parsed.data.confidence_rating ?? null,
     })
     .eq('id', itemId);
 
@@ -166,6 +167,39 @@ router.post('/today/skip', async (req: AuthRequest, res: Response) => {
 // PLAN GENERATION ALGORITHM
 // ─────────────────────────────────────────────────────────────
 async function generatePlan(userId: string, today: string): Promise<DailyPracticePlan | null> {
+  // 0. Fetch confidence history — last 14 days of rated items for this user
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+
+  // Step 0a: get plan IDs from last 14 days for this user
+  const { data: recentPlans } = await supabase
+    .from('daily_practice_plans')
+    .select('id')
+    .eq('user_id', userId)
+    .gte('plan_date', fourteenDaysAgo);
+
+  const recentPlanIds = (recentPlans ?? []).map((p) => p.id);
+
+  // Step 0b: get rated items from those plans
+  const confidenceMap = new Map<string, { sum: number; count: number }>();
+  if (recentPlanIds.length > 0) {
+    const { data: ratedItems } = await supabase
+      .from('daily_practice_plan_items')
+      .select('skill_id, confidence_rating')
+      .in('plan_id', recentPlanIds)
+      .not('confidence_rating', 'is', null);
+
+    for (const item of ratedItems ?? []) {
+      if (!item.skill_id || !item.confidence_rating) continue;
+      const existing = confidenceMap.get(item.skill_id) ?? { sum: 0, count: 0 };
+      confidenceMap.set(item.skill_id, {
+        sum: existing.sum + item.confidence_rating,
+        count: existing.count + 1,
+      });
+    }
+  }
+
   // 1. Fetch user's profile (phase + daily_goal_min + curriculum)
   const { data: user } = await supabase
     .from('users')
@@ -250,14 +284,16 @@ async function generatePlan(userId: string, today: string): Promise<DailyPractic
     }
   }
 
-  // 6. Categorise entries
+  // 6. Categorise entries using confidence history (plan algorithm v2)
   // progress data available for future spaced-repetition enhancements
   void progress;
 
   type Entry = (typeof entries)[0];
   const warmupEntries: Entry[] = [];
-  const weakEntries: Entry[] = [];
-  const newEntries: Entry[] = [];
+  const hardEntries: Entry[] = []; // avg confidence < 1.7 — needs most work
+  const newEntries: Entry[] = []; // no confidence data yet — unknown, treat as priority
+  const weakEntries: Entry[] = []; // practiced but not mastered
+  const consolidationEntries: Entry[] = []; // avg confidence > 2.6 AND 5+ sessions — near mastery
   const songEntries: Entry[] = [];
 
   for (const entry of entries) {
@@ -270,16 +306,25 @@ async function generatePlan(userId: string, today: string): Promise<DailyPractic
     if (!skill) continue;
 
     const practiceCount = skillPracticeCount.get(skill.title) ?? 0;
+    const conf = confidenceMap.get(skill.id);
+    const avgConfidence = conf ? conf.sum / conf.count : null;
+    const ratedCount = conf?.count ?? 0;
 
     if (skill.category === 'warmup') {
       warmupEntries.push(entry);
     } else if (skill.category === 'song') {
       songEntries.push(entry);
-    } else if (practiceCount < 3) {
-      // Practiced fewer than 3 times in last 7 days → weak
+    } else if (avgConfidence !== null && avgConfidence > 2.6 && ratedCount >= 5) {
+      // Near mastery — still include but lowest priority
+      consolidationEntries.push(entry);
+    } else if (avgConfidence !== null && avgConfidence < 1.7) {
+      // Hard zone — highest priority
+      hardEntries.push(entry);
+    } else if (conf === undefined && practiceCount < 3) {
+      // No confidence data yet + not recently practiced → unknown, prioritise
       newEntries.push(entry);
     } else {
-      // Well-practiced skills that still need consolidation
+      // In-progress skills
       weakEntries.push(entry);
     }
   }
@@ -316,8 +361,21 @@ async function generatePlan(userId: string, today: string): Promise<DailyPractic
     remaining -= warmupMin;
   }
 
-  // Primary focus: first new/weak skill
-  const primaryPool = [...newEntries, ...weakEntries];
+  // v3: sort hardEntries by avg_confidence ascending so the weakest skill is always pool[0]
+  hardEntries.sort((a, b) => {
+    const skillA = (a.skills as unknown as { id: string } | null)?.id;
+    const skillB = (b.skills as unknown as { id: string } | null)?.id;
+    const confA = skillA
+      ? (confidenceMap.get(skillA)?.sum ?? 0) / (confidenceMap.get(skillA)?.count ?? 1)
+      : 1.0;
+    const confB = skillB
+      ? (confidenceMap.get(skillB)?.sum ?? 0) / (confidenceMap.get(skillB)?.count ?? 1)
+      : 1.0;
+    return confA - confB;
+  });
+
+  // Primary focus: hard skills first, then new (unrated), then weak, then consolidation
+  const primaryPool = [...hardEntries, ...newEntries, ...weakEntries, ...consolidationEntries];
   if (primaryPool.length > 0 && remaining > 0) {
     const primary = primaryPool[0];
     const primarySkill = primary.skills as unknown as {

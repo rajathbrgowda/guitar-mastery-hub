@@ -175,6 +175,177 @@ function offsetDate(dateStr: string, days: number): string {
   return d.toISOString().split('T')[0];
 }
 
+// GET /api/analytics/insights — skill confidence analysis + weekly digest
+router.get('/insights', async (req: AuthRequest, res) => {
+  const userId = req.user!.id;
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  // 1. Fetch user profile
+  const { data: user } = await supabase
+    .from('users')
+    .select('current_phase, selected_curriculum_key, timezone')
+    .eq('id', userId)
+    .single();
+
+  if (!user) {
+    res.status(500).json({ error: 'User not found' });
+    return;
+  }
+
+  const currentPhase: number = user.current_phase ?? 0;
+  const curriculumKey: string = user.selected_curriculum_key ?? 'best_of_all';
+  const timezone: string = user.timezone ?? 'UTC';
+
+  // 2. Get this user's plan IDs from the last 14 days (for confidence lookup)
+  const { data: userPlans } = await supabase
+    .from('daily_practice_plans')
+    .select('id')
+    .eq('user_id', userId)
+    .gte('plan_date', fourteenDaysAgo);
+
+  const planIds = (userPlans ?? []).map((p: { id: string }) => p.id);
+
+  // 3. Get rated plan items for those plans
+  const ratedItems =
+    planIds.length > 0
+      ? ((
+          await supabase
+            .from('daily_practice_plan_items')
+            .select('skill_id, confidence_rating, completed_at')
+            .in('plan_id', planIds)
+            .not('confidence_rating', 'is', null)
+        ).data ?? [])
+      : [];
+
+  // 4. Aggregate confidence per skill_id
+  const confidenceMap = new Map<string, { sum: number; count: number; last_at: string | null }>();
+  for (const item of ratedItems) {
+    if (!item.skill_id || item.confidence_rating == null) continue;
+    const existing = confidenceMap.get(item.skill_id) ?? { sum: 0, count: 0, last_at: null };
+    const last_at =
+      existing.last_at && existing.last_at > (item.completed_at ?? '')
+        ? existing.last_at
+        : (item.completed_at ?? null);
+    confidenceMap.set(item.skill_id, {
+      sum: existing.sum + item.confidence_rating,
+      count: existing.count + 1,
+      last_at,
+    });
+  }
+
+  // 5. Fetch curriculum source for current phase entries
+  const { data: curriculumSource } = await supabase
+    .from('curriculum_sources')
+    .select('id')
+    .eq('key', curriculumKey)
+    .eq('is_active', true)
+    .single();
+
+  const curriculumId = curriculumSource?.id;
+  type PhaseSkill = {
+    skill_id: string;
+    skills: { id: string; key: string; title: string; category: string } | null;
+  };
+  let phaseSkills: PhaseSkill[] = [];
+  if (curriculumId) {
+    const { data } = await supabase
+      .from('curriculum_skill_entries')
+      .select('skill_id, skills ( id, key, title, category )')
+      .eq('curriculum_id', curriculumId)
+      .eq('phase_number', currentPhase);
+    phaseSkills = (data ?? []) as unknown as PhaseSkill[];
+  }
+
+  // 6. Build SkillInsight array for current phase skills
+  type SkillInsightRow = {
+    skill_id: string;
+    skill_key: string;
+    skill_title: string;
+    skill_category: string;
+    avg_confidence: number | null;
+    practice_count: number;
+    last_practiced_at: string | null;
+  };
+  const skillInsights: SkillInsightRow[] = [];
+  for (const entry of phaseSkills) {
+    const skill = entry.skills;
+    if (!skill || skill.category === 'warmup') continue;
+    const conf = confidenceMap.get(skill.id);
+    skillInsights.push({
+      skill_id: skill.id,
+      skill_key: skill.key,
+      skill_title: skill.title,
+      skill_category: skill.category,
+      avg_confidence: conf ? conf.sum / conf.count : null,
+      practice_count: conf?.count ?? 0,
+      last_practiced_at: conf?.last_at ?? null,
+    });
+  }
+
+  const weakSkills = skillInsights
+    .filter((s) => s.avg_confidence !== null && s.avg_confidence < 1.7)
+    .sort((a, b) => (a.avg_confidence ?? 0) - (b.avg_confidence ?? 0));
+
+  const strongSkills = skillInsights.filter(
+    (s) => s.avg_confidence !== null && s.avg_confidence > 2.5 && s.practice_count >= 3,
+  );
+
+  const focusSkill = weakSkills[0] ?? null;
+
+  // 7. Weekly digest from practice_sessions
+  const { data: recentSessions } = await supabase
+    .from('practice_sessions')
+    .select('date, duration_min, sections')
+    .eq('user_id', userId)
+    .gte('date', sevenDaysAgo);
+
+  const sessions = recentSessions ?? [];
+  const sessionsCount = sessions.length;
+  const totalMins = sessions.reduce((s, r) => s + r.duration_min, 0);
+  const daysPracticed = new Set(sessions.filter((s) => s.duration_min > 0).map((s) => s.date)).size;
+
+  // Top skill: most frequent in sections
+  const sectionCount = new Map<string, number>();
+  for (const session of sessions) {
+    const sects: Array<{ name: string }> = session.sections ?? [];
+    for (const s of sects) {
+      sectionCount.set(s.name, (sectionCount.get(s.name) ?? 0) + 1);
+    }
+  }
+  let topSkillTitle: string | null = null;
+  let topCount = 0;
+  for (const [name, count] of sectionCount) {
+    if (count > topCount) {
+      topCount = count;
+      topSkillTitle = name;
+    }
+  }
+
+  // week_start = today - 7 days in user's timezone
+  const weekStart = offsetDateLocal(timezone, -7);
+
+  res.json({
+    weakSkills,
+    strongSkills,
+    weeklyDigest: {
+      week_start: weekStart,
+      sessions_count: sessionsCount,
+      total_mins: totalMins,
+      days_practiced: daysPracticed,
+      top_skill_title: topSkillTitle,
+    },
+    focusSkill,
+  });
+});
+
+function offsetDateLocal(timezone: string, days: number): string {
+  const today = todayInTz(timezone);
+  return offsetDate(today, days);
+}
+
 // GET /api/analytics/history?days=90 — daily totals for chart
 router.get('/history', async (req: AuthRequest, res) => {
   const userId = req.user!.id;

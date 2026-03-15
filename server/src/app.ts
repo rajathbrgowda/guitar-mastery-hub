@@ -29,7 +29,7 @@ app.use('/api/progress', progressRouter);
 app.use('/api/practice/plan', practicePlanRouter);
 app.use('/api/practice', practiceRouter);
 app.use('/api/resources', resourcesRouter);
-app.use('/api/analytics', analyticsRouter);
+app.use('/api/analytics', analyticsRouter); // includes /api/analytics/insights
 app.use('/api/users', usersRouter);
 app.use('/api/curriculum', curriculumRouter);
 
