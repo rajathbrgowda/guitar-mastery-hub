@@ -73,3 +73,5 @@ export type {
   MasteryMapResponse,
   RustyCheckResponse,
 } from './mastery';
+
+export type { ToolCategory, ToolPrice, Tool, UserTool, ToolsResponse } from './tools';
