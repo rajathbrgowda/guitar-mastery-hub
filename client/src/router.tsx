@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext';
 import AppLayout from './components/AppLayout';
 import Landing from './pages/Landing';
 import Demo from './pages/Demo';
+import AuthCallback from './pages/AuthCallback';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
   { path: '/demo', element: <Demo /> },
   { path: '/login', element: <Login /> },
   { path: '/reset-password', element: <ResetPassword /> },
+  { path: '/auth/callback', element: <AuthCallback /> },
 
   // Protected app shell — all pages live under /app
   {
