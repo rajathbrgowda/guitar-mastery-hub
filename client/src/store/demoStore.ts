@@ -28,6 +28,7 @@ const DEMO_SESSIONS: PracticeSession[] = [
       { name: 'Chords', duration_min: 12 },
       { name: 'Song', duration_min: 5 },
     ],
+    confidence: null,
     created_at: daysAgo(0),
   },
   {
@@ -40,6 +41,7 @@ const DEMO_SESSIONS: PracticeSession[] = [
       { name: 'Chords', duration_min: 10 },
       { name: 'Fingerpicking', duration_min: 8 },
     ],
+    confidence: null,
     created_at: daysAgo(1),
   },
   {
@@ -54,6 +56,7 @@ const DEMO_SESSIONS: PracticeSession[] = [
       { name: 'Theory', duration_min: 8 },
       { name: 'Song', duration_min: 5 },
     ],
+    confidence: null,
     created_at: daysAgo(2),
   },
   {
@@ -63,6 +66,7 @@ const DEMO_SESSIONS: PracticeSession[] = [
     duration_min: 15,
     notes: 'Short session, just scales.',
     sections: [{ name: 'Scales', duration_min: 15 }],
+    confidence: null,
     created_at: daysAgo(3),
   },
   {
@@ -75,6 +79,7 @@ const DEMO_SESSIONS: PracticeSession[] = [
       { name: 'Strumming', duration_min: 15 },
       { name: 'Song', duration_min: 10 },
     ],
+    confidence: null,
     created_at: daysAgo(4),
   },
   {
@@ -87,6 +92,7 @@ const DEMO_SESSIONS: PracticeSession[] = [
       { name: 'Warm-up', duration_min: 5 },
       { name: 'Chords', duration_min: 15 },
     ],
+    confidence: null,
     created_at: daysAgo(6),
   },
   {
@@ -99,6 +105,7 @@ const DEMO_SESSIONS: PracticeSession[] = [
       { name: 'Chords', duration_min: 10 },
       { name: 'Song', duration_min: 18 },
     ],
+    confidence: null,
     created_at: daysAgo(7),
   },
 ];

@@ -10,6 +10,7 @@ export interface PracticeSession {
   duration_min: number;
   sections: PracticeSection[] | null;
   notes: string | null;
+  confidence: 1 | 2 | 3 | null;
   created_at: string;
 }
 
@@ -18,4 +19,5 @@ export interface NewSession {
   duration_min: number;
   sections?: PracticeSection[];
   notes?: string;
+  confidence?: 1 | 2 | 3;
 }

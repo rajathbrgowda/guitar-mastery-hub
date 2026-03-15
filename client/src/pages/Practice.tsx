@@ -40,6 +40,7 @@ export default function Practice() {
   const [sectionName, setSectionName] = useState('');
   const [sectionDur, setSectionDur] = useState('');
   const [notes, setNotes] = useState('');
+  const [confidence, setConfidence] = useState<1 | 2 | 3 | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -93,10 +94,12 @@ export default function Practice() {
         duration_min: dur,
         sections: sections.length ? sections : undefined,
         notes: notes || undefined,
+        confidence: confidence ?? undefined,
       });
       setDurationMin('');
       setSections([]);
       setNotes('');
+      setConfidence(null);
       setElapsed(0);
       setSubmitSuccess(true);
       setTimeout(() => setSubmitSuccess(false), 3000);
@@ -306,6 +309,34 @@ export default function Practice() {
             sx={{ mb: 2 }}
           />
 
+          {/* How was this session? (optional) */}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
+              How was this session?{' '}
+              <Typography component="span" variant="caption" color="text.secondary">
+                (optional)
+              </Typography>
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {(
+                [
+                  { value: 3, label: 'Easy', color: 'success' },
+                  { value: 2, label: 'Okay', color: 'warning' },
+                  { value: 1, label: 'Hard', color: 'error' },
+                ] as const
+              ).map((opt) => (
+                <Chip
+                  key={opt.value}
+                  label={opt.label}
+                  onClick={() => setConfidence(confidence === opt.value ? null : opt.value)}
+                  variant={confidence === opt.value ? 'filled' : 'outlined'}
+                  color={confidence === opt.value ? opt.color : 'default'}
+                  sx={{ cursor: 'pointer' }}
+                />
+              ))}
+            </Box>
+          </Box>
+
           {submitError && (
             <Alert severity="error" sx={{ mb: 1.5 }}>
               {submitError}
@@ -408,9 +439,22 @@ export default function Practice() {
               sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
             >
               <Box>
-                <Typography variant="body2" fontWeight={600}>
-                  {format(new Date(s.date + 'T12:00:00'), 'EEE, MMM d')}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="body2" fontWeight={600}>
+                    {format(new Date(s.date + 'T12:00:00'), 'EEE, MMM d')}
+                  </Typography>
+                  {s.confidence != null && (
+                    <Chip
+                      label={s.confidence === 3 ? 'Easy' : s.confidence === 2 ? 'Okay' : 'Hard'}
+                      size="small"
+                      color={
+                        s.confidence === 3 ? 'success' : s.confidence === 2 ? 'warning' : 'error'
+                      }
+                      variant="outlined"
+                      sx={{ height: 18, fontSize: '0.65rem' }}
+                    />
+                  )}
+                </Box>
                 {s.notes && (
                   <Typography variant="caption" color="text.secondary">
                     {s.notes}

@@ -40,7 +40,7 @@ router.post('/', async (req: AuthRequest, res) => {
     return;
   }
 
-  const { date, duration_min, sections, notes } = parsed.data;
+  const { date, duration_min, sections, notes, confidence } = parsed.data;
 
   const { data, error } = await supabase
     .from('practice_sessions')
@@ -50,6 +50,7 @@ router.post('/', async (req: AuthRequest, res) => {
       duration_min,
       sections: sections ?? null,
       notes: notes ?? null,
+      confidence: confidence ?? null,
     })
     .select()
     .single();
