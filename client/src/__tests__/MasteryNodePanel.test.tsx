@@ -28,7 +28,7 @@ function renderPanel(node: MasteryNode | null, onClose = vi.fn(), onMarkRevisite
 
 describe('MasteryNodePanel', () => {
   it('renders nothing when node is null', () => {
-    const { container } = renderPanel(null);
+    renderPanel(null);
     // Drawer is closed — no skill title in document
     expect(screen.queryByText('Open Chords')).not.toBeInTheDocument();
   });
