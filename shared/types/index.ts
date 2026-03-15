@@ -76,4 +76,4 @@ export type {
 
 export type { ToolCategory, ToolPrice, Tool, UserTool, ToolsResponse } from './tools';
 
-export type { PublicStats } from './public-stats';
+export type { PublicStats, PublicStatsResponse } from './public-stats';
