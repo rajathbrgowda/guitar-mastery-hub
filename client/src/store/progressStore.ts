@@ -2,6 +2,11 @@ import { create } from 'zustand';
 import api from '../services/api';
 import type { SkillProgress } from '../types/progress';
 
+interface ToggleSkillResponse extends SkillProgress {
+  phase_completed: boolean;
+  new_phase: number | null;
+}
+
 interface ProgressStoreState {
   skills: SkillProgress[];
   currentPhase: number;
@@ -63,16 +68,18 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
     });
 
     try {
-      const { data } = await api.patch<SkillProgress>('/api/progress/skill', {
+      const { data } = await api.patch<ToggleSkillResponse>('/api/progress/skill', {
         phase_index,
         skill_index,
         completed,
       });
-      // Replace local entry with real DB row
+      // Replace local entry with real DB row; advance phase if server signals completion
       set((state) => ({
         skills: state.skills.map((s) =>
           s.phase_index === phase_index && s.skill_index === skill_index ? data : s,
         ),
+        currentPhase:
+          data.phase_completed && data.new_phase != null ? data.new_phase : state.currentPhase,
       }));
     } catch {
       // Roll back

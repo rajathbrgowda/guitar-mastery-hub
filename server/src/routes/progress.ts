@@ -89,7 +89,81 @@ router.patch('/skill', async (req: AuthRequest, res) => {
     return;
   }
 
-  res.json(data);
+  // DI-010: Phase completion auto-advance
+  // When a skill is marked complete, check if all skills in the current phase are done.
+  let phaseCompleted = false;
+  let newPhase: number | null = null;
+
+  if (completed) {
+    // Fetch current_phase for this user
+    const { data: userRow } = await supabase
+      .from('users')
+      .select('current_phase, selected_curriculum_key')
+      .eq('id', userId)
+      .single();
+
+    const currentPhase: number = userRow?.current_phase ?? 0;
+
+    // Only check phase completion when the toggled skill is in the current phase
+    if (phase_index === currentPhase) {
+      // Get total skills in this phase from curriculum
+      const { data: curriculumSource } = await supabase
+        .from('curriculum_sources')
+        .select('id')
+        .eq('key', curriculumKey)
+        .eq('is_active', true)
+        .single();
+
+      if (curriculumSource) {
+        const { count: totalSkillsInPhase } = await supabase
+          .from('curriculum_skill_entries')
+          .select('skill_id', { count: 'exact', head: true })
+          .eq('curriculum_id', curriculumSource.id)
+          .eq('phase_number', currentPhase);
+
+        // Get completed skills in this phase for this user
+        const { count: completedInPhase } = await supabase
+          .from('skill_progress')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('curriculum_key', curriculumKey)
+          .eq('phase_index', currentPhase)
+          .eq('completed', true);
+
+        const total = totalSkillsInPhase ?? 0;
+        const done = completedInPhase ?? 0;
+
+        if (total > 0 && done >= total) {
+          // Advance phase (capped at max phase number from curriculum)
+          const { data: maxPhaseRow } = await supabase
+            .from('curriculum_skill_entries')
+            .select('phase_number')
+            .eq('curriculum_id', curriculumSource.id)
+            .order('phase_number', { ascending: false })
+            .limit(1)
+            .single();
+
+          const maxPhase: number = maxPhaseRow?.phase_number ?? currentPhase;
+          const nextPhase = currentPhase + 1;
+
+          if (nextPhase <= maxPhase) {
+            await supabase
+              .from('users')
+              .update({ current_phase: nextPhase, updated_at: new Date().toISOString() })
+              .eq('id', userId);
+            phaseCompleted = true;
+            newPhase = nextPhase;
+          } else {
+            // User has completed the entire curriculum
+            phaseCompleted = true;
+            newPhase = currentPhase; // stay at last phase
+          }
+        }
+      }
+    }
+  }
+
+  res.json({ ...data, phase_completed: phaseCompleted, new_phase: newPhase });
 });
 
 // PATCH /api/progress/phase — update current phase
