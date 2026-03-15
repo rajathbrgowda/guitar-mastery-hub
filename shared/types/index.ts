@@ -52,3 +52,5 @@ export type {
 export type { Milestone, MilestonesResponse } from './milestones';
 
 export type { RoadmapSkill, RoadmapPhase, RoadmapResponse } from './roadmap';
+
+export type { PracticeWeekDay, QuickLogPayload, SessionGroup } from './practice-hub';
