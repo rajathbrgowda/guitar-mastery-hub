@@ -121,9 +121,40 @@ describe('PATCH /api/progress/skill', () => {
     const rowSelect = vi.fn().mockReturnValue({ single: rowSingle });
     const upsert = vi.fn().mockReturnValue({ select: rowSelect });
 
+    // Calls 3-6: DI-010 phase completion check (completed=true triggers this)
+    // Call 3: users — fetch current_phase for phase completion check
+    const phaseUserSingle = vi.fn().mockResolvedValue({
+      data: { current_phase: 0, selected_curriculum_key: 'best_of_all' },
+      error: null,
+    });
+    const phaseUserEq = vi.fn().mockReturnValue({ single: phaseUserSingle });
+    const phaseUserSelect = vi.fn().mockReturnValue({ eq: phaseUserEq });
+
+    // Call 4: curriculum_sources
+    const currSingle = vi.fn().mockResolvedValue({ data: { id: 'curr-1' }, error: null });
+    const currEq2 = vi.fn().mockReturnValue({ single: currSingle });
+    const currEq1 = vi.fn().mockReturnValue({ eq: currEq2 });
+    const currSelect = vi.fn().mockReturnValue({ eq: currEq1 });
+
+    // Call 5: count total skills in phase (curriculum_skill_entries — 2 eq calls)
+    const totalEq2 = vi.fn().mockReturnValue(Promise.resolve({ count: 10, error: null }));
+    const totalEq1 = vi.fn().mockReturnValue({ eq: totalEq2 });
+    const totalSelect = vi.fn().mockReturnValue({ eq: totalEq1 });
+
+    // Call 6: count completed skills (skill_progress — 4 eq calls), 9 < 10 so no advance
+    const doneEq4 = vi.fn().mockReturnValue(Promise.resolve({ count: 9, error: null }));
+    const doneEq3 = vi.fn().mockReturnValue({ eq: doneEq4 });
+    const doneEq2 = vi.fn().mockReturnValue({ eq: doneEq3 });
+    const doneEq1 = vi.fn().mockReturnValue({ eq: doneEq2 });
+    const doneSelect = vi.fn().mockReturnValue({ eq: doneEq1 });
+
     mockFrom
       .mockReturnValueOnce({ select: userSelect } as never)
-      .mockReturnValueOnce({ upsert } as never);
+      .mockReturnValueOnce({ upsert } as never)
+      .mockReturnValueOnce({ select: phaseUserSelect } as never)
+      .mockReturnValueOnce({ select: currSelect } as never)
+      .mockReturnValueOnce({ select: totalSelect } as never)
+      .mockReturnValueOnce({ select: doneSelect } as never);
 
     const res = await request(app)
       .patch('/api/progress/skill')
