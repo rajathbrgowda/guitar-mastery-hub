@@ -10,14 +10,41 @@ export default function AuthCallback() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.exchangeCodeForSession(window.location.href).then(({ error }) => {
-      if (error) {
-        setError(error.message);
-        setTimeout(() => navigate('/login?error=oauth_failed'), 2000);
+    // Check for OAuth error redirect (e.g. user cancelled Google picker)
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get('error');
+    const oauthErrorDesc = params.get('error_description');
+
+    if (oauthError) {
+      const msg =
+        oauthError === 'access_denied'
+          ? 'Sign-in was cancelled.'
+          : (oauthErrorDesc ?? 'OAuth sign-in failed.');
+      setError(msg);
+      setTimeout(() => navigate('/login'), 2500);
+      return;
+    }
+
+    // Timeout — if exchange takes >10s something is wrong
+    const timeout = setTimeout(() => {
+      setError('Sign-in timed out. Please try again.');
+      setTimeout(() => navigate('/login'), 2000);
+    }, 10_000);
+
+    supabase.auth.exchangeCodeForSession(window.location.href).then(({ error: exchangeError }) => {
+      clearTimeout(timeout);
+      if (exchangeError) {
+        const msg = exchangeError.message.includes('code verifier')
+          ? 'Sign-in session expired. Please try again.'
+          : exchangeError.message;
+        setError(msg);
+        setTimeout(() => navigate('/login'), 2500);
       } else {
         navigate('/app', { replace: true });
       }
     });
+
+    return () => clearTimeout(timeout);
   }, [navigate]);
 
   return (
@@ -32,7 +59,9 @@ export default function AuthCallback() {
       }}
     >
       {error ? (
-        <Typography color="error">{error} — redirecting to login…</Typography>
+        <Typography color="error" sx={{ maxWidth: 360, textAlign: 'center' }}>
+          {error} — redirecting to login…
+        </Typography>
       ) : (
         <>
           <CircularProgress color="primary" />
