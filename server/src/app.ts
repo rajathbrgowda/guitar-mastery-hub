@@ -12,6 +12,7 @@ import analyticsRouter from './routes/analytics';
 import usersRouter from './routes/users';
 import curriculumRouter from './routes/curriculum';
 import practicePlanRouter from './routes/practice-plan';
+import milestonesRouter from './routes/milestones';
 import { errorHandler } from './middleware/error';
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/resources', resourcesRouter);
 app.use('/api/analytics', analyticsRouter); // includes /api/analytics/insights
 app.use('/api/users', usersRouter);
 app.use('/api/curriculum', curriculumRouter);
+app.use('/api/milestones', milestonesRouter);
 
 app.use(errorHandler);
 
