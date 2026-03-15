@@ -42,7 +42,14 @@ export type {
   Phase,
 } from './progress';
 
-export type { Resource, ResourceWithCompletion, UpdateCompletionBody } from './resources';
+export type {
+  ResourceType,
+  ResourceStatus,
+  Resource,
+  ResourceWithCompletion,
+  ResourcesResponse,
+  UpdateCompletionBody,
+} from './resources';
 
 export type {
   ThemeKey,

@@ -1,18 +1,28 @@
+export type ResourceType = 'video' | 'tab' | 'article' | 'exercise' | 'tool';
+export type ResourceStatus = 'not_started' | 'in_progress' | 'completed';
+
 export interface Resource {
   id: string;
-  phase_index: number;
   title: string;
-  url: string | null;
-  description: string | null;
-  type: 'video' | 'course' | 'tool' | 'article' | 'link';
+  url: string;
+  type: ResourceType;
+  phase_index: number;
   is_featured: boolean;
-  sort_order: number;
+  description: string | null;
 }
 
 export interface ResourceWithCompletion extends Resource {
-  completion: number;
+  completion: number; // 0-100
+  status: ResourceStatus;
+  is_recommended: boolean; // true if phase_index matches user's current_phase
+}
+
+export interface ResourcesResponse {
+  recommended: ResourceWithCompletion[];
+  all: ResourceWithCompletion[];
 }
 
 export interface UpdateCompletionBody {
-  completion: number;
+  completion: number; // 0-100
+  status?: ResourceStatus;
 }
