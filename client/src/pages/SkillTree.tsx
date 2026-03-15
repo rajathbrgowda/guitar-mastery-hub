@@ -9,81 +9,10 @@ import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
 import CheckIcon from '@mui/icons-material/Check';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useTheme } from '@mui/material/styles';
 import { useProgressStore } from '../store/progressStore';
-
-// Same curriculum as Roadmap — single source of truth via store
-const PHASES = [
-  { title: 'Foundation', color: '#ea580c', skills: 11 },
-  { title: 'Beginner', color: '#d97706', skills: 9 },
-  { title: 'Intermediate', color: '#16a34a', skills: 10 },
-  { title: 'Advanced', color: '#2563eb', skills: 9 },
-  { title: 'Mastery', color: '#7c3aed', skills: 8 },
-];
-
-const SKILL_NAMES: string[][] = [
-  // Phase 0
-  [
-    'Posture & hold',
-    'Tuning',
-    'Finger placement',
-    'Em chord',
-    'Am chord',
-    'D chord',
-    'G chord',
-    'C chord',
-    'Chord transitions',
-    'Down-strum',
-    'First song',
-  ],
-  // Phase 1
-  [
-    'All open chords',
-    'Down-up strumming',
-    '1-min change',
-    'Power chords',
-    'Fingerpicking',
-    'Read tabs',
-    '5 full songs',
-    'Music theory basics',
-    'Metronome',
-  ],
-  // Phase 2
-  [
-    'F barre chord',
-    'Bm barre chord',
-    'All barres',
-    'Pentatonic pos 1',
-    'Lead playing',
-    'CAGED intro',
-    'Keys & major scale',
-    'Palm muting',
-    '10 songs',
-    'Improvise',
-  ],
-  // Phase 3
-  [
-    'All 5 penta pos',
-    'Major scale neck',
-    'Modes intro',
-    'Travis picking',
-    'Chord extensions',
-    'Play by ear',
-    'Vibrato & legato',
-    'Transcribe solo',
-    'Improvise freely',
-  ],
-  // Phase 4
-  [
-    'Advanced theory',
-    'Hybrid picking',
-    'Sweep basics',
-    'Write a piece',
-    'Ear training',
-    'Record & review',
-    'Teach a concept',
-    'Unique style',
-  ],
-];
+import { useCurriculumStore } from '../store/curriculumStore';
+import { useUserStore } from '../store/userStore';
 
 interface NodeProps {
   phaseIndex: number;
@@ -95,7 +24,8 @@ interface NodeProps {
 }
 
 function SkillNode({ phaseIndex, name, completed, isCurrentPhase, onToggle }: NodeProps) {
-  const phaseColor = PHASES[phaseIndex].color;
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
   const locked = !isCurrentPhase && !completed && phaseIndex > 0;
 
   return (
@@ -107,8 +37,8 @@ function SkillNode({ phaseIndex, name, completed, isCurrentPhase, onToggle }: No
           height: 48,
           borderRadius: '50%',
           border: '2px solid',
-          borderColor: completed ? phaseColor : locked ? '#e5e0df' : phaseColor,
-          bgcolor: completed ? phaseColor : locked ? '#f7f5f2' : '#fff',
+          borderColor: completed ? primaryColor : locked ? '#e5e0df' : primaryColor,
+          bgcolor: completed ? primaryColor : locked ? '#f7f5f2' : '#fff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -118,7 +48,7 @@ function SkillNode({ phaseIndex, name, completed, isCurrentPhase, onToggle }: No
           '&:hover': locked
             ? {}
             : {
-                boxShadow: `0 0 0 3px ${phaseColor}33`,
+                boxShadow: `0 0 0 3px ${primaryColor}33`,
                 transform: 'scale(1.08)',
               },
         }}
@@ -129,7 +59,7 @@ function SkillNode({ phaseIndex, name, completed, isCurrentPhase, onToggle }: No
           <LockOutlinedIcon sx={{ fontSize: 16, color: '#c0bab9' }} />
         ) : (
           <Box
-            sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: phaseColor, opacity: 0.5 }}
+            sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: primaryColor, opacity: 0.5 }}
           />
         )}
       </Box>
@@ -138,12 +68,30 @@ function SkillNode({ phaseIndex, name, completed, isCurrentPhase, onToggle }: No
 }
 
 export default function SkillTree() {
-  const { skills, currentPhase, loading, error, fetchProgress, toggleSkill } = useProgressStore();
+  const {
+    skills,
+    currentPhase,
+    loading: progressLoading,
+    error: progressError,
+    fetchProgress,
+    toggleSkill,
+  } = useProgressStore();
+  const { activeCurriculum, isLoadingDetail, detailError, fetchCurriculumDetail } =
+    useCurriculumStore();
+  const { profile } = useUserStore();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
+
+  const curriculumKey = profile?.selected_curriculum_key ?? 'best_of_all';
 
   useEffect(() => {
     fetchProgress();
   }, [fetchProgress]);
+
+  useEffect(() => {
+    fetchCurriculumDetail(curriculumKey);
+  }, [curriculumKey, fetchCurriculumDetail]);
 
   function isCompleted(phaseIndex: number, skillIndex: number) {
     return (
@@ -151,6 +99,10 @@ export default function SkillTree() {
       false
     );
   }
+
+  const loading = progressLoading || isLoadingDetail;
+  const error = progressError ?? detailError;
+  const phases = activeCurriculum?.phases ?? [];
 
   if (loading) {
     return (
@@ -167,7 +119,7 @@ export default function SkillTree() {
           Skill Tree
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Your progress across all 5 phases. Click a node to mark a skill done.
+          Your progress across all phases. Click a node to mark a skill done.
         </Typography>
       </Box>
 
@@ -177,15 +129,21 @@ export default function SkillTree() {
         </Alert>
       )}
 
-      {PHASES.map((phase, pi) => {
-        const phaseSkills = SKILL_NAMES[pi];
-        const completedCount = phaseSkills.filter((_, si) => isCompleted(pi, si)).length;
-        const pct = Math.round((completedCount / phaseSkills.length) * 100);
+      {phases.length === 0 && !loading && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Select a curriculum in Settings to see your skill tree.
+        </Alert>
+      )}
+
+      {phases.map((phase, pi) => {
+        const phaseSkillCount = phase.skills.length;
+        const completedCount = phase.skills.filter((_, si) => isCompleted(pi, si)).length;
+        const pct = phaseSkillCount > 0 ? Math.round((completedCount / phaseSkillCount) * 100) : 0;
         const isCurrent = currentPhase === pi;
         const isLocked = currentPhase != null && pi > currentPhase;
 
         return (
-          <Box key={pi} sx={{ mb: 4 }}>
+          <Box key={phase.phase_number} sx={{ mb: 4 }}>
             {/* Phase header */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
               <Box
@@ -194,7 +152,7 @@ export default function SkillTree() {
                   height: 10,
                   borderRadius: '50%',
                   flexShrink: 0,
-                  bgcolor: isLocked ? '#e5e0df' : phase.color,
+                  bgcolor: isLocked ? '#e5e0df' : primaryColor,
                 }}
               />
               <Typography
@@ -208,7 +166,7 @@ export default function SkillTree() {
                 fontWeight={700}
                 sx={{ color: isLocked ? 'text.disabled' : 'text.primary' }}
               >
-                {phase.title}
+                {phase.phase_title}
               </Typography>
               {isCurrent && (
                 <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -219,7 +177,7 @@ export default function SkillTree() {
                       color: 'text.secondary',
                     }}
                   >
-                    {completedCount}/{phaseSkills.length}
+                    {completedCount}/{phaseSkillCount}
                   </Typography>
                 </Box>
               )}
@@ -247,7 +205,7 @@ export default function SkillTree() {
                 height: 4,
                 borderRadius: 2,
                 bgcolor: '#f0ece9',
-                '& .MuiLinearProgress-bar': { bgcolor: isLocked ? '#e5e0df' : phase.color },
+                '& .MuiLinearProgress-bar': { bgcolor: isLocked ? '#e5e0df' : primaryColor },
               }}
             />
 
@@ -260,12 +218,12 @@ export default function SkillTree() {
                 opacity: isLocked ? 0.45 : 1,
               }}
             >
-              {phaseSkills.map((name, si) => (
+              {phase.skills.map((skill, si) => (
                 <SkillNode
-                  key={si}
+                  key={skill.key}
                   phaseIndex={pi}
                   skillIndex={si}
-                  name={name}
+                  name={skill.title}
                   completed={isCompleted(pi, si)}
                   isCurrentPhase={pi <= currentPhase}
                   onToggle={() => toggleSkill(pi, si, !isCompleted(pi, si))}
@@ -274,50 +232,52 @@ export default function SkillTree() {
             </Box>
 
             {/* Connector line to next phase */}
-            {pi < PHASES.length - 1 && (
+            {pi < phases.length - 1 && (
               <Box sx={{ ml: 3, mt: 1.5, width: 2, height: 24, bgcolor: '#e5e0df' }} />
             )}
           </Box>
         );
       })}
 
-      <Box
-        sx={{
-          mt: 2,
-          pt: 3,
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          display: 'flex',
-          gap: 2,
-          flexWrap: 'wrap',
-        }}
-      >
-        <Button variant="outlined" size="small" onClick={() => navigate('/app/roadmap')}>
-          View full Roadmap
-        </Button>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-          {[
-            { label: 'Completed', color: PHASES[currentPhase].color, filled: true },
-            { label: 'Available', color: PHASES[currentPhase].color, filled: false },
-            { label: 'Locked', color: '#e5e0df', filled: true },
-          ].map((leg) => (
-            <Box key={leg.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-              <Box
-                sx={{
-                  width: 14,
-                  height: 14,
-                  borderRadius: '50%',
-                  bgcolor: leg.filled ? leg.color : '#fff',
-                  border: `2px solid ${leg.color}`,
-                }}
-              />
-              <Typography variant="caption" color="text.secondary">
-                {leg.label}
-              </Typography>
-            </Box>
-          ))}
+      {phases.length > 0 && (
+        <Box
+          sx={{
+            mt: 2,
+            pt: 3,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            display: 'flex',
+            gap: 2,
+            flexWrap: 'wrap',
+          }}
+        >
+          <Button variant="outlined" size="small" onClick={() => navigate('/app/roadmap')}>
+            View full Roadmap
+          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Completed', color: primaryColor, filled: true },
+              { label: 'Available', color: primaryColor, filled: false },
+              { label: 'Locked', color: '#e5e0df', filled: true },
+            ].map((leg) => (
+              <Box key={leg.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <Box
+                  sx={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: '50%',
+                    bgcolor: leg.filled ? leg.color : '#fff',
+                    border: `2px solid ${leg.color}`,
+                  }}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  {leg.label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 }
