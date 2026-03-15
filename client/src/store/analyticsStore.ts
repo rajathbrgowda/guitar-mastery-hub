@@ -9,6 +9,7 @@ interface AnalyticsState {
   error: string;
   fetchSkillsAnalytics: () => Promise<void>;
   fetchActivityHistory: (days?: number) => Promise<void>;
+  reset: () => void;
 }
 
 export const useAnalyticsStore = create<AnalyticsState>((set) => ({
@@ -37,4 +38,6 @@ export const useAnalyticsStore = create<AnalyticsState>((set) => ({
       set({ error: 'Failed to load activity history.' });
     }
   },
+
+  reset: () => set({ skillsData: null, activityHistory: [], error: '' }),
 }));

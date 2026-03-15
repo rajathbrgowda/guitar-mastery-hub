@@ -42,12 +42,11 @@ describe('GET /api/analytics/insights', () => {
       timezone: 'UTC',
     });
 
-    // Call 2: user plans (empty)
-    const plansSelect = vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        gte: vi.fn().mockResolvedValue({ data: [], error: null }),
-      }),
-    });
+    // Call 2: user plans (empty) — chain: .select().eq(user_id).eq(curriculum_key).gte(...)
+    const plansGte = vi.fn().mockResolvedValue({ data: [], error: null });
+    const plansEqCurriculum = vi.fn().mockReturnValue({ gte: plansGte });
+    const plansEqUser = vi.fn().mockReturnValue({ eq: plansEqCurriculum, gte: plansGte });
+    const plansSelect = vi.fn().mockReturnValue({ eq: plansEqUser });
 
     // Call 3: curriculum source
     const currChain = makeChain({ id: 'curr-1' });
@@ -90,11 +89,11 @@ describe('GET /api/analytics/insights', () => {
       selected_curriculum_key: 'best_of_all',
       timezone: 'UTC',
     });
-    const plansSelect = vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        gte: vi.fn().mockResolvedValue({ data: [], error: null }),
-      }),
-    });
+    // Second test: plan chain with two eq calls
+    const plansGte2 = vi.fn().mockResolvedValue({ data: [], error: null });
+    const plansEqCurriculum2 = vi.fn().mockReturnValue({ gte: plansGte2 });
+    const plansEqUser2 = vi.fn().mockReturnValue({ eq: plansEqCurriculum2, gte: plansGte2 });
+    const plansSelect = vi.fn().mockReturnValue({ eq: plansEqUser2 });
     const currChain = makeChain({ id: 'curr-1' });
     const skillsEq2 = vi.fn().mockResolvedValue({ data: [], error: null });
     const skillsSelect = vi

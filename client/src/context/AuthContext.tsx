@@ -8,6 +8,7 @@ import { usePracticeStore } from '../store/practiceStore';
 import { usePracticePlanStore } from '../store/practicePlanStore';
 import { useCurriculumStore } from '../store/curriculumStore';
 import { useInsightsStore } from '../store/insightsStore';
+import { useAnalyticsStore } from '../store/analyticsStore';
 import { useMilestoneStore } from '../store/milestoneStore';
 
 interface AuthContextValue {
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           usePracticePlanStore.getState().reset();
           useCurriculumStore.getState().reset();
           useInsightsStore.getState().reset();
+          useAnalyticsStore.getState().reset();
           // TODO(CARD-210): add practiceModeStore.reset() when CARD-207 creates it
           useMilestoneStore.getState().reset();
           setSession(null);

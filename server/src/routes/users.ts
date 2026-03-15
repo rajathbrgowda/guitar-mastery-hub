@@ -87,6 +87,14 @@ router.put('/me/curriculum', async (req: AuthRequest, res: Response) => {
     return;
   }
 
+  // Delete today's plan so it regenerates with the new curriculum's skills
+  const today = new Date().toISOString().slice(0, 10);
+  await supabase
+    .from('daily_practice_plans')
+    .delete()
+    .eq('user_id', req.user!.id)
+    .eq('plan_date', today);
+
   res.json(data);
 });
 
@@ -111,7 +119,7 @@ router.post('/me/onboard', async (req: AuthRequest, res: Response) => {
     .single();
 
   if (currErr || !curriculum) {
-    res.status(422).json({ error: 'Unknown or inactive curriculum key' });
+    res.status(400).json({ error: 'Unknown or inactive curriculum key' });
     return;
   }
 

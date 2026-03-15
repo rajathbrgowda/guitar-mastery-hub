@@ -167,16 +167,30 @@ router.post('/today/skip', async (req: AuthRequest, res: Response) => {
 // PLAN GENERATION ALGORITHM
 // ─────────────────────────────────────────────────────────────
 async function generatePlan(userId: string, today: string): Promise<DailyPracticePlan | null> {
-  // 0. Fetch confidence history — last 14 days of rated items for this user
   const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
     .toISOString()
     .slice(0, 10);
 
-  // Step 0a: get plan IDs from last 14 days for this user
+  // 1. Fetch user's profile first so we have curriculum_key for all subsequent queries
+  const { data: user } = await supabase
+    .from('users')
+    .select('current_phase, daily_goal_min, selected_curriculum_key')
+    .eq('id', userId)
+    .single();
+
+  if (!user) return null;
+
+  const currentPhase: number = user.current_phase ?? 1;
+  const dailyGoalMin: number = user.daily_goal_min > 0 ? user.daily_goal_min : 20;
+  const curriculumKey: string = user.selected_curriculum_key ?? 'best_of_all';
+
+  // 0. Fetch confidence history — last 14 days of rated items for this curriculum only
+  // Step 0a: get plan IDs filtered by curriculum_key so confidence data is curriculum-scoped
   const { data: recentPlans } = await supabase
     .from('daily_practice_plans')
     .select('id')
     .eq('user_id', userId)
+    .eq('curriculum_key', curriculumKey)
     .gte('plan_date', fourteenDaysAgo);
 
   const recentPlanIds = (recentPlans ?? []).map((p) => p.id);
@@ -199,19 +213,6 @@ async function generatePlan(userId: string, today: string): Promise<DailyPractic
       });
     }
   }
-
-  // 1. Fetch user's profile (phase + daily_goal_min + curriculum)
-  const { data: user } = await supabase
-    .from('users')
-    .select('current_phase, daily_goal_min, selected_curriculum_key')
-    .eq('id', userId)
-    .single();
-
-  if (!user) return null;
-
-  const currentPhase: number = user.current_phase ?? 1;
-  const dailyGoalMin: number = user.daily_goal_min > 0 ? user.daily_goal_min : 20;
-  const curriculumKey: string = user.selected_curriculum_key ?? 'best_of_all';
 
   // 2. Fetch curriculum source
   const { data: curriculumSource } = await supabase

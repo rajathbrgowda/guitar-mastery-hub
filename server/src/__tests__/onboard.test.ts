@@ -115,4 +115,22 @@ describe('POST /api/users/me/onboard', () => {
 
     expect(res.status).toBe(400);
   });
+
+  it('returns 400 when curriculum_key is unknown or inactive', async () => {
+    // curriculum_sources returns no row → inactive/unknown
+    const mockCurrSingle = vi.fn().mockResolvedValue({ data: null, error: { message: 'no rows' } });
+    const mockCurrEq2 = vi.fn().mockReturnValue({ single: mockCurrSingle });
+    const mockCurrEq1 = vi.fn().mockReturnValue({ eq: mockCurrEq2 });
+    const mockCurrSelect = vi.fn().mockReturnValue({ eq: mockCurrEq1 });
+
+    mockFrom.mockReturnValueOnce({ select: mockCurrSelect } as never);
+
+    const res = await request(app)
+      .post('/api/users/me/onboard')
+      .set(AUTH)
+      .send({ ...VALID_BODY, curriculum_key: 'nonexistent_curriculum' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/curriculum/i);
+  });
 });

@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { api } from '../services/api';
 import type { CurriculumSource, CurriculumDetail } from '@gmh/shared/types/curriculum';
+import { useProgressStore } from './progressStore';
+import { usePracticePlanStore } from './practicePlanStore';
+import { useInsightsStore } from './insightsStore';
+import { useAnalyticsStore } from './analyticsStore';
 
 interface CurriculumState {
   curricula: CurriculumSource[];
@@ -52,8 +56,19 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
       await api.put('/api/users/me/curriculum', { curriculum_key: key });
       // Clear cached detail so next fetch loads the new curriculum
       set({ activeCurriculum: null });
-      // Fetch new curriculum detail
-      await get().fetchCurriculumDetail(key);
+
+      // Reset all curriculum-scoped stores so stale data from the old curriculum
+      // is never shown after the switch.
+      useProgressStore.getState().reset();
+      usePracticePlanStore.getState().reset();
+      useInsightsStore.getState().reset();
+      useAnalyticsStore.getState().reset();
+
+      // Fetch new curriculum detail and a fresh practice plan in parallel
+      await Promise.all([
+        get().fetchCurriculumDetail(key),
+        usePracticePlanStore.getState().fetchTodaysPlan(),
+      ]);
     } catch {
       throw new Error('Failed to switch curriculum');
     }

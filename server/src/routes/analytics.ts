@@ -200,10 +200,12 @@ router.get('/insights', async (req: AuthRequest, res) => {
   const timezone: string = user.timezone ?? 'UTC';
 
   // 2. Get this user's plan IDs from the last 14 days (for confidence lookup)
+  //    Filtered by curriculum_key so confidence data never bleeds across curricula.
   const { data: userPlans } = await supabase
     .from('daily_practice_plans')
     .select('id')
     .eq('user_id', userId)
+    .eq('curriculum_key', curriculumKey)
     .gte('plan_date', fourteenDaysAgo);
 
   const planIds = (userPlans ?? []).map((p: { id: string }) => p.id);
