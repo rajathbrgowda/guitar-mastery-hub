@@ -75,3 +75,5 @@ export type {
 } from './mastery';
 
 export type { ToolCategory, ToolPrice, Tool, UserTool, ToolsResponse } from './tools';
+
+export type { PublicStats } from './public-stats';

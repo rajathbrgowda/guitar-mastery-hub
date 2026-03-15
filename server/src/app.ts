@@ -16,6 +16,7 @@ import milestonesRouter from './routes/milestones';
 import roadmapRouter from './routes/roadmap';
 import masteryRouter from './routes/mastery';
 import toolsRouter from './routes/tools';
+import publicStatsRouter from './routes/public-stats';
 import { errorHandler } from './middleware/error';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(express.json());
 
 // Public
 app.use('/api/health', healthRouter);
+app.use('/api/public/stats', publicStatsRouter);
 
 // Protected — requireAuth applied inside each router
 app.use('/api/progress', progressRouter);
