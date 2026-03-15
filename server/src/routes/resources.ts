@@ -54,7 +54,9 @@ router.get('/', async (req: AuthRequest, res) => {
     };
   });
 
-  const recommended = enriched.filter((r) => r.is_recommended && r.is_featured);
+  const recommended = enriched.filter(
+    (r) => r.is_recommended && (r as Record<string, unknown>).is_featured,
+  );
   // Cap recommended at 3
   const top3Recommended = recommended.slice(0, 3);
 

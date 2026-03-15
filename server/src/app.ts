@@ -15,6 +15,7 @@ import practicePlanRouter from './routes/practice-plan';
 import milestonesRouter from './routes/milestones';
 import roadmapRouter from './routes/roadmap';
 import masteryRouter from './routes/mastery';
+import toolsRouter from './routes/tools';
 import { errorHandler } from './middleware/error';
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/curriculum', curriculumRouter);
 app.use('/api/milestones', milestonesRouter);
 app.use('/api/roadmap', roadmapRouter);
 app.use('/api/mastery', masteryRouter);
+app.use('/api/tools', toolsRouter);
 
 app.use(errorHandler);
 
