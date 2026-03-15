@@ -5,6 +5,7 @@ import { useProgressStore } from './progressStore';
 import { usePracticePlanStore } from './practicePlanStore';
 import { useInsightsStore } from './insightsStore';
 import { useAnalyticsStore } from './analyticsStore';
+import { useRoadmapStore } from './roadmapStore';
 
 interface CurriculumState {
   curricula: CurriculumSource[];
@@ -63,6 +64,7 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
       usePracticePlanStore.getState().reset();
       useInsightsStore.getState().reset();
       useAnalyticsStore.getState().reset();
+      useRoadmapStore.getState().reset();
 
       // Fetch new curriculum detail and a fresh practice plan in parallel
       await Promise.all([
