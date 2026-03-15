@@ -1,0 +1,62 @@
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+
+// CARD-317: Open Dev Note copy — honest note from developer
+// CARD-318: OpenDevNote component
+
+export default function OpenDevNote() {
+  return (
+    <Box
+      id="dev-note"
+      sx={{ bgcolor: 'background.default', py: { xs: 6, sm: 8 } }}
+      aria-labelledby="dev-note-heading"
+    >
+      <Container maxWidth="sm">
+        <Paper
+          variant="outlined"
+          sx={{ p: { xs: 3, sm: 4 }, borderRadius: 2, borderStyle: 'dashed' }}
+        >
+          <Typography
+            variant="overline"
+            sx={{
+              color: 'primary.main',
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              mb: 1.5,
+              display: 'block',
+            }}
+          >
+            A note from the developer
+          </Typography>
+
+          <Typography
+            id="dev-note-heading"
+            variant="h6"
+            component="h2"
+            fontWeight={700}
+            sx={{ mb: 2 }}
+          >
+            Where the app is right now
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+              The core features are live and working: session log, streak tracking, roadmap, mastery
+              map, analytics, and a structured daily practice plan. I use the app myself every day.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+              It is not polished in every corner. Some flows are rough. There are features I want to
+              add — better mobile UX, export, sharing streaks. They are not done yet.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+              If you find something broken or confusing, please tell me. I read every message and I
+              ship fixes fast. This project is worth building and I intend to keep building it.
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
+  );
+}
