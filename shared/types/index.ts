@@ -6,6 +6,9 @@ export type {
   AnalyticsHistoryEntry,
   StreakResponse,
   WeakSpot,
+  SkillInsight,
+  WeeklyDigest,
+  InsightsSummary,
 } from './analytics';
 
 export type {
@@ -17,6 +20,7 @@ export type {
 } from './curriculum';
 
 export type {
+  ConfidenceRating,
   PracticePlanItem,
   DailyPracticePlan,
   CompletePlanItemBody,

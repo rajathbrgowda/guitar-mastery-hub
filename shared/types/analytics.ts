@@ -27,3 +27,28 @@ export interface AnalyticsHistoryEntry {
 export interface StreakResponse {
   streak: number;
 }
+
+export interface SkillInsight {
+  skill_id: string;
+  skill_key: string;
+  skill_title: string;
+  skill_category: string;
+  avg_confidence: number | null; // null = never rated
+  practice_count: number; // rated sessions in last 14 days
+  last_practiced_at: string | null;
+}
+
+export interface WeeklyDigest {
+  week_start: string; // YYYY-MM-DD (7 days ago)
+  sessions_count: number;
+  total_mins: number;
+  days_practiced: number;
+  top_skill_title: string | null;
+}
+
+export interface InsightsSummary {
+  weakSkills: SkillInsight[]; // avg_confidence < 1.7
+  strongSkills: SkillInsight[]; // avg_confidence > 2.5 AND count >= 3
+  weeklyDigest: WeeklyDigest;
+  focusSkill: SkillInsight | null; // top weak skill for plan prioritisation
+}
