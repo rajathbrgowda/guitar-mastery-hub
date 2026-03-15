@@ -3,9 +3,61 @@ import { requireAuth } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
 import { logSessionSchema } from '../schemas/practice';
+import type { PracticeWeekDay } from '@gmh/shared/types';
 
 const router = Router();
 router.use(requireAuth);
+
+// GET /api/practice/week — Mon–Sun activity strip for current week in user's timezone
+router.get('/week', async (req: AuthRequest, res) => {
+  const userId = req.user!.id;
+
+  const { data: userData } = await supabase
+    .from('users')
+    .select('timezone')
+    .eq('id', userId)
+    .single();
+
+  const tz = (userData as { timezone?: string } | null)?.timezone ?? 'UTC';
+
+  // Current date in user's timezone
+  const localDateStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+  const todayLocal = new Date(localDateStr + 'T12:00:00');
+  const dow = todayLocal.getDay(); // 0=Sun
+  const daysSinceMon = (dow + 6) % 7;
+
+  const days: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(todayLocal);
+    d.setDate(todayLocal.getDate() - daysSinceMon + i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+
+  const { data: sessions, error } = await supabase
+    .from('practice_sessions')
+    .select('date, duration_min')
+    .eq('user_id', userId)
+    .gte('date', days[0])
+    .lte('date', days[6]);
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const result: PracticeWeekDay[] = days.map((date, i) => {
+    const daySessions = (sessions ?? []).filter((s) => s.date === date);
+    return {
+      date,
+      day_label: DAY_LABELS[i],
+      has_session: daySessions.length > 0,
+      duration_min: daySessions.reduce((sum, s) => sum + s.duration_min, 0),
+    };
+  });
+
+  res.json(result);
+});
 
 // GET /api/practice?from=YYYY-MM-DD&to=YYYY-MM-DD
 router.get('/', async (req: AuthRequest, res) => {
