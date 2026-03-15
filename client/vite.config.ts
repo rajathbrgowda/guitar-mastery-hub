@@ -10,4 +10,14 @@ export default defineConfig({
       usePolling: true, // required for hot-reload inside Docker on macOS
     },
   },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    setupFiles: ['./src/setupTests.ts'],
+    env: {
+      VITE_SUPABASE_URL: 'https://test.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+      VITE_API_URL: 'http://localhost:4000',
+    },
+  },
 })

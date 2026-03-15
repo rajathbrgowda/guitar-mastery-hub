@@ -20,12 +20,7 @@ import { format } from 'date-fns';
 import { usePracticeStore } from '../store/practiceStore';
 import { useUserStore } from '../store/userStore';
 import { PracticeSection } from '../types/practice';
-
-function formatTime(seconds: number) {
-  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
-  return `${m}:${s}`;
-}
+import { formatTime } from '../utils/formatTime';
 
 const QUICK_DURATIONS = [15, 30, 45, 60];
 
