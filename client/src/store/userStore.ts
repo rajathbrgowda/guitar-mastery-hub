@@ -10,11 +10,13 @@ interface UserStoreState {
   reset: () => void;
 }
 
-export const useUserStore = create<UserStoreState>((set) => ({
+export const useUserStore = create<UserStoreState>((set, get) => ({
   profile: null,
   loading: false,
 
   fetchProfile: async () => {
+    // Skip if already loaded (called from multiple mount points)
+    if (get().profile) return;
     set({ loading: true });
     try {
       const { data } = await api.get<UserProfile>('/api/users/me');
@@ -27,8 +29,18 @@ export const useUserStore = create<UserStoreState>((set) => ({
   },
 
   updateProfile: async (patch) => {
-    const { data } = await api.patch<UserProfile>('/api/users/me', patch);
-    set({ profile: data });
+    const prev = get().profile;
+    // Optimistic update — apply immediately so theme/UI changes feel instant
+    if (prev) set({ profile: { ...prev, ...patch } as UserProfile });
+    try {
+      const { data } = await api.patch<UserProfile>('/api/users/me', patch);
+      // Confirm with server data (server is source of truth)
+      set({ profile: data });
+    } catch (err) {
+      // Roll back to previous state on failure
+      set({ profile: prev });
+      throw err;
+    }
   },
 
   reset: () => set({ profile: null, loading: false }),
