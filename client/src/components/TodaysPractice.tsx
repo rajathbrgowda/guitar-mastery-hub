@@ -13,6 +13,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import TimerIcon from '@mui/icons-material/Timer';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { usePracticePlanStore } from '../store/practicePlanStore';
 import { PracticeItem } from './PracticeItem';
 
@@ -42,9 +43,19 @@ export function TodaysPractice() {
 
   if (error) {
     return (
-      <Alert severity="error" sx={{ borderRadius: 2 }}>
-        {error}
-      </Alert>
+      <Box sx={{ textAlign: 'center', py: 3 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+          Couldn't load today's plan.
+        </Typography>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<RefreshIcon />}
+          onClick={() => fetchTodaysPlan()}
+        >
+          Retry
+        </Button>
+      </Box>
     );
   }
 

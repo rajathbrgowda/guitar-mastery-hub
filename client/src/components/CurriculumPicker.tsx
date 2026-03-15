@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import type { CurriculumSource } from '@gmh/shared/types/curriculum';
 import { useCurriculumStore } from '../store/curriculumStore';
 
@@ -79,7 +80,21 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
   }
 
   if (listError) {
-    return <Alert severity="error">{listError}</Alert>;
+    return (
+      <Box sx={{ textAlign: 'center', py: 3 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+          Couldn't load curricula. Check your connection and try again.
+        </Typography>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<RefreshIcon />}
+          onClick={() => fetchCurricula()}
+        >
+          Retry
+        </Button>
+      </Box>
+    );
   }
 
   return (

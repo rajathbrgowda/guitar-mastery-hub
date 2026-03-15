@@ -20,8 +20,9 @@ export const usePracticePlanStore = create<PracticePlanState>((set, get) => ({
   error: null,
   noplan: false,
 
-  fetchTodaysPlan: async () => {
+  fetchTodaysPlan: async (force?: boolean) => {
     set({ isLoading: true, error: null, noplan: false });
+    void force; // reserved for future cache-busting
     try {
       const res = await api.get<DailyPracticePlan>('/api/practice/plan/today', {
         validateStatus: (s) => s === 200 || s === 204,
