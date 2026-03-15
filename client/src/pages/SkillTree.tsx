@@ -1,113 +1,62 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
+import Skeleton from '@mui/material/Skeleton';
 import LinearProgress from '@mui/material/LinearProgress';
-import CheckIcon from '@mui/icons-material/Check';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Chip from '@mui/material/Chip';
 import { useTheme } from '@mui/material/styles';
+import { alpha } from '@mui/material/styles';
+import { useMasteryStore } from '../store/masteryStore';
 import { useProgressStore } from '../store/progressStore';
-import { useCurriculumStore } from '../store/curriculumStore';
-import { useUserStore } from '../store/userStore';
+import type { MasteryNode as MasteryNodeType } from '@gmh/shared/types';
+import MasteryNode from '../components/MasteryNode';
+import MasteryNodePanel from '../components/MasteryNodePanel';
 
-interface NodeProps {
-  phaseIndex: number;
-  skillIndex: number;
-  name: string;
-  completed: boolean;
-  isCurrentPhase: boolean;
-  onToggle: () => void;
-}
-
-function SkillNode({ phaseIndex, name, completed, isCurrentPhase, onToggle }: NodeProps) {
-  const theme = useTheme();
-  const primaryColor = theme.palette.primary.main;
-  const locked = !isCurrentPhase && !completed && phaseIndex > 0;
-
+function PhaseSkeleton() {
   return (
-    <Tooltip title={locked ? 'Complete previous phases first' : name} placement="top" arrow>
-      <Box
-        onClick={locked ? undefined : onToggle}
-        sx={{
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          border: '2px solid',
-          borderColor: completed ? primaryColor : locked ? '#e5e0df' : primaryColor,
-          bgcolor: completed ? primaryColor : locked ? '#f7f5f2' : '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: locked ? 'default' : 'pointer',
-          transition: 'all 0.15s',
-          flexShrink: 0,
-          '&:hover': locked
-            ? {}
-            : {
-                boxShadow: `0 0 0 3px ${primaryColor}33`,
-                transform: 'scale(1.08)',
-              },
-        }}
-      >
-        {completed ? (
-          <CheckIcon sx={{ fontSize: 20, color: '#fff' }} />
-        ) : locked ? (
-          <LockOutlinedIcon sx={{ fontSize: 16, color: '#c0bab9' }} />
-        ) : (
-          <Box
-            sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: primaryColor, opacity: 0.5 }}
-          />
-        )}
+    <Box sx={{ mb: 4 }}>
+      <Skeleton width={160} height={24} sx={{ mb: 1 }} />
+      <Skeleton variant="rectangular" height={4} sx={{ mb: 2, borderRadius: 1 }} />
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} variant="circular" width={44} height={44} />
+        ))}
       </Box>
-    </Tooltip>
+    </Box>
   );
 }
 
 export default function SkillTree() {
-  const {
-    skills,
-    currentPhase,
-    loading: progressLoading,
-    error: progressError,
-    fetchProgress,
-    toggleSkill,
-  } = useProgressStore();
-  const { activeCurriculum, isLoadingDetail, detailError, fetchCurriculumDetail } =
-    useCurriculumStore();
-  const { profile } = useUserStore();
-  const navigate = useNavigate();
+  const { map, isLoading, error, fetchMap, runRustyCheck } = useMasteryStore();
+  const { toggleSkill } = useProgressStore();
+  const [selectedNode, setSelectedNode] = useState<MasteryNodeType | null>(null);
   const theme = useTheme();
-  const primaryColor = theme.palette.primary.main;
-
-  const curriculumKey = profile?.selected_curriculum_key ?? 'best_of_all';
+  const primary = theme.palette.primary.main;
 
   useEffect(() => {
-    fetchProgress();
-  }, [fetchProgress]);
+    // Fire rusty-check first (fire-and-forget), then fetch the map
+    runRustyCheck().then(() => fetchMap());
+  }, [fetchMap, runRustyCheck]);
 
-  useEffect(() => {
-    fetchCurriculumDetail(curriculumKey);
-  }, [curriculumKey, fetchCurriculumDetail]);
-
-  function isCompleted(phaseIndex: number, skillIndex: number) {
-    return (
-      skills.find((s) => s.phase_index === phaseIndex && s.skill_index === skillIndex)?.completed ??
-      false
-    );
+  async function handleMarkRevisited(node: MasteryNodeType) {
+    // Re-marking as mastered resets last_practiced_at to now
+    await toggleSkill(node.phase_index, node.skill_index, true);
+    setSelectedNode(null);
+    fetchMap();
   }
 
-  const loading = progressLoading || isLoadingDetail;
-  const error = progressError ?? detailError;
-  const phases = activeCurriculum?.phases ?? [];
+  const phases = map?.phases ?? [];
+  const rustyCount = map?.rusty_count ?? 0;
 
-  if (loading) {
+  if (isLoading && !map) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
-        <CircularProgress color="primary" />
+      <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+        <Skeleton width={200} height={40} sx={{ mb: 1 }} />
+        <Skeleton width={300} height={20} sx={{ mb: 4 }} />
+        {[1, 2, 3].map((i) => (
+          <PhaseSkeleton key={i} />
+        ))}
       </Box>
     );
   }
@@ -116,10 +65,10 @@ export default function SkillTree() {
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} gutterBottom>
-          Skill Tree
+          Mastery Map
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Your progress across all phases. Click a node to mark a skill done.
+          Track your skill mastery. Click any node to see details, tips, and history.
         </Typography>
       </Box>
 
@@ -129,71 +78,78 @@ export default function SkillTree() {
         </Alert>
       )}
 
-      {phases.length === 0 && !loading && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Select a curriculum in Settings to see your skill tree.
+      {/* Rusty banner */}
+      {rustyCount > 0 && (
+        <Alert severity="warning" sx={{ mb: 3 }} icon={false}>
+          <strong>
+            {rustyCount} skill{rustyCount !== 1 ? 's' : ''} need revisiting
+          </strong>{' '}
+          — you haven't practiced {rustyCount !== 1 ? 'them' : 'it'} in 21+ days. Click the node to
+          review.
         </Alert>
       )}
 
-      {phases.map((phase, pi) => {
-        const phaseSkillCount = phase.skills.length;
-        const completedCount = phase.skills.filter((_, si) => isCompleted(pi, si)).length;
-        const pct = phaseSkillCount > 0 ? Math.round((completedCount / phaseSkillCount) * 100) : 0;
-        const isCurrent = currentPhase === pi;
-        const isLocked = currentPhase != null && pi > currentPhase;
+      {phases.length === 0 && !isLoading && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Start practicing to build your mastery map.
+        </Alert>
+      )}
+
+      {phases.map((phase) => {
+        const total = phase.nodes.length;
+        const mastered = phase.nodes.filter((n) => n.mastery_state === 'mastered').length;
+        const learning = phase.nodes.filter((n) => n.mastery_state === 'learning').length;
+        const rusty = phase.nodes.filter((n) => n.mastery_state === 'rusty').length;
+        const pct = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
         return (
-          <Box key={phase.phase_number} sx={{ mb: 4 }}>
+          <Box key={phase.phase_index} sx={{ mb: 4 }}>
             {/* Phase header */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
               <Box
                 sx={{
                   width: 10,
                   height: 10,
                   borderRadius: '50%',
                   flexShrink: 0,
-                  bgcolor: isLocked ? '#e5e0df' : primaryColor,
+                  bgcolor: pct > 0 ? primary : theme.palette.action.disabled,
                 }}
               />
-              <Typography
-                variant="overline"
-                sx={{ color: isLocked ? 'text.disabled' : 'text.secondary' }}
-              >
-                Phase {pi + 1}
+              <Typography variant="overline" color="text.secondary">
+                Phase {phase.phase_index + 1}
               </Typography>
-              <Typography
-                variant="h6"
-                fontWeight={700}
-                sx={{ color: isLocked ? 'text.disabled' : 'text.primary' }}
-              >
+              <Typography variant="h6" fontWeight={700}>
                 {phase.phase_title}
               </Typography>
-              {isCurrent && (
-                <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: '"IBM Plex Mono", monospace',
-                      fontSize: '0.75rem',
-                      color: 'text.secondary',
-                    }}
-                  >
-                    {completedCount}/{phaseSkillCount}
-                  </Typography>
-                </Box>
-              )}
-              {!isCurrent && !isLocked && (
-                <Typography
-                  sx={{
-                    ml: 'auto',
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontSize: '0.75rem',
-                    color: 'success.main',
-                    fontWeight: 700,
-                  }}
-                >
-                  {pct}% complete
-                </Typography>
-              )}
+              <Box sx={{ ml: 'auto', display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                {mastered > 0 && (
+                  <Chip
+                    label={`${mastered} mastered`}
+                    size="small"
+                    color="success"
+                    variant="outlined"
+                    sx={{ height: 18, fontSize: '0.65rem' }}
+                  />
+                )}
+                {rusty > 0 && (
+                  <Chip
+                    label={`${rusty} rusty`}
+                    size="small"
+                    color="warning"
+                    variant="outlined"
+                    sx={{ height: 18, fontSize: '0.65rem' }}
+                  />
+                )}
+                {learning > 0 && (
+                  <Chip
+                    label={`${learning} learning`}
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                    sx={{ height: 18, fontSize: '0.65rem' }}
+                  />
+                )}
+              </Box>
             </Box>
 
             {/* Progress bar */}
@@ -204,41 +160,27 @@ export default function SkillTree() {
                 mb: 2,
                 height: 4,
                 borderRadius: 2,
-                bgcolor: '#f0ece9',
-                '& .MuiLinearProgress-bar': { bgcolor: isLocked ? '#e5e0df' : primaryColor },
+                bgcolor: alpha(primary, 0.08),
+                '& .MuiLinearProgress-bar': { bgcolor: primary },
               }}
             />
 
-            {/* Skill nodes grid */}
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: { xs: 1, sm: 1.5 },
-                opacity: isLocked ? 0.45 : 1,
-              }}
-            >
-              {phase.skills.map((skill, si) => (
-                <SkillNode
-                  key={skill.key}
-                  phaseIndex={pi}
-                  skillIndex={si}
-                  name={skill.title}
-                  completed={isCompleted(pi, si)}
-                  isCurrentPhase={pi <= currentPhase}
-                  onToggle={() => toggleSkill(pi, si, !isCompleted(pi, si))}
-                />
+            {/* Node grid */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 1.5 } }}>
+              {phase.nodes.map((node) => (
+                <MasteryNode key={node.skill_key} node={node} onSelect={setSelectedNode} />
               ))}
             </Box>
 
-            {/* Connector line to next phase */}
-            {pi < phases.length - 1 && (
-              <Box sx={{ ml: 3, mt: 1.5, width: 2, height: 24, bgcolor: '#e5e0df' }} />
+            {/* Connector */}
+            {phase.phase_index < phases.length - 1 && (
+              <Box sx={{ ml: 2.75, mt: 1.5, width: 2, height: 24, bgcolor: 'divider' }} />
             )}
           </Box>
         );
       })}
 
+      {/* Legend */}
       {phases.length > 0 && (
         <Box
           sx={{
@@ -251,33 +193,48 @@ export default function SkillTree() {
             flexWrap: 'wrap',
           }}
         >
-          <Button variant="outlined" size="small" onClick={() => navigate('/app/roadmap')}>
-            View full Roadmap
-          </Button>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-            {[
-              { label: 'Completed', color: primaryColor, filled: true },
-              { label: 'Available', color: primaryColor, filled: false },
-              { label: 'Locked', color: '#e5e0df', filled: true },
-            ].map((leg) => (
-              <Box key={leg.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <Box
-                  sx={{
-                    width: 14,
-                    height: 14,
-                    borderRadius: '50%',
-                    bgcolor: leg.filled ? leg.color : '#fff',
-                    border: `2px solid ${leg.color}`,
-                  }}
-                />
-                <Typography variant="caption" color="text.secondary">
-                  {leg.label}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
+          {[
+            {
+              label: 'Not started',
+              color: theme.palette.action.disabledBackground,
+              border: theme.palette.divider,
+            },
+            { label: 'Learning', color: alpha(primary, 0.12), border: primary },
+            {
+              label: 'Mastered',
+              color: theme.palette.success.main,
+              border: theme.palette.success.main,
+            },
+            {
+              label: 'Rusty',
+              color: alpha(theme.palette.warning.main, 0.15),
+              border: theme.palette.warning.main,
+            },
+          ].map((leg) => (
+            <Box key={leg.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Box
+                sx={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  bgcolor: leg.color,
+                  border: `2px solid ${leg.border}`,
+                }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {leg.label}
+              </Typography>
+            </Box>
+          ))}
         </Box>
       )}
+
+      {/* Side panel */}
+      <MasteryNodePanel
+        node={selectedNode}
+        onClose={() => setSelectedNode(null)}
+        onMarkRevisited={handleMarkRevisited}
+      />
     </Box>
   );
 }
