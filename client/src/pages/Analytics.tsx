@@ -152,6 +152,29 @@ export default function Analytics() {
         </Alert>
       )}
 
+      {/* Zero-sessions empty state */}
+      {!loading && !error && summary?.totalSessions === 0 && (
+        <Box
+          sx={{
+            textAlign: 'center',
+            py: 8,
+            px: 3,
+            borderRadius: 2,
+            bgcolor: 'background.paper',
+            border: '1px dashed',
+            borderColor: 'divider',
+            mb: 4,
+          }}
+        >
+          <Typography variant="h6" fontWeight={600} gutterBottom>
+            No sessions yet
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Log your first practice session to see your progress here.
+          </Typography>
+        </Box>
+      )}
+
       {/* Summary stats */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[

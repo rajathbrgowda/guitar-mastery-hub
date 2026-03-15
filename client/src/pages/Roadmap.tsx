@@ -10,7 +10,7 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
+import Skeleton from '@mui/material/Skeleton';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -273,8 +273,10 @@ export default function Roadmap() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
-        <CircularProgress color="primary" />
+      <Box sx={{ maxWidth: 720, mx: 'auto' }}>
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} variant="rounded" height={72} sx={{ mb: 2, borderRadius: 2 }} />
+        ))}
       </Box>
     );
   }
