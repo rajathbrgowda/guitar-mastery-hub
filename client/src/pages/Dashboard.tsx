@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -14,16 +15,20 @@ import Button from '@mui/material/Button';
 import { BarChart, Bar, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useAuth } from '../context/AuthContext';
 import { useUserStore } from '../store/userStore';
 import { useProgressStore } from '../store/progressStore';
 import { usePracticePlanStore } from '../store/practicePlanStore';
+import { useInsightsStore } from '../store/insightsStore';
 import { api } from '../services/api';
 import { TodaysPractice } from '../components/TodaysPractice';
 import { PhaseMap } from '../components/PhaseMap';
 import { WeekCalendar } from '../components/WeekCalendar';
+import { WeeklyDigestCard } from '../components/WeeklyDigestCard';
+import { SkillFocusRow } from '../components/SkillFocusRow';
 import type { AnalyticsSummary } from '@gmh/shared/types/analytics';
 
 const DAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -47,11 +52,13 @@ function streakMessage(streak: number): { text: string; emoji: string } {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const theme = useTheme();
   const { profile } = useUserStore();
   const { skills, currentPhase: storePhase, fetchProgress } = useProgressStore();
-  const { noplan } = usePracticePlanStore();
+  const { noplan, todaysPlan } = usePracticePlanStore();
+  const { data: insights } = useInsightsStore();
 
   const name = profile?.display_name ?? user?.email?.split('@')[0] ?? 'there';
   const dailyGoal = profile?.daily_goal_min ?? 20;
@@ -220,6 +227,16 @@ export default function Dashboard() {
         ))}
       </Box>
 
+      {/* ─── Weekly digest (conditional) ────────────────────────────── */}
+      {insights?.weeklyDigest && (
+        <WeeklyDigestCard digest={insights.weeklyDigest} daysTarget={daysTarget} />
+      )}
+
+      {/* ─── Skill focus row (conditional) ──────────────────────────── */}
+      {insights && (insights.weakSkills.length > 0 || insights.strongSkills.length > 0) && (
+        <SkillFocusRow weakSkills={insights.weakSkills} strongSkills={insights.strongSkills} />
+      )}
+
       {/* ─── ZONE 2 + 3: Two-column layout ──────────────────────────── */}
       <Grid container spacing={3} alignItems="flex-start">
         {/* LEFT: Today's Practice (Zone 2) */}
@@ -229,6 +246,21 @@ export default function Dashboard() {
               <TodaysPractice />
             </CardContent>
           </Card>
+
+          {/* Start Practice CTA — shown when plan is ready and not yet completed/skipped */}
+          {todaysPlan &&
+            (todaysPlan.status === 'pending' || todaysPlan.status === 'in_progress') && (
+              <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                startIcon={<PlayArrowIcon />}
+                onClick={() => navigate('/app/practice/session')}
+                sx={{ mt: 1.5 }}
+              >
+                {todaysPlan.status === 'in_progress' ? 'Resume Practice' : 'Start Practice'}
+              </Button>
+            )}
 
           {/* First-time user CTA — hidden when noplan panel already communicates the same state */}
           {isFirstTime && !noplan && (

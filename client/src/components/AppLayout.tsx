@@ -27,6 +27,7 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import Avatar from '@mui/material/Avatar';
 import { supabase } from '../lib/supabase';
 import { useUserStore } from '../store/userStore';
+import { useInsightsStore } from '../store/insightsStore';
 import { useAuth } from '../context/AuthContext';
 
 const DRAWER_WIDTH = 220;
@@ -46,10 +47,17 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { profile, fetchProfile } = useUserStore();
+  const { fetchInsights } = useInsightsStore();
 
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
+
+  useEffect(() => {
+    // Non-critical background fetches — no spinner
+    fetchInsights();
+    // TODO(CARD-182): add milestoneStore.fetchMilestones() when milestone epic is built
+  }, [fetchInsights]);
 
   const avatarInitials = (profile?.display_name ?? user?.email ?? '?')
     .split(/[\s@]/)[0]
