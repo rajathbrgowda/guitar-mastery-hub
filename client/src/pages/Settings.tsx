@@ -19,12 +19,15 @@ import DialogActions from '@mui/material/DialogActions';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
 import Slider from '@mui/material/Slider';
+import CheckIcon from '@mui/icons-material/Check';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useAuth } from '../context/AuthContext';
 import { useUserStore } from '../store/userStore';
 import { supabase } from '../lib/supabase';
 import api from '../services/api';
+import { THEME_COLORS } from '../theme/themeColors';
+import type { ThemeKey } from '../types/user';
 
 const GUITAR_TYPES = [
   { value: 'acoustic', label: 'Acoustic' },
@@ -298,6 +301,65 @@ export default function Settings() {
           >
             {savingGoals ? 'Saving...' : 'Save goals'}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* ── Appearance ── */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="overline" color="text.secondary">Appearance</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
+            Theme color — applied instantly across the app.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+            {(Object.entries(THEME_COLORS) as [ThemeKey, { name: string; color: string }][]).map(([key, { name, color }]) => {
+              const selected = (profile?.theme_color ?? 'helix') === key;
+              return (
+                <Box
+                  key={key}
+                  onClick={() => updateProfile({ theme_color: key })}
+                  title={name}
+                  sx={{
+                    position: 'relative',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    bgcolor: color,
+                    cursor: 'pointer',
+                    border: selected ? '2px solid' : '2px solid transparent',
+                    borderColor: selected ? 'text.primary' : 'transparent',
+                    outline: selected ? '2px solid' : 'none',
+                    outlineColor: selected ? color : 'transparent',
+                    outlineOffset: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'transform 0.1s',
+                    '&:hover': { transform: 'scale(1.12)' },
+                  }}
+                >
+                  {selected && <CheckIcon sx={{ fontSize: 16, color: '#fff' }} />}
+                </Box>
+              );
+            })}
+          </Box>
+          <Box sx={{ mt: 1.5, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+            {(Object.entries(THEME_COLORS) as [ThemeKey, { name: string; color: string }][]).map(([key, { name }]) => (
+              <Typography
+                key={key}
+                variant="caption"
+                sx={{
+                  width: 32,
+                  textAlign: 'center',
+                  fontSize: '0.6rem',
+                  color: (profile?.theme_color ?? 'helix') === key ? 'text.primary' : 'text.disabled',
+                  fontWeight: (profile?.theme_color ?? 'helix') === key ? 600 : 400,
+                }}
+              >
+                {name}
+              </Typography>
+            ))}
+          </Box>
         </CardContent>
       </Card>
 

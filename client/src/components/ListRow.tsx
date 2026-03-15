@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { alpha } from '@mui/material/styles';
 import { ReactNode } from 'react';
 
 interface ListRowProps {
@@ -25,7 +26,7 @@ export default function ListRow({ primary, secondary, leading, trailing, onClick
         borderColor: 'divider',
         cursor: onClick ? 'pointer' : 'default',
         borderRadius: onClick ? 1 : 0,
-        '&:hover': onClick ? { bgcolor: '#fef3ee' } : {},
+        '&:hover': onClick ? { bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08) } : {},
         transition: 'background 0.15s',
       }}
     >

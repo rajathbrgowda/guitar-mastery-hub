@@ -31,6 +31,7 @@ const updateProfileSchema = z.object({
   practice_days_target:  z.number().int().min(1).max(7).optional(),
   timezone:              z.string().max(50).optional(),
   avatar_url:            z.string().url().nullable().optional(),
+  theme_color:           z.enum(['helix', 'ocean', 'forest', 'violet', 'rose']).optional(),
 });
 
 router.patch('/me', async (req: AuthRequest, res) => {
@@ -44,7 +45,7 @@ router.patch('/me', async (req: AuthRequest, res) => {
     .from('users')
     .update({ ...parsed.data, updated_at: new Date().toISOString() })
     .eq('id', req.user!.id)
-    .select('id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase')
+    .select('id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase, theme_color, created_at')
     .single();
 
   if (error) {

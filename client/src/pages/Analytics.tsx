@@ -18,6 +18,8 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
+import { useTheme } from '@mui/material/styles';
+import { alpha } from '@mui/material/styles';
 import api from '../services/api';
 
 interface Summary {
@@ -69,6 +71,8 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function Analytics() {
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
   const [summary, setSummary] = useState<Summary | null>(null);
   const [history, setHistory] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -179,16 +183,16 @@ export default function Analytics() {
                     tickLine={false}
                   />
                   <YAxis tick={{ fontSize: 10, fill: '#5c5858' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: '#fef3ee' }} />
-                  <Bar dataKey="duration_min" fill="#ea580c" radius={[3, 3, 0, 0]} maxBarSize={20} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: alpha(primaryColor, 0.08) }} />
+                  <Bar dataKey="duration_min" fill={primaryColor} radius={[3, 3, 0, 0]} maxBarSize={20} />
                 </BarChart>
               ) : (
                 <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e0df" vertical={false} />
                   <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#5c5858' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: '#5c5858' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: '#fef3ee' }} />
-                  <Bar dataKey="duration_min" fill="#ea580c" radius={[3, 3, 0, 0]} maxBarSize={32} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: alpha(primaryColor, 0.08) }} />
+                  <Bar dataKey="duration_min" fill={primaryColor} radius={[3, 3, 0, 0]} maxBarSize={32} />
                 </BarChart>
               )}
             </ResponsiveContainer>

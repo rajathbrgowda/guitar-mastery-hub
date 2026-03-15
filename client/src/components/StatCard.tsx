@@ -3,6 +3,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
+import { alpha } from '@mui/material/styles';
 import { ReactNode } from 'react';
 
 interface StatCardProps {
@@ -27,7 +28,7 @@ export default function StatCard({ icon, label, value, loading = false, accentCo
           <Box
             sx={{
               width: 32, height: 32,
-              bgcolor: '#fef3ee',
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
               borderRadius: 1.5,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,

@@ -1,3 +1,5 @@
+export type ThemeKey = 'helix' | 'ocean' | 'forest' | 'violet' | 'rose';
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -9,5 +11,6 @@ export interface UserProfile {
   timezone: string;
   avatar_url: string | null;
   current_phase: number;
+  theme_color: ThemeKey;
   created_at: string;
 }
