@@ -1,114 +1,205 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
-import Divider from '@mui/material/Divider';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import LinearProgress from '@mui/material/LinearProgress';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PauseIcon from '@mui/icons-material/Pause';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { format } from 'date-fns';
+import CircularProgress from '@mui/material/CircularProgress';
+import Collapse from '@mui/material/Collapse';
+import Button from '@mui/material/Button';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { format, startOfISOWeek } from 'date-fns';
 import { usePracticeStore } from '../store/practiceStore';
 import { useUserStore } from '../store/userStore';
-import type { PracticeSection } from '../types/practice';
-import { formatTime } from '../utils/formatTime';
+import type { PracticeSession } from '../types/practice';
+import type { QuickLogPayload, SessionGroup } from '@gmh/shared/types';
+import WeekStrip from '../components/WeekStrip';
+import TodayHeroCard from '../components/TodayHeroCard';
 
-const QUICK_DURATIONS = [15, 30, 45, 60];
+function groupByWeek(sessions: PracticeSession[]): SessionGroup[] {
+  const map = new Map<string, { label: string; sessions: PracticeSession[] }>();
+  for (const s of sessions) {
+    const d = new Date(s.date + 'T12:00:00');
+    const weekStart = startOfISOWeek(d);
+    const key = format(weekStart, 'yyyy-[W]II');
+    const label = `Week of ${format(weekStart, 'MMM d')}`;
+    if (!map.has(key)) map.set(key, { label, sessions: [] });
+    map.get(key)!.sessions.push(s);
+  }
+  return Array.from(map.values()).map((g) => ({
+    week_label: g.label,
+    sessions: g.sessions,
+  }));
+}
+
+function SessionRow({ s }: { s: PracticeSession }) {
+  return (
+    <Card
+      sx={{
+        mb: 1,
+        borderLeft: '3px solid',
+        borderLeftColor:
+          s.duration_min > 45 ? 'success.main' : s.duration_min >= 20 ? 'warning.main' : 'divider',
+      }}
+    >
+      <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Typography variant="body2" fontWeight={600}>
+                {format(new Date(s.date + 'T12:00:00'), 'EEE, MMM d')}
+              </Typography>
+              {s.confidence != null && (
+                <Chip
+                  label={s.confidence === 3 ? 'Easy' : s.confidence === 2 ? 'Okay' : 'Hard'}
+                  size="small"
+                  color={s.confidence === 3 ? 'success' : s.confidence === 2 ? 'warning' : 'error'}
+                  variant="outlined"
+                  sx={{ height: 18, fontSize: '0.65rem' }}
+                />
+              )}
+            </Box>
+            {s.notes && (
+              <Typography variant="caption" color="text.secondary">
+                {s.notes}
+              </Typography>
+            )}
+            {s.sections && s.sections.length > 0 && (
+              <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
+                {s.sections.map((sec, i) => (
+                  <Chip
+                    key={`${sec.name}-${i}`}
+                    label={`${sec.name} ${sec.duration_min}m`}
+                    size="small"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
+          <Typography
+            sx={{
+              fontFamily: '"IBM Plex Mono", monospace',
+              fontWeight: 600,
+              color: 'primary.main',
+              ml: 2,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {s.duration_min} min
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
+
+function WeekGroup({
+  group,
+  isOpen,
+  onToggle,
+}: {
+  group: SessionGroup;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const weekTotal = group.sessions.reduce((s, r) => s + r.duration_min, 0);
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          py: 0.75,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }}
+        onClick={onToggle}
+      >
+        <Typography variant="body2" fontWeight={600}>
+          {group.week_label}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography
+            sx={{
+              fontFamily: '"IBM Plex Mono", monospace',
+              fontSize: '0.8rem',
+              color: 'text.secondary',
+            }}
+          >
+            {weekTotal} min · {group.sessions.length} session
+            {group.sessions.length !== 1 ? 's' : ''}
+          </Typography>
+          {isOpen ? (
+            <KeyboardArrowUpIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+          ) : (
+            <KeyboardArrowDownIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+          )}
+        </Box>
+      </Box>
+      <Collapse in={isOpen}>
+        <Box sx={{ mt: 1 }}>
+          {group.sessions.map((s) => (
+            <SessionRow key={s.id} s={s} />
+          ))}
+        </Box>
+      </Collapse>
+    </Box>
+  );
+}
 
 export default function Practice() {
-  const { sessions, loading, error, fetchSessions, logSession } = usePracticeStore();
+  const { sessions, weekDays, loading, weekLoading, error, fetchSessions, fetchWeek, logSession } =
+    usePracticeStore();
   const { profile } = useUserStore();
 
-  // Timer state
-  const [running, setRunning] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Log form state
-  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [durationMin, setDurationMin] = useState('');
-  const [sections, setSections] = useState<PracticeSection[]>([]);
-  const [sectionName, setSectionName] = useState('');
-  const [sectionDur, setSectionDur] = useState('');
-  const [notes, setNotes] = useState('');
-  const [confidence, setConfidence] = useState<1 | 2 | 3 | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const [openWeek, setOpenWeek] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSessions({ from: format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd') });
-  }, [fetchSessions]);
+    fetchWeek();
+  }, [fetchSessions, fetchWeek]);
 
-  // Timer tick
+  // Auto-open the current week group on load
   useEffect(() => {
-    if (running) {
-      intervalRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+    if (!loading && sessions.length > 0) {
+      const currentWeekStart = startOfISOWeek(new Date());
+      const key = `Week of ${format(currentWeekStart, 'MMM d')}`;
+      setOpenWeek(key);
     }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [running]);
+  }, [loading, sessions]);
 
-  function handleReset() {
-    setRunning(false);
-    setElapsed(0);
+  const todaySessions = sessions.filter((s) => s.date === todayStr);
+
+  async function handleLog(payload: QuickLogPayload) {
+    await logSession({
+      date: payload.date,
+      duration_min: payload.duration_min,
+      notes: payload.notes,
+      confidence: payload.confidence,
+    });
+    fetchWeek();
   }
 
-  function handleStopAndUse() {
-    setRunning(false);
-    setDurationMin(String(Math.max(1, Math.round(elapsed / 60))));
-  }
+  // Daily goal progress
+  const goal = profile?.daily_goal_min ?? 20;
+  const todayMins = todaySessions.reduce((sum, s) => sum + s.duration_min, 0);
+  const goalPct = Math.min(100, Math.round((todayMins / goal) * 100));
 
-  function addSection() {
-    const dur = parseInt(sectionDur, 10);
-    if (!sectionName.trim() || isNaN(dur) || dur < 1) return;
-    setSections((s) => [...s, { name: sectionName.trim(), duration_min: dur }]);
-    setSectionName('');
-    setSectionDur('');
-  }
+  // Stats (last 30 days)
+  const totalMins = sessions.reduce((s, r) => s + r.duration_min, 0);
+  const avgMins = sessions.length > 0 ? Math.round(totalMins / sessions.length) : 0;
+  const longest = sessions.length > 0 ? Math.max(...sessions.map((r) => r.duration_min)) : 0;
 
-  async function handleSubmit() {
-    const dur = parseInt(durationMin, 10);
-    if (!date || isNaN(dur) || dur < 1) {
-      setSubmitError('Date and duration are required.');
-      return;
-    }
-    setSubmitting(true);
-    setSubmitError('');
-    setSubmitSuccess(false);
-    try {
-      await logSession({
-        date,
-        duration_min: dur,
-        sections: sections.length ? sections : undefined,
-        notes: notes || undefined,
-        confidence: confidence ?? undefined,
-      });
-      setDurationMin('');
-      setSections([]);
-      setNotes('');
-      setConfidence(null);
-      setElapsed(0);
-      setSubmitSuccess(true);
-      setTimeout(() => setSubmitSuccess(false), 3000);
-    } catch {
-      setSubmitError('Failed to log session. Try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  // Grouped history
+  const groups = groupByWeek(sessions);
 
   return (
     <Box sx={{ maxWidth: 720, mx: 'auto' }}>
@@ -116,297 +207,93 @@ export default function Practice() {
         Practice
       </Typography>
 
-      {/* Daily goal progress */}
-      {(() => {
-        const goal = profile?.daily_goal_min ?? 20;
-        const todayStr = format(new Date(), 'yyyy-MM-dd');
-        const todayMins = sessions
-          .filter((s) => s.date === todayStr)
-          .reduce((sum, s) => sum + s.duration_min, 0);
-        const pct = Math.min(100, Math.round((todayMins / goal) * 100));
-        return (
-          <Card
-            sx={{
-              mb: 3,
-              borderLeft: '3px solid',
-              borderLeftColor: pct >= 100 ? 'success.main' : 'primary.main',
-            }}
-          >
-            <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+      {/* Daily goal */}
+      <Card
+        sx={{
+          mb: 3,
+          borderLeft: '3px solid',
+          borderLeftColor: goalPct >= 100 ? 'success.main' : 'primary.main',
+        }}
+      >
+        <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+            >
+              Today's goal
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: '"IBM Plex Mono", monospace',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: goalPct >= 100 ? 'success.main' : 'text.secondary',
+              }}
+            >
+              {todayMins} / {goal} min {goalPct >= 100 ? '✓' : `— ${goalPct}%`}
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={goalPct}
+            color={goalPct >= 100 ? 'success' : 'primary'}
+            sx={{ height: 5 }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Week strip */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+            This week
+          </Typography>
+          <WeekStrip days={weekDays} todayStr={todayStr} loading={weekLoading} />
+        </CardContent>
+      </Card>
+
+      {/* Today hero card — quick-log or timer */}
+      <TodayHeroCard todaySessions={todaySessions} todayStr={todayStr} onLog={handleLog} />
+
+      {/* Stats strip */}
+      {!loading && sessions.length > 0 && (
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          {[
+            { label: 'SESSIONS', value: sessions.length },
+            { label: 'TOTAL MIN', value: totalMins },
+            { label: 'AVG MIN', value: avgMins },
+            { label: 'LONGEST', value: `${longest} min` },
+          ].map((stat) => (
+            <Card
+              key={stat.label}
+              sx={{ flex: '1 1 100px', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}
+            >
+              <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
                 <Typography
                   variant="caption"
                   color="text.secondary"
                   sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
                 >
-                  Today's goal
+                  {stat.label}
                 </Typography>
                 <Typography
                   sx={{
                     fontFamily: '"IBM Plex Mono", monospace',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: pct >= 100 ? 'success.main' : 'text.secondary',
+                    fontWeight: 700,
+                    fontSize: '1.25rem',
                   }}
                 >
-                  {todayMins} / {goal} min {pct >= 100 ? '✓' : `— ${pct}%`}
+                  {stat.value}
                 </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={pct}
-                color={pct >= 100 ? 'success' : 'primary'}
-                sx={{ height: 5 }}
-              />
-            </CardContent>
-          </Card>
-        );
-      })()}
-
-      {/* Timer */}
-      <Card sx={{ mb: 3, borderLeft: '3px solid', borderLeftColor: 'primary.main' }}>
-        <CardContent>
-          <Typography variant="overline" color="text.secondary">
-            Session Timer
-          </Typography>
-          {elapsed === 0 && !running && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              Ready to start?
-            </Typography>
-          )}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: 1 }}>
-            <Typography
-              sx={{
-                fontFamily: '"IBM Plex Mono", monospace',
-                fontSize: '2.5rem',
-                fontWeight: 600,
-                minWidth: 110,
-              }}
-            >
-              {formatTime(elapsed)}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                startIcon={running ? <PauseIcon /> : <PlayArrowIcon />}
-                onClick={() => setRunning((r) => !r)}
-              >
-                {running ? 'Pause' : elapsed > 0 ? 'Resume' : 'Start'}
-              </Button>
-              <IconButton onClick={handleReset} disabled={elapsed === 0 && !running} title="Reset">
-                <RestartAltIcon />
-              </IconButton>
-              {elapsed > 0 && (
-                <Button variant="outlined" size="small" onClick={handleStopAndUse}>
-                  Use time
-                </Button>
-              )}
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {/* Log form */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="overline" color="text.secondary">
-            Log Session
-          </Typography>
-
-          {/* Quick duration */}
-          <Box sx={{ display: 'flex', gap: 1, mt: 1.5, mb: 2, flexWrap: 'wrap' }}>
-            {QUICK_DURATIONS.map((d) => (
-              <Chip
-                key={d}
-                label={`${d} min`}
-                onClick={() => setDurationMin(String(d))}
-                variant={durationMin === String(d) ? 'filled' : 'outlined'}
-                color={durationMin === String(d) ? 'primary' : 'default'}
-                sx={{ cursor: 'pointer' }}
-              />
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-            <TextField
-              label="Date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              size="small"
-              sx={{ width: 160 }}
-            />
-            <TextField
-              label="Duration (min)"
-              type="number"
-              value={durationMin}
-              onChange={(e) => setDurationMin(e.target.value)}
-              size="small"
-              sx={{ width: 140 }}
-              inputProps={{ min: 1 }}
-            />
-          </Box>
-
-          {/* Section builder */}
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
-            Sections{' '}
-            <Typography component="span" variant="caption" color="text.secondary">
-              (optional)
-            </Typography>
-          </Typography>
-
-          {sections.map((sec, i) => (
-            <Box
-              key={`${sec.name}-${i}`}
-              sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}
-            >
-              <Chip label={`${sec.name} — ${sec.duration_min} min`} size="small" />
-              <IconButton
-                size="small"
-                onClick={() => setSections((s) => s.filter((_, j) => j !== i))}
-              >
-                <DeleteOutlineIcon fontSize="small" />
-              </IconButton>
-            </Box>
+              </CardContent>
+            </Card>
           ))}
+        </Box>
+      )}
 
-          <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-            <TextField
-              placeholder="Section name"
-              value={sectionName}
-              onChange={(e) => setSectionName(e.target.value)}
-              size="small"
-              sx={{ width: 180 }}
-              onKeyDown={(e) => e.key === 'Enter' && addSection()}
-            />
-            <TextField
-              placeholder="Min"
-              type="number"
-              value={sectionDur}
-              onChange={(e) => setSectionDur(e.target.value)}
-              size="small"
-              sx={{ width: 80 }}
-              inputProps={{ min: 1 }}
-              onKeyDown={(e) => e.key === 'Enter' && addSection()}
-            />
-            <IconButton onClick={addSection} size="small" color="primary" title="Add section">
-              <AddIcon />
-            </IconButton>
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <TextField
-            label="Notes"
-            multiline
-            rows={2}
-            fullWidth
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            size="small"
-            placeholder="What went well? What to work on next time?"
-            sx={{ mb: 2 }}
-          />
-
-          {/* How was this session? (optional) */}
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
-              How was this session?{' '}
-              <Typography component="span" variant="caption" color="text.secondary">
-                (optional)
-              </Typography>
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {(
-                [
-                  { value: 3, label: 'Easy', color: 'success' },
-                  { value: 2, label: 'Okay', color: 'warning' },
-                  { value: 1, label: 'Hard', color: 'error' },
-                ] as const
-              ).map((opt) => (
-                <Chip
-                  key={opt.value}
-                  label={opt.label}
-                  onClick={() => setConfidence(confidence === opt.value ? null : opt.value)}
-                  variant={confidence === opt.value ? 'filled' : 'outlined'}
-                  color={confidence === opt.value ? opt.color : 'default'}
-                  sx={{ cursor: 'pointer' }}
-                />
-              ))}
-            </Box>
-          </Box>
-
-          {submitError && (
-            <Alert severity="error" sx={{ mb: 1.5 }}>
-              {submitError}
-            </Alert>
-          )}
-          {submitSuccess && (
-            <Alert severity="success" sx={{ mb: 1.5 }}>
-              Session logged!
-            </Alert>
-          )}
-
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={submitting}
-            startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : null}
-          >
-            {submitting ? 'Logging...' : 'Log session'}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Stats strip */}
-      {!loading &&
-        sessions.length > 0 &&
-        (() => {
-          const totalMins = sessions.reduce((s, r) => s + r.duration_min, 0);
-          const avgMins = Math.round(totalMins / sessions.length);
-          const longest = Math.max(...sessions.map((r) => r.duration_min));
-          return (
-            <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-              {[
-                { label: 'SESSIONS', value: sessions.length },
-                { label: 'TOTAL MIN', value: totalMins },
-                { label: 'AVG MIN', value: avgMins },
-                { label: 'LONGEST', value: `${longest} min` },
-              ].map((stat) => (
-                <Card
-                  key={stat.label}
-                  sx={{
-                    flex: '1 1 100px',
-                    borderLeft: '3px solid',
-                    borderLeftColor: 'primary.main',
-                  }}
-                >
-                  <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
-                    >
-                      {stat.label}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontFamily: '"IBM Plex Mono", monospace',
-                        fontWeight: 700,
-                        fontSize: '1.25rem',
-                      }}
-                    >
-                      {stat.value}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-          );
-        })()}
-
-      {/* Recent sessions */}
+      {/* Session history — grouped by week */}
       <Typography variant="h6" fontWeight={600} gutterBottom>
         Last 30 days
       </Typography>
@@ -415,79 +302,34 @@ export default function Practice() {
       {error && <Alert severity="error">{error}</Alert>}
 
       {!loading && sessions.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
-          No sessions yet. Log your first one above.
-        </Typography>
+        <Box sx={{ textAlign: 'center', py: 6 }}>
+          <Typography variant="body2" color="text.secondary">
+            No sessions yet — log your first practice above.
+          </Typography>
+        </Box>
       )}
 
-      {sessions.map((s) => (
-        <Card
-          key={s.id}
-          sx={{
-            mb: 1.5,
-            borderLeft: '3px solid',
-            borderLeftColor:
-              s.duration_min > 45
-                ? 'success.main'
-                : s.duration_min >= 20
-                  ? 'warning.main'
-                  : 'divider',
-          }}
+      {!loading &&
+        groups.map((group) => (
+          <WeekGroup
+            key={group.week_label}
+            group={group}
+            isOpen={openWeek === group.week_label}
+            onToggle={() => setOpenWeek(openWeek === group.week_label ? null : group.week_label)}
+          />
+        ))}
+
+      {/* Expand all button when there are multiple groups */}
+      {!loading && groups.length > 1 && (
+        <Button
+          size="small"
+          variant="text"
+          sx={{ mt: 1, color: 'text.secondary', textTransform: 'none' }}
+          onClick={() => setOpenWeek(null)}
         >
-          <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
-            >
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                  <Typography variant="body2" fontWeight={600}>
-                    {format(new Date(s.date + 'T12:00:00'), 'EEE, MMM d')}
-                  </Typography>
-                  {s.confidence != null && (
-                    <Chip
-                      label={s.confidence === 3 ? 'Easy' : s.confidence === 2 ? 'Okay' : 'Hard'}
-                      size="small"
-                      color={
-                        s.confidence === 3 ? 'success' : s.confidence === 2 ? 'warning' : 'error'
-                      }
-                      variant="outlined"
-                      sx={{ height: 18, fontSize: '0.65rem' }}
-                    />
-                  )}
-                </Box>
-                {s.notes && (
-                  <Typography variant="caption" color="text.secondary">
-                    {s.notes}
-                  </Typography>
-                )}
-                {s.sections && s.sections.length > 0 && (
-                  <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
-                    {s.sections.map((sec, i) => (
-                      <Chip
-                        key={`${sec.name}-${i}`}
-                        label={`${sec.name} ${sec.duration_min}m`}
-                        size="small"
-                        variant="outlined"
-                      />
-                    ))}
-                  </Box>
-                )}
-              </Box>
-              <Typography
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontWeight: 600,
-                  color: 'primary.main',
-                  ml: 2,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {s.duration_min} min
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
-      ))}
+          Collapse all
+        </Button>
+      )}
     </Box>
   );
 }
