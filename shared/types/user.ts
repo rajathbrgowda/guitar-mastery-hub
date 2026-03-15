@@ -14,6 +14,7 @@ export interface UserProfile {
   avatar_url: string | null;
   current_phase: number;
   theme_color: ThemeKey;
+  selected_curriculum_key: string;
   created_at: string;
 }
 
