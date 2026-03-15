@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "description": "Root package — tooling only (husky + lint-staged). Not a deployable package.",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx,json,md}": "prettier --write --ignore-unknown"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1"
+  }
+}
