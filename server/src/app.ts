@@ -4,8 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import 'dotenv/config';
 
-import healthRouter from './routes/health.js';
-import { errorHandler } from './middleware/error.js';
+import healthRouter from './routes/health';
+import { errorHandler } from './middleware/error';
 
 const app = express();
 
