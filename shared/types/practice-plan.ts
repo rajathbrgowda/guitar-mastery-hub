@@ -1,3 +1,6 @@
+/** 1 = hard, 2 = okay, 3 = easy */
+export type ConfidenceRating = 1 | 2 | 3;
+
 export interface PracticePlanItem {
   id: string;
   plan_id: string;
@@ -11,6 +14,7 @@ export interface PracticePlanItem {
   completed: boolean;
   completed_at: string | null;
   actual_duration_min: number | null;
+  confidence_rating: ConfidenceRating | null;
 }
 
 export interface DailyPracticePlan {
@@ -28,6 +32,7 @@ export interface DailyPracticePlan {
 
 export interface CompletePlanItemBody {
   actual_duration_min?: number;
+  confidence_rating?: ConfidenceRating;
 }
 
 export interface SkipPlanBody {

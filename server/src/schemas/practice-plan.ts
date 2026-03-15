@@ -7,6 +7,7 @@ import type {
 
 export const completePlanItemSchema = z.object({
   actual_duration_min: z.number().int().min(1).max(480).optional(),
+  confidence_rating: z.number().int().min(1).max(3).optional(),
 });
 
 export const skipPlanSchema = z.object({

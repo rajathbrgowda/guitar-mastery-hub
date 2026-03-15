@@ -19,6 +19,7 @@ import Analytics from './pages/Analytics';
 import Resources from './pages/Resources';
 import Tools from './pages/Tools';
 import Settings from './pages/Settings';
+import ActivePracticeMode from './pages/ActivePracticeMode';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading: authLoading } = useAuth();
@@ -109,6 +110,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: 'roadmap', element: <Roadmap /> },
       { path: 'practice', element: <Practice /> },
+      { path: 'practice/session', element: <ActivePracticeMode /> },
       { path: 'skills', element: <SkillTree /> },
       { path: 'analytics', element: <Analytics /> },
       { path: 'resources', element: <Resources /> },
