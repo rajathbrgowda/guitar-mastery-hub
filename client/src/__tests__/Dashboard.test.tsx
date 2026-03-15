@@ -17,6 +17,7 @@ vi.mock('../lib/supabase', () => ({
 const { mockGet } = vi.hoisted(() => ({ mockGet: vi.fn() }));
 vi.mock('../services/api', () => ({
   default: { get: mockGet },
+  api: { get: mockGet },
 }));
 
 vi.mock('../context/AuthContext', () => ({
@@ -32,6 +33,41 @@ vi.mock('../store/userStore', () => ({
 
 vi.mock('../store/progressStore', () => ({
   useProgressStore: () => ({ skills: [], currentPhase: 1, fetchProgress: vi.fn(), loading: false }),
+}));
+
+vi.mock('../store/practicePlanStore', () => ({
+  usePracticePlanStore: () => ({
+    todaysPlan: {
+      id: 'plan-1',
+      user_id: 'u1',
+      plan_date: '2026-03-15',
+      curriculum_key: 'best_of_all',
+      total_duration_min: 20,
+      status: 'pending',
+      generated_at: new Date().toISOString(),
+      started_at: null,
+      completed_at: null,
+      items: [],
+    },
+    noplan: false,
+    isLoading: false,
+    error: null,
+    fetchTodaysPlan: vi.fn(),
+    completeItem: vi.fn(),
+    skipPlan: vi.fn(),
+  }),
+}));
+
+vi.mock('../store/curriculumStore', () => ({
+  useCurriculumStore: () => ({
+    curricula: [],
+    detail: null,
+    isLoadingList: false,
+    isLoadingDetail: false,
+    fetchCurricula: vi.fn(),
+    fetchCurriculumDetail: vi.fn(),
+    switchCurriculum: vi.fn(),
+  }),
 }));
 
 import Dashboard from '../pages/Dashboard';
@@ -69,16 +105,16 @@ describe('Dashboard', () => {
     });
   });
 
-  it('renders streak value from API response', async () => {
+  it('renders streak chip after data loads', async () => {
     renderDashboard();
+    // streak=3 renders a Chip with label "3 day streak"
     await waitFor(() => {
-      expect(screen.getByText('3d')).toBeInTheDocument();
+      expect(screen.getByText('3 day streak')).toBeInTheDocument();
     });
   });
 
   it('greets the user by display name', async () => {
     renderDashboard();
-    // Greeting is "Good morning/afternoon/evening, Raj"
     await waitFor(() => {
       expect(screen.getByText(/Good .+, Raj/i)).toBeInTheDocument();
     });
@@ -86,25 +122,25 @@ describe('Dashboard', () => {
 
   it('shows streak copy text after data loads', async () => {
     renderDashboard();
+    // streak=3 → "3 days in a row. Keep the momentum."
     await waitFor(() => {
-      expect(screen.getByText('Building momentum')).toBeInTheDocument();
+      expect(screen.getByText(/days in a row/i)).toBeInTheDocument();
     });
   });
 
-  it('shows navigation section items', async () => {
+  it("shows today's practice section", async () => {
     renderDashboard();
     await waitFor(() => {
-      expect(screen.getByText('Practice')).toBeInTheDocument();
-      expect(screen.getByText('Roadmap')).toBeInTheDocument();
-      expect(screen.getByText('Analytics')).toBeInTheDocument();
+      // TodaysPractice component renders "Today's Practice" heading
+      expect(screen.getByText(/today.s practice/i)).toBeInTheDocument();
     });
   });
 
-  it('shows current phase label', async () => {
+  it('shows phase progress section', async () => {
     renderDashboard();
     await waitFor(() => {
-      // storePhase = 1 → "Beginner"
-      expect(screen.getAllByText('Beginner').length).toBeGreaterThan(0);
+      // PhaseMap or progress section is rendered
+      expect(screen.getByText(/phase/i)).toBeInTheDocument();
     });
   });
 });

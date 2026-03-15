@@ -24,27 +24,42 @@ beforeEach(() => {
 
 const AUTH = { Authorization: 'Bearer valid-token' };
 
-// Builds a supabase query chain mock that terminates with a resolved value
+// Builds a supabase query chain mock that terminates with a resolved value.
+// eq() returns itself so it can be chained multiple times: .eq(x).eq(y).
 function mockChain(resolved: { data: unknown; error: null | { message: string } }) {
   const terminal = vi.fn().mockResolvedValue(resolved);
   const single = vi.fn().mockResolvedValue(resolved);
   const order = vi.fn().mockResolvedValue(resolved);
   const gte = vi.fn().mockReturnValue({ order, lte: vi.fn().mockReturnValue({ order }) });
   const lte = vi.fn().mockReturnValue({ order });
-  const eq = vi.fn().mockReturnValue({ order, gte, lte, single });
+  // eq is self-referential so .eq(a).eq(b) works
+  const eq: ReturnType<typeof vi.fn> = vi.fn();
+  eq.mockReturnValue({ order, gte, lte, single, eq });
   const select = vi.fn().mockReturnValue({ eq, single: terminal });
   return { select, _order: order };
 }
 
 describe('GET /api/analytics/summary', () => {
   beforeEach(() => {
-    // First from() call = practice_sessions, second = users
+    // Promise.all fires 3 concurrent from() calls: sessions, users, recent_sessions
     const sessionsChain = mockChain({
       data: [{ date: '2026-03-15', duration_min: 45 }],
       error: null,
     });
-    const usersChain = mockChain({ data: { current_phase: 1, timezone: 'UTC' }, error: null });
-    mockFrom.mockReturnValueOnce(sessionsChain as never).mockReturnValueOnce(usersChain as never);
+    const usersChain = mockChain({
+      data: { current_phase: 1, timezone: 'UTC', selected_curriculum_key: 'best_of_all' },
+      error: null,
+    });
+    const recentChain = mockChain({ data: [], error: null });
+    // Sequential after Promise.all: curriculum_sources lookup, then curriculum_skill_entries
+    const curriculumChain = mockChain({ data: { id: 'curr-1' }, error: null });
+    const phaseSkillsChain = mockChain({ data: [], error: null });
+    mockFrom
+      .mockReturnValueOnce(sessionsChain as never)
+      .mockReturnValueOnce(usersChain as never)
+      .mockReturnValueOnce(recentChain as never)
+      .mockReturnValueOnce(curriculumChain as never)
+      .mockReturnValueOnce(phaseSkillsChain as never);
   });
 
   it('returns 200', async () => {
