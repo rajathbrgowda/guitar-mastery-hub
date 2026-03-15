@@ -8,9 +8,11 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useAnalyticsStore } from '../store/analyticsStore';
-import { ActivityHeatmap } from '../components/ActivityHeatmap';
+import { YearHeatmap } from '../components/YearHeatmap';
 import { SkillBreakdownChart } from '../components/SkillBreakdownChart';
 import { ConfidenceTrendList } from '../components/ConfidenceTrendList';
+import { StreakDisplay } from '../components/StreakDisplay';
+import { InsightCards } from '../components/InsightCards';
 import { useMilestoneStore } from '../store/milestoneStore';
 import { MilestoneBadge } from '../components/MilestoneBadge';
 
@@ -57,17 +59,32 @@ export default function Analytics() {
   const {
     skillsData,
     activityHistory,
+    heatmapData,
+    streakData,
+    insightCards,
     loading,
     error,
     fetchSkillsAnalytics,
     fetchActivityHistory,
+    fetchHeatmap,
+    fetchStreakDetail,
+    fetchInsightCards,
   } = useAnalyticsStore();
   const milestoneStore = useMilestoneStore();
 
   useEffect(() => {
     fetchSkillsAnalytics();
     fetchActivityHistory(30);
-  }, [fetchSkillsAnalytics, fetchActivityHistory]);
+    fetchHeatmap();
+    fetchStreakDetail();
+    fetchInsightCards();
+  }, [
+    fetchSkillsAnalytics,
+    fetchActivityHistory,
+    fetchHeatmap,
+    fetchStreakDetail,
+    fetchInsightCards,
+  ]);
 
   const totalMins = activityHistory.reduce((s, d) => s + d.duration_min, 0);
   const activeDays = activityHistory.filter((d) => d.duration_min > 0).length;
@@ -105,20 +122,60 @@ export default function Analytics() {
         ))}
       </Grid>
 
-      {/* Row 2 — Activity heatmap */}
+      {/* Streak + insights row */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, sm: 5 }}>
+          <Card>
+            <CardContent>
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ display: 'block', mb: 2 }}
+              >
+                Streak
+              </Typography>
+              {streakData ? (
+                <StreakDisplay streakData={streakData} />
+              ) : (
+                <Skeleton variant="rectangular" height={80} />
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 7 }}>
+          <Card>
+            <CardContent>
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ display: 'block', mb: 1 }}
+              >
+                Insights
+              </Typography>
+              {loading ? (
+                <Skeleton variant="rectangular" height={100} />
+              ) : (
+                <InsightCards cards={insightCards} />
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Row 2 — 52-week Activity heatmap */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-            30-Day Activity
+            52-Week Activity
           </Typography>
           {loading ? (
-            <Skeleton variant="rectangular" height={80} sx={{ borderRadius: 1 }} />
-          ) : activityHistory.length === 0 ? (
+            <Skeleton variant="rectangular" height={100} sx={{ borderRadius: 1 }} />
+          ) : heatmapData.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
               No activity data yet.
             </Typography>
           ) : (
-            <ActivityHeatmap data={activityHistory} />
+            <YearHeatmap data={heatmapData} />
           )}
         </CardContent>
       </Card>

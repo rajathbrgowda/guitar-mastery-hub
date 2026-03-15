@@ -100,6 +100,110 @@ describe('GET /api/analytics/skills', () => {
   });
 });
 
+describe('GET /api/analytics/heatmap', () => {
+  it('returns 364 entries each with week and day_of_week fields', async () => {
+    // from('practice_sessions').select(...).eq(...).gte(...).order(...)
+    const heatmapChain = (() => {
+      const order = vi.fn().mockResolvedValue({ data: [], error: null });
+      const gte = vi.fn().mockReturnValue({ order });
+      const eq: ReturnType<typeof vi.fn> = vi.fn();
+      eq.mockReturnValue({ gte, eq });
+      const select = vi.fn().mockReturnValue({ eq });
+      return { select };
+    })();
+
+    mockFrom.mockReturnValueOnce(heatmapChain as never);
+
+    const res = await request(app).get('/api/analytics/heatmap').set(AUTH);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(364);
+    const first = res.body[0];
+    expect(first).toHaveProperty('date');
+    expect(first).toHaveProperty('duration_min');
+    expect(first).toHaveProperty('week');
+    expect(first).toHaveProperty('day_of_week');
+    expect(typeof first.week).toBe('number');
+    expect(typeof first.day_of_week).toBe('number');
+  });
+});
+
+describe('GET /api/analytics/streak/detail', () => {
+  it('returns current_streak, longest_streak, last_practiced, at_risk', async () => {
+    const sessionsChain = (() => {
+      const order = vi.fn().mockResolvedValue({
+        data: [{ date: '2026-03-14' }, { date: '2026-03-13' }],
+        error: null,
+      });
+      const eq: ReturnType<typeof vi.fn> = vi.fn();
+      eq.mockReturnValue({ order, eq });
+      const select = vi.fn().mockReturnValue({ eq });
+      return { select };
+    })();
+    const usersChain = (() => {
+      const single = vi.fn().mockResolvedValue({ data: { timezone: 'UTC' }, error: null });
+      const eq: ReturnType<typeof vi.fn> = vi.fn();
+      eq.mockReturnValue({ single, eq });
+      const select = vi.fn().mockReturnValue({ eq });
+      return { select };
+    })();
+
+    mockFrom.mockReturnValueOnce(sessionsChain as never).mockReturnValueOnce(usersChain as never);
+
+    const res = await request(app).get('/api/analytics/streak/detail').set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('current_streak');
+    expect(res.body).toHaveProperty('longest_streak');
+    expect(res.body).toHaveProperty('last_practiced');
+    expect(res.body).toHaveProperty('at_risk');
+    expect(typeof res.body.current_streak).toBe('number');
+    expect(typeof res.body.longest_streak).toBe('number');
+    expect(typeof res.body.at_risk).toBe('boolean');
+  });
+});
+
+describe('GET /api/analytics/insights/cards', () => {
+  it('returns cards array with type, title, body, value', async () => {
+    const sessionsChain = (() => {
+      const order = vi.fn().mockResolvedValue({
+        data: [
+          {
+            date: '2026-03-14',
+            duration_min: 30,
+            sections: [{ name: 'Barre Chords' }],
+          },
+        ],
+        error: null,
+      });
+      const gte = vi.fn().mockReturnValue({ order });
+      const eq: ReturnType<typeof vi.fn> = vi.fn();
+      eq.mockReturnValue({ gte, eq });
+      const select = vi.fn().mockReturnValue({ eq });
+      return { select };
+    })();
+    const usersChain = (() => {
+      const single = vi.fn().mockResolvedValue({ data: { timezone: 'UTC' }, error: null });
+      const eq: ReturnType<typeof vi.fn> = vi.fn();
+      eq.mockReturnValue({ single, eq });
+      const select = vi.fn().mockReturnValue({ eq });
+      return { select };
+    })();
+
+    mockFrom.mockReturnValueOnce(sessionsChain as never).mockReturnValueOnce(usersChain as never);
+
+    const res = await request(app).get('/api/analytics/insights/cards').set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('cards');
+    expect(Array.isArray(res.body.cards)).toBe(true);
+    expect(res.body.cards.length).toBeGreaterThan(0);
+    const card = res.body.cards[0];
+    expect(card).toHaveProperty('type');
+    expect(card).toHaveProperty('title');
+    expect(card).toHaveProperty('body');
+    expect(card).toHaveProperty('value');
+  });
+});
+
 describe('GET /api/analytics/summary', () => {
   beforeEach(() => {
     // Promise.all fires 3 concurrent from() calls: sessions, users, recent_sessions
