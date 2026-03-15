@@ -7,6 +7,12 @@ import Paper from '@mui/material/Paper';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StreakCalendar from '../components/StreakCalendar';
+import WhyIBuiltThis from '../components/WhyIBuiltThis';
+import AboutDeveloper from '../components/AboutDeveloper';
+import FAQSection from '../components/FAQSection';
+import TestimonialSection from '../components/TestimonialSection';
+import OpenDevNote from '../components/OpenDevNote';
+import CloseCTA from '../components/CloseCTA';
 
 // ── Static data ────────────────────────────────────────────────────────────────
 
@@ -54,6 +60,16 @@ const PHASES = [
   { label: 'Mastery', desc: 'Style refinement, professional playing' },
 ];
 
+// ── Shared fade-in animation ──────────────────────────────────────────────────
+
+const fadeInUp = {
+  '@keyframes fadeInUp': {
+    from: { opacity: 0, transform: 'translateY(20px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+  },
+  animation: 'fadeInUp 0.5s ease forwards',
+};
+
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: string }) {
@@ -86,6 +102,7 @@ export default function Landing() {
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <Box
         component="nav"
+        aria-label="Site navigation"
         sx={{
           px: { xs: 2, sm: 6 },
           py: 1.5,
@@ -100,7 +117,7 @@ export default function Landing() {
           zIndex: 10,
         }}
       >
-        <Typography variant="h6" fontWeight={700} color="primary">
+        <Typography variant="h6" fontWeight={700} color="primary" component="span">
           Guitar Mastery Hub
         </Typography>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
@@ -117,8 +134,12 @@ export default function Landing() {
       </Box>
 
       {/* ── Dark hero ────────────────────────────────────────────────────────── */}
-      <Box sx={{ bgcolor: '#1c1917', pt: { xs: 8, sm: 12 }, pb: { xs: 8, sm: 12 } }}>
-        <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
+      <Box
+        component="section"
+        aria-labelledby="hero-heading"
+        sx={{ bgcolor: '#1c1917', pt: { xs: 8, sm: 12 }, pb: { xs: 8, sm: 12 } }}
+      >
+        <Container maxWidth="sm" sx={{ textAlign: 'center', ...fadeInUp }}>
           <Chip
             label="Built for JustinGuitar learners"
             size="small"
@@ -134,6 +155,7 @@ export default function Landing() {
           />
 
           <Typography
+            id="hero-heading"
             variant="h1"
             fontWeight={700}
             sx={{
@@ -163,6 +185,7 @@ export default function Landing() {
               size="large"
               onClick={() => navigate('/login?mode=signup')}
               sx={{ px: 4, py: 1.25, fontSize: '1rem', fontWeight: 600 }}
+              aria-label="Get started free — sign up"
             >
               Get started free
             </Button>
@@ -181,6 +204,7 @@ export default function Landing() {
                   bgcolor: 'rgba(255,255,255,0.05)',
                 },
               }}
+              aria-label="See how it works — demo"
             >
               See how it works
             </Button>
@@ -191,10 +215,20 @@ export default function Landing() {
       </Box>
 
       {/* ── Section 1: What a week looks like ───────────────────────────────── */}
-      <Box id="features" sx={{ bgcolor: 'background.default', py: { xs: 8, sm: 12 } }}>
+      <Box
+        component="section"
+        id="features"
+        aria-labelledby="section-session-log"
+        sx={{ bgcolor: 'background.default', py: { xs: 8, sm: 12 } }}
+      >
         <Container maxWidth="sm">
           <SectionLabel>Session Log</SectionLabel>
-          <Typography variant="h4" fontWeight={700} sx={{ mb: 1.5, letterSpacing: '-0.02em' }}>
+          <Typography
+            id="section-session-log"
+            variant="h2"
+            fontWeight={700}
+            sx={{ mb: 1.5, letterSpacing: '-0.02em', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}
+          >
             What a week looks like
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 5 }}>
@@ -239,10 +273,19 @@ export default function Landing() {
       </Box>
 
       {/* ── Section 2: See yourself improve ─────────────────────────────────── */}
-      <Box sx={{ bgcolor: 'background.paper', py: { xs: 8, sm: 12 } }}>
+      <Box
+        component="section"
+        aria-labelledby="section-analytics"
+        sx={{ bgcolor: 'background.paper', py: { xs: 8, sm: 12 } }}
+      >
         <Container maxWidth="sm">
           <SectionLabel>Analytics</SectionLabel>
-          <Typography variant="h4" fontWeight={700} sx={{ mb: 1.5, letterSpacing: '-0.02em' }}>
+          <Typography
+            id="section-analytics"
+            variant="h2"
+            fontWeight={700}
+            sx={{ mb: 1.5, letterSpacing: '-0.02em', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}
+          >
             See yourself improve
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 5 }}>
@@ -258,7 +301,11 @@ export default function Landing() {
             >
               Target BPM — Major scale (6-week trend)
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, height: 120 }}>
+            <Box
+              sx={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, height: 120 }}
+              role="img"
+              aria-label="Bar chart showing BPM improvement from 58 to 96 over 6 weeks"
+            >
               {BPM_DATA.map((d, i) => (
                 <Box
                   key={d.week}
@@ -301,10 +348,19 @@ export default function Landing() {
       </Box>
 
       {/* ── Section 3: A path, not a playlist ───────────────────────────────── */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 8, sm: 12 } }}>
+      <Box
+        component="section"
+        aria-labelledby="section-roadmap"
+        sx={{ bgcolor: 'background.default', py: { xs: 8, sm: 12 } }}
+      >
         <Container maxWidth="sm">
           <SectionLabel>Roadmap</SectionLabel>
-          <Typography variant="h4" fontWeight={700} sx={{ mb: 1.5, letterSpacing: '-0.02em' }}>
+          <Typography
+            id="section-roadmap"
+            variant="h2"
+            fontWeight={700}
+            sx={{ mb: 1.5, letterSpacing: '-0.02em', fontSize: { xs: '1.75rem', sm: '2.125rem' } }}
+          >
             A path, not a playlist
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 5 }}>
@@ -342,6 +398,7 @@ export default function Landing() {
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
+                  aria-hidden="true"
                 >
                   <Typography
                     variant="caption"
@@ -384,6 +441,7 @@ export default function Landing() {
                 </Box>
                 {i < PHASES.length - 1 && (
                   <Box
+                    aria-hidden="true"
                     sx={{
                       position: 'absolute',
                       left: 28,
@@ -401,55 +459,29 @@ export default function Landing() {
         </Container>
       </Box>
 
-      {/* ── Testimonial ──────────────────────────────────────────────────────── */}
-      <Box sx={{ bgcolor: '#1c1917', py: { xs: 8, sm: 12 } }}>
-        <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
-          <Typography
-            variant="h5"
-            sx={{
-              color: '#ffffff',
-              fontStyle: 'italic',
-              fontWeight: 400,
-              lineHeight: 1.55,
-              mb: 3,
-              fontSize: { xs: '1.2rem', sm: '1.4rem' },
-            }}
-          >
-            "I used to watch YouTube videos and feel like I was improving. Then I started logging my
-            sessions and realised I was stuck on the same things for weeks. This app made the
-            difference visible."
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>
-            Raj — 3 months in, Foundation complete
-          </Typography>
-        </Container>
-      </Box>
+      {/* ── Testimonials (redesigned) ─────────────────────────────────────────── */}
+      <TestimonialSection />
 
-      {/* ── Final CTA ────────────────────────────────────────────────────────── */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 8, sm: 12 }, textAlign: 'center' }}>
-        <Container maxWidth="sm">
-          <Typography variant="h4" fontWeight={700} sx={{ mb: 1.5, letterSpacing: '-0.02em' }}>
-            Start free.{' '}
-            <Box component="span" color="text.secondary" sx={{ fontWeight: 400 }}>
-              No credit card.
-            </Box>
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-            Your practice history, progress, and roadmap — all in one place.
-          </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={() => navigate('/login?mode=signup')}
-            sx={{ px: 5, py: 1.5, fontSize: '1rem', fontWeight: 600 }}
-          >
-            Create account
-          </Button>
-        </Container>
-      </Box>
+      {/* ── Why I Built This ─────────────────────────────────────────────────── */}
+      <WhyIBuiltThis />
+
+      {/* ── About Developer ──────────────────────────────────────────────────── */}
+      <AboutDeveloper />
+
+      {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
+      <FAQSection />
+
+      {/* ── Open Dev Note ────────────────────────────────────────────────────── */}
+      <OpenDevNote />
+
+      {/* ── Close CTA (replaces old final CTA) ───────────────────────────────── */}
+      <CloseCTA />
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <Box sx={{ borderTop: '1px solid', borderColor: 'divider', py: 3, textAlign: 'center' }}>
+      <Box
+        component="footer"
+        sx={{ borderTop: '1px solid', borderColor: 'divider', py: 3, textAlign: 'center' }}
+      >
         <Typography variant="caption" color="text.secondary">
           Guitar Mastery Hub — built to learn, built to last
         </Typography>
