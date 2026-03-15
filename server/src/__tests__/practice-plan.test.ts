@@ -53,11 +53,9 @@ function mockItemOwnershipChain(item: object | null, plan: object | null) {
     const resolved = vi.fn().mockResolvedValue({ data: null, error: null });
     const eq = vi.fn().mockReturnValue(resolved);
     const update = vi.fn().mockReturnValue({ eq });
-    const select = vi
-      .fn()
-      .mockReturnValue({
-        eq: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: [], error: null }) }),
-      });
+    const select = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: [], error: null }) }),
+    });
     return { update, select } as never;
   });
 }
