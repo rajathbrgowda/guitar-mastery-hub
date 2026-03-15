@@ -21,7 +21,7 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       await supabase.auth.signOut();
-      window.location.href = '/login';
+      window.location.href = '/login?error=session_expired';
     }
     return Promise.reject(error);
   },
