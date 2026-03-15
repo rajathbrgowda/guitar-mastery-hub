@@ -9,6 +9,24 @@ const helixTheme = createTheme({
       dark: '#c2410c',
       contrastText: '#ffffff',
     },
+    success: {
+      main: '#16a34a',
+      light: '#22c55e',
+      dark: '#15803d',
+      contrastText: '#ffffff',
+    },
+    warning: {
+      main: '#d97706',
+      light: '#f59e0b',
+      dark: '#b45309',
+      contrastText: '#ffffff',
+    },
+    error: {
+      main: '#dc2626',
+      light: '#ef4444',
+      dark: '#b91c1c',
+      contrastText: '#ffffff',
+    },
     background: {
       default: '#ffffff',
       paper: '#f7f5f2',
@@ -79,6 +97,17 @@ const helixTheme = createTheme({
       styleOverrides: {
         root: { borderRadius: 6 },
         notchedOutline: { borderColor: '#e5e0df' },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          borderRadius: 4,
+          backgroundColor: '#fde8d8',
+        },
+        bar: {
+          borderRadius: 4,
+        },
       },
     },
     MuiListItemButton: {

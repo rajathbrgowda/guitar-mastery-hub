@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -23,7 +23,11 @@ import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import MenuIcon from '@mui/icons-material/Menu';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import Avatar from '@mui/material/Avatar';
 import { supabase } from '../lib/supabase';
+import { useUserStore } from '../store/userStore';
+import { useAuth } from '../context/AuthContext';
 
 const DRAWER_WIDTH = 220;
 
@@ -40,6 +44,17 @@ const navItems = [
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { profile, fetchProfile } = useUserStore();
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  const avatarInitials = (profile?.display_name ?? user?.email ?? '?')
+    .split(/[\s@]/)[0]
+    .slice(0, 2)
+    .toUpperCase();
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -49,9 +64,17 @@ export default function AppLayout() {
   const drawerContent = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar sx={{ px: 2 }}>
-        <Typography variant="h6" fontWeight={700} color="primary" noWrap>
-          GMH
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <PlayCircleIcon sx={{ fontSize: 30, color: 'primary.main', flexShrink: 0 }} />
+          <Box>
+            <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, lineHeight: 1.2, color: 'text.primary' }}>
+              Guitar Mastery Hub
+            </Typography>
+            <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '0.6rem', letterSpacing: '0.08em', color: 'text.secondary', lineHeight: 1 }}>
+              PRACTICE TRACKER
+            </Typography>
+          </Box>
+        </Box>
       </Toolbar>
       <Divider />
       <List sx={{ flex: 1, px: 1, pt: 1 }}>
@@ -73,6 +96,27 @@ export default function AppLayout() {
           </ListItem>
         ))}
       </List>
+      <Divider />
+      {/* Avatar footer */}
+      <Box
+        sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.25, cursor: 'pointer' }}
+        onClick={() => { navigate('/app/settings'); setMobileOpen(false); }}
+      >
+        <Avatar
+          src={profile?.avatar_url ?? undefined}
+          sx={{ width: 32, height: 32, fontSize: '0.75rem', bgcolor: 'primary.main' }}
+        >
+          {avatarInitials}
+        </Avatar>
+        <Box sx={{ overflow: 'hidden' }}>
+          <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {profile?.display_name ?? user?.email?.split('@')[0] ?? 'Profile'}
+          </Typography>
+          <Typography sx={{ fontSize: '0.65rem', color: 'text.secondary', fontFamily: '"IBM Plex Mono", monospace' }}>
+            {profile?.guitar_type ?? 'acoustic'}
+          </Typography>
+        </Box>
+      </Box>
       <Divider />
       <List sx={{ px: 1, py: 1 }}>
         <ListItem disablePadding>
@@ -119,9 +163,12 @@ export default function AppLayout() {
               <MenuIcon />
             </IconButton>
           </Tooltip>
-          <Typography variant="h6" fontWeight={700} color="primary">
-            GMH
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <PlayCircleIcon sx={{ fontSize: 24, color: 'primary.main' }} />
+            <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: 'text.primary' }}>
+              Guitar Mastery Hub
+            </Typography>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -158,12 +205,13 @@ export default function AppLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          mt: { xs: 7, sm: 0 },
+          p: { xs: 2, sm: 3 },
+          pt: { xs: 9, sm: 3 },
           minHeight: '100vh',
           backgroundColor: 'background.default',
           maxWidth: '100%',
           overflow: 'auto',
+          minWidth: 0,
         }}
       >
         <Outlet />
