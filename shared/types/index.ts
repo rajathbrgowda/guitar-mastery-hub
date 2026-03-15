@@ -48,3 +48,5 @@ export type {
   OnboardingBody,
   ExperienceLevel,
 } from './user';
+
+export type { Milestone, MilestonesResponse } from './milestones';
