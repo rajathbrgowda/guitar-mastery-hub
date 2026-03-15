@@ -34,4 +34,11 @@ export type {
 
 export type { Resource, ResourceWithCompletion, UpdateCompletionBody } from './resources';
 
-export type { ThemeKey, GuitarType, UserProfile, UpdateProfileBody } from './user';
+export type {
+  ThemeKey,
+  GuitarType,
+  UserProfile,
+  UpdateProfileBody,
+  OnboardingBody,
+  ExperienceLevel,
+} from './user';

@@ -15,7 +15,17 @@ export interface UserProfile {
   current_phase: number;
   theme_color: ThemeKey;
   selected_curriculum_key: string;
+  onboarding_completed: boolean;
   created_at: string;
+}
+
+export type ExperienceLevel = 'beginner' | 'some' | 'intermediate';
+
+export interface OnboardingBody {
+  experience_level: ExperienceLevel;
+  curriculum_key: string;
+  daily_goal_min: number;
+  practice_days_target: number;
 }
 
 export interface UpdateProfileBody {
