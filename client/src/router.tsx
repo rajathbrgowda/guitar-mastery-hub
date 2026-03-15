@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import { useAuth } from './context/AuthContext';
 import AppLayout from './components/AppLayout';
 import Landing from './pages/Landing';
+import Demo from './pages/Demo';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
@@ -33,6 +34,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 export const router = createBrowserRouter([
   // Public routes
   { path: '/', element: <Landing /> },
+  { path: '/demo', element: <Demo /> },
   { path: '/login', element: <Login /> },
   { path: '/reset-password', element: <ResetPassword /> },
 
