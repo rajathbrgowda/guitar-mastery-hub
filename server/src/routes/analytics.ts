@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
+import type { WeeklyHeatmapDay } from '@gmh/shared/types/analytics';
 
 const router = Router();
 router.use(requireAuth);
@@ -378,6 +379,45 @@ router.get('/history', async (req: AuthRequest, res) => {
   for (let i = 0; i < days; i++) {
     const d = offsetDate(from, i);
     result.push({ date: d, duration_min: map[d] ?? 0 });
+  }
+
+  res.json(result);
+});
+
+// GET /api/analytics/heatmap — 364 days (52 weeks) pre-shaped for heatmap grid
+router.get('/heatmap', async (req: AuthRequest, res) => {
+  const userId = req.user!.id;
+  const days = 364;
+  const from = offsetDate(new Date().toISOString().split('T')[0], -(days - 1));
+
+  const { data, error } = await supabase
+    .from('practice_sessions')
+    .select('date, duration_min')
+    .eq('user_id', userId)
+    .gte('date', from)
+    .order('date', { ascending: true });
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  const map: Record<string, number> = {};
+  for (const r of data ?? []) {
+    map[r.date] = (map[r.date] ?? 0) + r.duration_min;
+  }
+
+  const result: WeeklyHeatmapDay[] = [];
+
+  for (let i = 0; i < days; i++) {
+    const d = offsetDate(from, i);
+    const jsDate = new Date(d + 'T12:00:00Z');
+    result.push({
+      date: d,
+      duration_min: map[d] ?? 0,
+      week: Math.floor(i / 7),
+      day_of_week: jsDate.getUTCDay(),
+    });
   }
 
   res.json(result);
