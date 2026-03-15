@@ -588,4 +588,76 @@ router.get('/skills', async (req: AuthRequest, res) => {
   res.json({ skills, by_category: byCategory });
 });
 
+// GET /api/analytics/insights/cards — computed motivational insight cards
+router.get('/insights/cards', async (req: AuthRequest, res) => {
+  const userId = req.user!.id;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  const [sessionsRes, userRes] = await Promise.all([
+    supabase
+      .from('practice_sessions')
+      .select('date, duration_min, sections')
+      .eq('user_id', userId)
+      .gte('date', thirtyDaysAgo)
+      .order('date', { ascending: true }),
+    supabase.from('users').select('timezone').eq('id', userId).single(),
+  ]);
+
+  const sessions = sessionsRes.data ?? [];
+  const timezone = userRes.data?.timezone ?? 'UTC';
+  void timezone; // available for future use
+
+  const cards: Array<{
+    type: string;
+    title: string;
+    body: string;
+    value: string | number | null;
+  }> = [];
+
+  // Best day of week
+  const dayTotals: Record<number, number> = {};
+  for (const s of sessions) {
+    const dow = new Date(s.date + 'T12:00:00Z').getUTCDay();
+    dayTotals[dow] = (dayTotals[dow] ?? 0) + s.duration_min;
+  }
+  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const bestDow = Object.entries(dayTotals).sort((a, b) => b[1] - a[1])[0];
+  if (bestDow) {
+    cards.push({
+      type: 'best_day',
+      title: 'Best practice day',
+      body: `You practice most on ${DAY_NAMES[Number(bestDow[0])]}s`,
+      value: DAY_NAMES[Number(bestDow[0])],
+    });
+  }
+
+  // Most practiced skill
+  const skillCount: Record<string, number> = {};
+  for (const s of sessions) {
+    const sects: Array<{ name: string }> = s.sections ?? [];
+    for (const sec of sects) skillCount[sec.name] = (skillCount[sec.name] ?? 0) + 1;
+  }
+  const topSkill = Object.entries(skillCount).sort((a, b) => b[1] - a[1])[0];
+  if (topSkill) {
+    cards.push({
+      type: 'most_practiced',
+      title: 'Most practiced skill',
+      body: `You've worked on "${topSkill[0]}" ${topSkill[1]} times this month`,
+      value: topSkill[0],
+    });
+  }
+
+  // Consistency — days practiced / 30
+  const activeDays = new Set(sessions.filter((s) => s.duration_min > 0).map((s) => s.date)).size;
+  const consistencyPct = Math.round((activeDays / 30) * 100);
+  cards.push({
+    type: 'consistency',
+    title: 'Monthly consistency',
+    body: `You practiced on ${activeDays} of the last 30 days (${consistencyPct}%)`,
+    value: consistencyPct,
+  });
+
+  res.json({ cards });
+});
+
 export default router;

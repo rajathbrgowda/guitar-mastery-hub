@@ -68,6 +68,7 @@ router.patch('/skill', async (req: AuthRequest, res) => {
 
   const curriculumKey: string = user?.selected_curriculum_key ?? 'best_of_all';
 
+  const now = new Date().toISOString();
   const { data, error } = await supabase
     .from('skill_progress')
     .upsert(
@@ -77,7 +78,9 @@ router.patch('/skill', async (req: AuthRequest, res) => {
         phase_index,
         skill_index,
         completed,
-        completed_at: completed ? new Date().toISOString() : null,
+        completed_at: completed ? now : null,
+        last_practiced_at: completed ? now : null,
+        mastery_state: completed ? 'mastered' : 'learning',
       },
       { onConflict: 'user_id,curriculum_key,phase_index,skill_index' },
     )
