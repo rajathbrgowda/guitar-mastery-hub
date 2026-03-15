@@ -12,8 +12,12 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/inter": "^5.2.8",
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
+    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.99.1",
     "axios": "^1.13.6",
     "date-fns": "^4.1.0",
