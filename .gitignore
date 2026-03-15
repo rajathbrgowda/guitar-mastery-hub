@@ -11,6 +11,6 @@ docs/
 # Ops brain — local only, never push (contains API tokens)
 _ops/
 
-# AI tooling — local only, not for public repo
+# Local tooling config — not for version control
 CLAUDE.md
 .claude/
