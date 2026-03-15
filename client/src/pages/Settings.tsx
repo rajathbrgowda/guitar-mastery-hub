@@ -28,6 +28,7 @@ import { supabase } from '../lib/supabase';
 import api from '../services/api';
 import { THEME_COLORS } from '../theme/themeColors';
 import type { ThemeKey } from '../types/user';
+import { CurriculumPicker } from '../components/CurriculumPicker';
 
 const GUITAR_TYPES = [
   { value: 'acoustic', label: 'Acoustic' },
@@ -435,6 +436,25 @@ export default function Settings() {
               Sign out
             </Button>
           </Box>
+        </CardContent>
+      </Card>
+
+      {/* ── Curriculum ── */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="overline" color="text.secondary">
+            Learning Curriculum
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+            Choose your preferred teaching style. Your progress is tracked independently per
+            curriculum — switching keeps your existing progress safe.
+          </Typography>
+          <CurriculumPicker
+            currentKey={profile?.selected_curriculum_key ?? 'best_of_all'}
+            onSwitch={() => {
+              /* userStore will be refreshed on next profile fetch */
+            }}
+          />
         </CardContent>
       </Card>
 

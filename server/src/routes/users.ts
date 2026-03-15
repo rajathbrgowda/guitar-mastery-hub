@@ -1,15 +1,24 @@
 import { Router } from 'express';
+import type { Response } from 'express';
 import { requireAuth } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
 import { updateProfileSchema } from '../schemas/user';
+import { switchCurriculumSchema } from '../schemas/curriculum';
 
 const router = Router();
 router.use(requireAuth);
 
+const USER_FIELDS =
+  'id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase, theme_color, selected_curriculum_key, created_at';
+
 // GET /api/users/me
-router.get('/me', async (req: AuthRequest, res) => {
-  const { data, error } = await supabase.from('users').select('*').eq('id', req.user!.id).single();
+router.get('/me', async (req: AuthRequest, res: Response) => {
+  const { data, error } = await supabase
+    .from('users')
+    .select(USER_FIELDS)
+    .eq('id', req.user!.id)
+    .single();
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -20,7 +29,7 @@ router.get('/me', async (req: AuthRequest, res) => {
 });
 
 // PATCH /api/users/me
-router.patch('/me', async (req: AuthRequest, res) => {
+router.patch('/me', async (req: AuthRequest, res: Response) => {
   const parsed = updateProfileSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
@@ -31,9 +40,46 @@ router.patch('/me', async (req: AuthRequest, res) => {
     .from('users')
     .update({ ...parsed.data, updated_at: new Date().toISOString() })
     .eq('id', req.user!.id)
-    .select(
-      'id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase, theme_color, created_at',
-    )
+    .select(USER_FIELDS)
+    .single();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.json(data);
+});
+
+// PUT /api/users/me/curriculum — switch curriculum
+router.put('/me/curriculum', async (req: AuthRequest, res: Response) => {
+  const parsed = switchCurriculumSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues });
+    return;
+  }
+
+  // Verify curriculum exists and is active
+  const { data: curriculum, error: currErr } = await supabase
+    .from('curriculum_sources')
+    .select('key')
+    .eq('key', parsed.data.curriculum_key)
+    .eq('is_active', true)
+    .single();
+
+  if (currErr || !curriculum) {
+    res.status(422).json({ error: 'Unknown or inactive curriculum key' });
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('users')
+    .update({
+      selected_curriculum_key: parsed.data.curriculum_key,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', req.user!.id)
+    .select(USER_FIELDS)
     .single();
 
   if (error) {

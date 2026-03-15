@@ -10,6 +10,8 @@ import practiceRouter from './routes/practice';
 import resourcesRouter from './routes/resources';
 import analyticsRouter from './routes/analytics';
 import usersRouter from './routes/users';
+import curriculumRouter from './routes/curriculum';
+import practicePlanRouter from './routes/practice-plan';
 import { errorHandler } from './middleware/error';
 
 const app = express();
@@ -24,10 +26,12 @@ app.use('/api/health', healthRouter);
 
 // Protected — requireAuth applied inside each router
 app.use('/api/progress', progressRouter);
+app.use('/api/practice/plan', practicePlanRouter);
 app.use('/api/practice', practiceRouter);
 app.use('/api/resources', resourcesRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/curriculum', curriculumRouter);
 
 app.use(errorHandler);
 
