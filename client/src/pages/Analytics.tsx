@@ -11,6 +11,8 @@ import { useAnalyticsStore } from '../store/analyticsStore';
 import { ActivityHeatmap } from '../components/ActivityHeatmap';
 import { SkillBreakdownChart } from '../components/SkillBreakdownChart';
 import { ConfidenceTrendList } from '../components/ConfidenceTrendList';
+import { useMilestoneStore } from '../store/milestoneStore';
+import { MilestoneBadge } from '../components/MilestoneBadge';
 
 function StatCard({
   label,
@@ -60,6 +62,7 @@ export default function Analytics() {
     fetchSkillsAnalytics,
     fetchActivityHistory,
   } = useAnalyticsStore();
+  const milestoneStore = useMilestoneStore();
 
   useEffect(() => {
     fetchSkillsAnalytics();
@@ -160,17 +163,37 @@ export default function Analytics() {
         </Grid>
       </Grid>
 
-      {/* Row 4 — Milestones stub */}
-      <Card>
-        <CardContent>
-          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-            Milestones
-          </Typography>
+      {/* Row 4 — Milestones section */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
+            fontSize: '0.6rem',
+            fontWeight: 600,
+            display: 'block',
+            mb: 2,
+          }}
+        >
+          Achievements ({milestoneStore.earnedCount} / {milestoneStore.totalCount})
+        </Typography>
+
+        {!milestoneStore.isLoading && milestoneStore.milestones.length === 0 && (
           <Typography variant="body2" color="text.secondary">
-            Coming soon — track phase completions and personal records.
+            Complete your first session to earn your first badge.
           </Typography>
-        </CardContent>
-      </Card>
+        )}
+
+        <Grid container spacing={1.5}>
+          {milestoneStore.milestones.map((m) => (
+            <Grid key={m.key} size={{ xs: 6, sm: 4, md: 4 }}>
+              <MilestoneBadge milestone={m} />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
     </Box>
   );
 }
