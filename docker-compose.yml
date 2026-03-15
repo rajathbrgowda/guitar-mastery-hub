@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  client:
+    container_name: gmh-client
+    build:
+      context: ./client
+      dockerfile: ../Dockerfile.client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+      VITE_API_URL: http://localhost:4000
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5173"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  server:
+    container_name: gmh-server
+    build:
+      context: ./server
+      dockerfile: ../Dockerfile.server
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    env_file:
+      - ./server/.env
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  kanban:
+    container_name: gmh-kanban
+    image: node:20-alpine
+    working_dir: /app
+    command: node --watch server.js
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./.kanban:/app
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4444/api/stats"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
