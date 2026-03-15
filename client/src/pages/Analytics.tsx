@@ -1,32 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
 import Skeleton from '@mui/material/Skeleton';
+import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import ToggleButton from '@mui/material/ToggleButton';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { format, parseISO } from 'date-fns';
-import { useTheme } from '@mui/material/styles';
-import { alpha } from '@mui/material/styles';
-import api from '../services/api';
-
-interface Summary {
-  totalMins: number;
-  totalSessions: number;
-  streak: number;
-  currentPhase: number;
-}
-
-interface DayData {
-  date: string;
-  duration_min: number;
-}
-
-type Range = '30' | '90';
+import { alpha, useTheme } from '@mui/material/styles';
+import { useAnalyticsStore } from '../store/analyticsStore';
+import { ActivityHeatmap } from '../components/ActivityHeatmap';
+import { SkillBreakdownChart } from '../components/SkillBreakdownChart';
+import { ConfidenceTrendList } from '../components/ConfidenceTrendList';
 
 function StatCard({
   label,
@@ -66,82 +50,34 @@ function StatCard({
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomTooltip({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null;
+export default function Analytics() {
+  const theme = useTheme();
+  const {
+    skillsData,
+    activityHistory,
+    loading,
+    error,
+    fetchSkillsAnalytics,
+    fetchActivityHistory,
+  } = useAnalyticsStore();
+
+  useEffect(() => {
+    fetchSkillsAnalytics();
+    fetchActivityHistory(30);
+  }, [fetchSkillsAnalytics, fetchActivityHistory]);
+
+  const totalMins = activityHistory.reduce((s, d) => s + d.duration_min, 0);
+  const activeDays = activityHistory.filter((d) => d.duration_min > 0).length;
+  const totalSessions = skillsData?.skills.reduce((s, sk) => s + sk.practice_count, 0) ?? 0;
+
   return (
     <Box
       sx={{
-        bgcolor: 'background.paper',
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 1,
-        px: 1.5,
-        py: 1,
+        maxWidth: 800,
+        mx: 'auto',
+        background: `radial-gradient(ellipse at top left, ${alpha(theme.palette.primary.main, 0.04)}, transparent 60%)`,
       }}
     >
-      <Typography variant="caption" color="text.secondary">
-        {format(parseISO(label), 'EEE, MMM d')}
-      </Typography>
-      <Typography
-        sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 700, fontSize: '0.85rem' }}
-      >
-        {payload[0].value} min
-      </Typography>
-    </Box>
-  );
-}
-
-export default function Analytics() {
-  const theme = useTheme();
-  const primaryColor = theme.palette.primary.main;
-  const [summary, setSummary] = useState<Summary | null>(null);
-  const [history, setHistory] = useState<DayData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [range, setRange] = useState<Range>('30');
-
-  useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      api.get<Summary>('/api/analytics/summary'),
-      api.get<DayData[]>(`/api/analytics/history?days=${range}`),
-    ])
-      .then(([s, h]) => {
-        setSummary(s.data);
-        setHistory(h.data);
-      })
-      .catch(() => setError('Failed to load analytics.'))
-      .finally(() => setLoading(false));
-  }, [range]);
-
-  // Weekly buckets for bar chart
-  const chartData = (() => {
-    if (!history.length) return [];
-    // Group into weeks of 7 days
-    const weeks: { week: string; duration_min: number }[] = [];
-    for (let i = 0; i < history.length; i += 7) {
-      const slice = history.slice(i, i + 7);
-      const total = slice.reduce((s, d) => s + d.duration_min, 0);
-      weeks.push({ week: format(parseISO(slice[0].date), 'MMM d'), duration_min: total });
-    }
-    return weeks;
-  })();
-
-  // Daily chart for 30-day view
-  const dailyData = history.map((d) => ({
-    date: d.date,
-    duration_min: d.duration_min,
-    label: format(parseISO(d.date), 'MMM d'),
-  }));
-
-  const activeDays = history.filter((d) => d.duration_min > 0).length;
-  const avgPerActiveDay = activeDays
-    ? Math.round(history.reduce((s, d) => s + d.duration_min, 0) / activeDays)
-    : 0;
-
-  return (
-    <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Typography variant="h4" fontWeight={700} gutterBottom>
         Analytics
       </Typography>
@@ -152,36 +88,13 @@ export default function Analytics() {
         </Alert>
       )}
 
-      {/* Zero-sessions empty state */}
-      {!loading && !error && summary?.totalSessions === 0 && (
-        <Box
-          sx={{
-            textAlign: 'center',
-            py: 8,
-            px: 3,
-            borderRadius: 2,
-            bgcolor: 'background.paper',
-            border: '1px dashed',
-            borderColor: 'divider',
-            mb: 4,
-          }}
-        >
-          <Typography variant="h6" fontWeight={600} gutterBottom>
-            No sessions yet
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Log your first practice session to see your progress here.
-          </Typography>
-        </Box>
-      )}
-
-      {/* Summary stats */}
+      {/* Row 1 — Stat tiles */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
-          { label: 'Total sessions', value: summary?.totalSessions ?? '—' },
-          { label: 'Total minutes', value: summary?.totalMins ?? '—' },
-          { label: 'Current streak', value: summary ? `${summary.streak}d` : '—' },
-          { label: `Avg (active days)`, value: activeDays ? `${avgPerActiveDay} min` : '—' },
+          { label: 'Active days', value: activeDays },
+          { label: 'Total minutes', value: totalMins },
+          { label: 'Skills practiced', value: skillsData?.skills.length ?? '—' },
+          { label: 'Rated sessions', value: totalSessions || '—' },
         ].map((s) => (
           <Grid size={{ xs: 6, sm: 3 }} key={s.label}>
             <StatCard label={s.label} value={s.value} loading={loading} />
@@ -189,132 +102,73 @@ export default function Analytics() {
         ))}
       </Grid>
 
-      {/* Chart */}
+      {/* Row 2 — Activity heatmap */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+            30-Day Activity
+          </Typography>
+          {loading ? (
+            <Skeleton variant="rectangular" height={80} sx={{ borderRadius: 1 }} />
+          ) : activityHistory.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No activity data yet.
+            </Typography>
+          ) : (
+            <ActivityHeatmap data={activityHistory} />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Row 3 — 2-col: SkillBreakdownChart + ConfidenceTrendList */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ display: 'block', mb: 2 }}
+              >
+                By Category
+              </Typography>
+              {loading ? (
+                <Skeleton variant="rectangular" height={120} />
+              ) : (
+                <SkillBreakdownChart byCategory={skillsData?.by_category ?? {}} />
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ display: 'block', mb: 2 }}
+              >
+                Confidence Trends
+              </Typography>
+              {loading ? (
+                <Skeleton variant="rectangular" height={120} />
+              ) : (
+                <ConfidenceTrendList skills={skillsData?.skills ?? []} />
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Row 4 — Milestones stub */}
       <Card>
         <CardContent>
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}
-          >
-            <Typography variant="overline" color="text.secondary">
-              Practice minutes
-            </Typography>
-            <ToggleButtonGroup
-              value={range}
-              exclusive
-              onChange={(_, v) => v && setRange(v)}
-              size="small"
-            >
-              <ToggleButton value="30" sx={{ px: 1.5, textTransform: 'none', fontSize: '0.75rem' }}>
-                30 days
-              </ToggleButton>
-              <ToggleButton value="90" sx={{ px: 1.5, textTransform: 'none', fontSize: '0.75rem' }}>
-                90 days
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-
-          {loading ? (
-            <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 1 }} />
-          ) : history.every((d) => d.duration_min === 0) ? (
-            <Box
-              sx={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                No sessions in this period yet.
-              </Typography>
-            </Box>
-          ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              {range === '30' ? (
-                <BarChart data={dailyData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e0df" vertical={false} />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 10, fill: '#5c5858' }}
-                    interval={6}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: '#5c5858' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    content={<CustomTooltip />}
-                    cursor={{ fill: alpha(primaryColor, 0.08) }}
-                  />
-                  <Bar
-                    dataKey="duration_min"
-                    fill={primaryColor}
-                    radius={[3, 3, 0, 0]}
-                    maxBarSize={20}
-                  />
-                </BarChart>
-              ) : (
-                <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e0df" vertical={false} />
-                  <XAxis
-                    dataKey="week"
-                    tick={{ fontSize: 10, fill: '#5c5858' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: '#5c5858' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    content={<CustomTooltip />}
-                    cursor={{ fill: alpha(primaryColor, 0.08) }}
-                  />
-                  <Bar
-                    dataKey="duration_min"
-                    fill={primaryColor}
-                    radius={[3, 3, 0, 0]}
-                    maxBarSize={32}
-                  />
-                </BarChart>
-              )}
-            </ResponsiveContainer>
-          )}
-
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 3,
-              mt: 2,
-              pt: 2,
-              borderTop: '1px solid',
-              borderColor: 'divider',
-            }}
-          >
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
-              >
-                Active days
-              </Typography>
-              <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 600 }}>
-                {activeDays} / {history.length}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
-              >
-                Total in period
-              </Typography>
-              <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: 600 }}>
-                {history.reduce((s, d) => s + d.duration_min, 0)} min
-              </Typography>
-            </Box>
-          </Box>
+          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+            Milestones
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Coming soon — track phase completions and personal records.
+          </Typography>
         </CardContent>
       </Card>
     </Box>

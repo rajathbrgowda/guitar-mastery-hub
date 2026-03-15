@@ -52,3 +52,19 @@ export interface InsightsSummary {
   weeklyDigest: WeeklyDigest;
   focusSkill: SkillInsight | null; // top weak skill for plan prioritisation
 }
+
+export interface SkillAnalytics {
+  skill_id: string;
+  skill_key: string;
+  skill_title: string;
+  skill_category: string;
+  total_duration_min: number;
+  avg_confidence: number | null;
+  practice_count: number;
+  last_5_ratings: number[]; // 1|2|3, most recent last
+}
+
+export interface AnalyticsSkillsResponse {
+  skills: SkillAnalytics[];
+  by_category: Record<string, number>; // category key → total_duration_min
+}

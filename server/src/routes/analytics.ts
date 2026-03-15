@@ -381,4 +381,115 @@ router.get('/history', async (req: AuthRequest, res) => {
   res.json(result);
 });
 
+// GET /api/analytics/skills — per-skill aggregation for last 30 days
+router.get('/skills', async (req: AuthRequest, res) => {
+  const userId = req.user!.id;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  // 1. Get plan IDs in last 30 days
+  const { data: plans } = await supabase
+    .from('daily_practice_plans')
+    .select('id')
+    .eq('user_id', userId)
+    .gte('plan_date', thirtyDaysAgo);
+
+  const planIds = (plans ?? []).map((p: { id: string }) => p.id);
+
+  if (planIds.length === 0) {
+    res.json({ skills: [], by_category: {} });
+    return;
+  }
+
+  // 2. Get completed items with skill info
+  const { data: items, error } = await supabase
+    .from('daily_practice_plan_items')
+    .select(
+      'skill_id, skill_title, skill_category, actual_duration_min, confidence_rating, completed_at, skills ( key )',
+    )
+    .in('plan_id', planIds)
+    .not('completed_at', 'is', null);
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  // 3. Aggregate per skill_id
+  type ItemRow = {
+    skill_id: string;
+    skill_title: string;
+    skill_category: string;
+    actual_duration_min: number | null;
+    confidence_rating: number | null;
+    completed_at: string | null;
+    skills: { key: string } | null;
+  };
+
+  const skillMap = new Map<
+    string,
+    {
+      skill_key: string;
+      skill_title: string;
+      skill_category: string;
+      total_duration_min: number;
+      ratings: Array<{ rating: number; completed_at: string }>;
+    }
+  >();
+
+  for (const item of (items ?? []) as unknown as ItemRow[]) {
+    if (!item.skill_id) continue;
+    const existing = skillMap.get(item.skill_id) ?? {
+      skill_key: (item.skills as { key: string } | null)?.key ?? '',
+      skill_title: item.skill_title,
+      skill_category: item.skill_category,
+      total_duration_min: 0,
+      ratings: [],
+    };
+    existing.total_duration_min += item.actual_duration_min ?? 0;
+    if (item.confidence_rating != null && item.completed_at) {
+      existing.ratings.push({ rating: item.confidence_rating, completed_at: item.completed_at });
+    }
+    skillMap.set(item.skill_id, existing);
+  }
+
+  // 4. Build response
+  const skills: Array<{
+    skill_id: string;
+    skill_key: string;
+    skill_title: string;
+    skill_category: string;
+    total_duration_min: number;
+    avg_confidence: number | null;
+    practice_count: number;
+    last_5_ratings: number[];
+  }> = [];
+  const byCategory: Record<string, number> = {};
+
+  for (const [skill_id, agg] of skillMap) {
+    // Sort ratings by completed_at ascending, take last 5
+    const sorted = agg.ratings.sort((a, b) => a.completed_at.localeCompare(b.completed_at));
+    const last5 = sorted.slice(-5).map((r) => r.rating);
+    const avg = sorted.length > 0 ? sorted.reduce((s, r) => s + r.rating, 0) / sorted.length : null;
+
+    skills.push({
+      skill_id,
+      skill_key: agg.skill_key,
+      skill_title: agg.skill_title,
+      skill_category: agg.skill_category,
+      total_duration_min: agg.total_duration_min,
+      avg_confidence: avg,
+      practice_count: sorted.length,
+      last_5_ratings: last5,
+    });
+
+    const cat = agg.skill_category;
+    byCategory[cat] = (byCategory[cat] ?? 0) + agg.total_duration_min;
+  }
+
+  // Sort by total_duration_min desc
+  skills.sort((a, b) => b.total_duration_min - a.total_duration_min);
+
+  res.json({ skills, by_category: byCategory });
+});
+
 export default router;

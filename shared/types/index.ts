@@ -9,6 +9,8 @@ export type {
   SkillInsight,
   WeeklyDigest,
   InsightsSummary,
+  SkillAnalytics,
+  AnalyticsSkillsResponse,
 } from './analytics';
 
 export type {
