@@ -1,7 +1,7 @@
 # Pattern: Adding a New API Type
 
 Every new endpoint or changed response shape must follow this pattern.
-This is enforced by the schema-first rule in CLAUDE.md.
+This is enforced by the schema-first rule in the project config.
 
 ---
 
@@ -11,7 +11,7 @@ This is enforced by the schema-first rule in CLAUDE.md.
 
 Pick the right file (or create a new one if it's a genuinely new domain):
 
-```
+```text
 shared/types/
 ├── practice.ts     ← practice sessions
 ├── analytics.ts    ← analytics/stats

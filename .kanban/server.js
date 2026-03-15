@@ -100,7 +100,7 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-// POST /api/execute/:id — launch Claude Code session (1 per card per day)
+// POST /api/execute/:id — mark card as executed (1 per card per day)
 app.post('/api/execute/:id', (req, res) => {
   const board = readBoard();
   const idx = board.cards.findIndex(c => c.id === req.params.id);
