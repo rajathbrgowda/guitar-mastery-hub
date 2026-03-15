@@ -62,7 +62,6 @@ describe('GET /api/roadmap', () => {
       if (callCount === 3) {
         // curriculum_skill_entries with skills join
         const single = vi.fn();
-        const limit = vi.fn().mockResolvedValue({ data: [], error: null });
         const orderFn = vi.fn().mockResolvedValue({
           data: [
             {
