@@ -2,6 +2,11 @@ import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { useUserStore } from '../store/userStore';
+import { useProgressStore } from '../store/progressStore';
+import { usePracticeStore } from '../store/practiceStore';
+import { usePracticePlanStore } from '../store/practicePlanStore';
+import { useCurriculumStore } from '../store/curriculumStore';
 
 interface AuthContextValue {
   session: Session | null;
@@ -33,6 +38,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSession(session);
           break;
         case 'SIGNED_OUT':
+          useUserStore.getState().reset();
+          useProgressStore.getState().reset();
+          usePracticeStore.getState().reset();
+          usePracticePlanStore.getState().reset();
+          useCurriculumStore.getState().reset();
+          // TODO(CARD-210): add practiceModeStore.reset() when CARD-207 creates it
+          // TODO(CARD-210): add insightsStore.reset() when CARD-175 creates it
+          // TODO(CARD-210): add milestoneStore.reset() when CARD-182 creates it
           setSession(null);
           break;
         case 'PASSWORD_RECOVERY':

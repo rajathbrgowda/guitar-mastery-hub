@@ -13,6 +13,7 @@ interface CurriculumState {
   fetchCurricula: () => Promise<void>;
   fetchCurriculumDetail: (key: string) => Promise<void>;
   switchCurriculum: (key: string) => Promise<void>;
+  reset: () => void;
 }
 
 export const useCurriculumStore = create<CurriculumState>((set, get) => ({
@@ -57,4 +58,14 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
       throw new Error('Failed to switch curriculum');
     }
   },
+
+  reset: () =>
+    set({
+      curricula: [],
+      activeCurriculum: null,
+      isLoadingList: false,
+      isLoadingDetail: false,
+      listError: null,
+      detailError: null,
+    }),
 }));

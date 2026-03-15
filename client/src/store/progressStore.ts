@@ -10,6 +10,7 @@ interface ProgressStoreState {
   fetchProgress: () => Promise<void>;
   toggleSkill: (phase_index: number, skill_index: number, completed: boolean) => Promise<void>;
   setPhase: (phase: number) => Promise<void>;
+  reset: () => void;
 }
 
 export const useProgressStore = create<ProgressStoreState>((set, get) => ({
@@ -88,4 +89,6 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       set({ currentPhase: prevPhase });
     }
   },
+
+  reset: () => set({ skills: [], currentPhase: 0, loading: false, error: null }),
 }));
