@@ -139,8 +139,8 @@ describe('Dashboard', () => {
   it('shows phase progress section', async () => {
     renderDashboard();
     await waitFor(() => {
-      // PhaseMap or progress section is rendered
-      expect(screen.getByText(/phase/i)).toBeInTheDocument();
+      // PhaseMap or progress section is rendered (multiple "phase" matches expected after stat tiles)
+      expect(screen.getAllByText(/phase/i).length).toBeGreaterThan(0);
     });
   });
 });

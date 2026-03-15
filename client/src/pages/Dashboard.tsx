@@ -19,6 +19,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useAuth } from '../context/AuthContext';
 import { useUserStore } from '../store/userStore';
 import { useProgressStore } from '../store/progressStore';
+import { usePracticePlanStore } from '../store/practicePlanStore';
 import { api } from '../services/api';
 import { TodaysPractice } from '../components/TodaysPractice';
 import { PhaseMap } from '../components/PhaseMap';
@@ -50,6 +51,7 @@ export default function Dashboard() {
   const theme = useTheme();
   const { profile } = useUserStore();
   const { skills, currentPhase: storePhase, fetchProgress } = useProgressStore();
+  const { noplan } = usePracticePlanStore();
 
   const name = profile?.display_name ?? user?.email?.split('@')[0] ?? 'there';
   const dailyGoal = profile?.daily_goal_min ?? 20;
@@ -81,6 +83,9 @@ export default function Dashboard() {
   const phaseTotal = PHASE_SKILL_COUNTS[storePhase] ?? 0;
   const phaseCompleted = skills.filter((s) => s.phase_index === storePhase && s.completed).length;
   const phasePct = phaseTotal > 0 ? Math.round((phaseCompleted / phaseTotal) * 100) : 0;
+
+  // Stat tiles
+  const weekMins = summary?.last7?.reduce((s, d) => s + d.duration_min, 0) ?? 0;
 
   // Chart data
   const chartData = [...(summary?.last7 ?? [])]
@@ -162,6 +167,59 @@ export default function Dashboard() {
 
       <Divider sx={{ mb: 3 }} />
 
+      {/* ─── Stat tiles row ──────────────────────────────────────────── */}
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 1.5,
+          mb: 3,
+          overflowX: 'auto',
+          pb: 0.5,
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
+      >
+        {[
+          { label: 'Streak', value: summaryLoading ? null : `${streak}d` },
+          { label: 'This week', value: summaryLoading ? null : `${weekMins} min` },
+          { label: 'Sessions', value: summaryLoading ? null : String(summary?.totalSessions ?? 0) },
+          { label: 'Phase', value: summaryLoading ? null : `${storePhase + 1} / 5` },
+        ].map((tile) => (
+          <Card
+            key={tile.label}
+            sx={{
+              flex: '1 0 90px',
+              minWidth: 90,
+              borderTop: '2px solid',
+              borderTopColor: 'primary.main',
+            }}
+          >
+            <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.6rem' }}
+              >
+                {tile.label}
+              </Typography>
+              {tile.value === null ? (
+                <Skeleton width={48} height={28} />
+              ) : (
+                <Typography
+                  sx={{
+                    fontFamily: '"IBM Plex Mono", monospace',
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    mt: 0.25,
+                  }}
+                >
+                  {tile.value}
+                </Typography>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
+
       {/* ─── ZONE 2 + 3: Two-column layout ──────────────────────────── */}
       <Grid container spacing={3} alignItems="flex-start">
         {/* LEFT: Today's Practice (Zone 2) */}
@@ -172,8 +230,8 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* First-time user CTA */}
-          {isFirstTime && (
+          {/* First-time user CTA — hidden when noplan panel already communicates the same state */}
+          {isFirstTime && !noplan && (
             <Paper
               variant="outlined"
               sx={{ p: 2.5, mt: 2, borderRadius: 2, borderStyle: 'dashed', textAlign: 'center' }}
