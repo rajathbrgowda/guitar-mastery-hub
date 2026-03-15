@@ -81,7 +81,7 @@ export default function Login() {
             view={initialView}
             appearance={authAppearance}
             providers={['google']}
-            redirectTo={`${window.location.origin}/app`}
+            redirectTo={`${window.location.origin}/auth/callback`}
             showLinks
           />
         </Paper>
