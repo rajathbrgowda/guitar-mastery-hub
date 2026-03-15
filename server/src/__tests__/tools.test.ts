@@ -41,28 +41,6 @@ function mockGetToolsRoute(userTools: { tool_key: string; is_using: boolean }[] 
     .mockReturnValueOnce({ select: select2 } as never);
 }
 
-function mockToggleRoute(userTools: { tool_key: string; is_using: boolean }[] = []) {
-  // Call 1: upsert or delete
-  const upsertOrDelete = vi.fn().mockResolvedValue({ error: null });
-
-  // Calls 2+3: same as GET for the response
-  const single2 = vi.fn().mockResolvedValue({ data: { current_phase: 1 }, error: null });
-  const eq2a = vi.fn().mockReturnValue({ single: single2 });
-  const select2 = vi.fn().mockReturnValue({ eq: eq2a });
-
-  const eq3 = vi.fn().mockResolvedValue({ data: userTools, error: null });
-  const select3 = vi.fn().mockReturnValue({ eq: eq3 });
-
-  // POST upsert chain: from('user_tools').upsert(..., {onConflict})
-  const upsertFn = vi.fn().mockResolvedValue({ error: null });
-  // DELETE chain: from('user_tools').delete().eq().eq()
-  const eq4b = vi.fn().mockResolvedValue({ error: null });
-  const eq4a = vi.fn().mockReturnValue({ eq: eq4b });
-  const deleteFn = vi.fn().mockReturnValue({ eq: eq4a });
-
-  return { upsertFn, deleteFn, select2, select3, eq3 };
-}
-
 // ── GET /api/tools ─────────────────────────────────────────────────────────────
 
 describe('GET /api/tools', () => {
