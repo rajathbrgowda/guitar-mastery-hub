@@ -11,6 +11,10 @@ export type {
   InsightsSummary,
   SkillAnalytics,
   AnalyticsSkillsResponse,
+  WeeklyHeatmapDay,
+  ConfidenceTrendPoint,
+  StreakData,
+  InsightCard,
 } from './analytics';
 
 export type {
@@ -54,3 +58,11 @@ export type { Milestone, MilestonesResponse } from './milestones';
 export type { RoadmapSkill, RoadmapPhase, RoadmapResponse } from './roadmap';
 
 export type { PracticeWeekDay, QuickLogPayload, SessionGroup } from './practice-hub';
+
+export type {
+  MasteryState,
+  MasteryNode,
+  PhaseNodes,
+  MasteryMapResponse,
+  RustyCheckResponse,
+} from './mastery';

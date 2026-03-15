@@ -68,3 +68,30 @@ export interface AnalyticsSkillsResponse {
   skills: SkillAnalytics[];
   by_category: Record<string, number>; // category key → total_duration_min
 }
+
+export interface WeeklyHeatmapDay {
+  date: string; // YYYY-MM-DD
+  duration_min: number;
+  week: number; // 0-51 (column in 52-week grid)
+  day_of_week: number; // 0=Sun … 6=Sat
+}
+
+export interface ConfidenceTrendPoint {
+  date: string; // YYYY-MM-DD
+  avg_confidence: number; // 1-3
+  session_count: number;
+}
+
+export interface StreakData {
+  current_streak: number;
+  longest_streak: number;
+  last_practiced: string | null; // YYYY-MM-DD
+  at_risk: boolean; // true if practiced yesterday but NOT today yet
+}
+
+export interface InsightCard {
+  type: 'best_day' | 'most_practiced' | 'consistency' | 'milestone';
+  title: string;
+  body: string;
+  value: string | number | null;
+}
