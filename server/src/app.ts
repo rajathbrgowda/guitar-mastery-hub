@@ -9,6 +9,7 @@ import progressRouter from './routes/progress';
 import practiceRouter from './routes/practice';
 import resourcesRouter from './routes/resources';
 import analyticsRouter from './routes/analytics';
+import usersRouter from './routes/users';
 import { errorHandler } from './middleware/error';
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/progress', progressRouter);
 app.use('/api/practice', practiceRouter);
 app.use('/api/resources', resourcesRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/users', usersRouter);
 
 app.use(errorHandler);
 
