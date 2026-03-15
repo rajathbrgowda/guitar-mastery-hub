@@ -1,0 +1,75 @@
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import type { RoadmapSkill } from '@gmh/shared/types/roadmap';
+
+const CONFIDENCE_COLORS: Record<number, { label: string; color: 'success' | 'warning' | 'error' }> =
+  {
+    3: { label: 'Easy', color: 'success' },
+    2: { label: 'Okay', color: 'warning' },
+    1: { label: 'Hard', color: 'error' },
+  };
+
+interface SkillRowProps {
+  skill: RoadmapSkill;
+  onConfidenceRate: (skillKey: string, confidence: 1 | 2 | 3) => void;
+}
+
+export function SkillRow({ skill }: SkillRowProps) {
+  const conf = skill.confidence != null ? CONFIDENCE_COLORS[skill.confidence] : null;
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        py: 0.75,
+        px: 1,
+        borderRadius: 1,
+        '&:hover': { bgcolor: 'action.hover' },
+      }}
+    >
+      {skill.completed ? (
+        <CheckCircleIcon sx={{ fontSize: 18, color: 'success.main', flexShrink: 0 }} />
+      ) : (
+        <RadioButtonUncheckedIcon sx={{ fontSize: 18, color: 'action.disabled', flexShrink: 0 }} />
+      )}
+
+      <Typography
+        variant="body2"
+        sx={{
+          flex: 1,
+          fontWeight: skill.completed ? 400 : 500,
+          color: skill.completed ? 'text.secondary' : 'text.primary',
+          textDecoration: skill.completed ? 'line-through' : 'none',
+        }}
+      >
+        {skill.skill_title}
+      </Typography>
+
+      <Chip
+        label={skill.skill_category}
+        size="small"
+        sx={{
+          fontSize: '0.6rem',
+          height: 20,
+          textTransform: 'capitalize',
+          flexShrink: 0,
+        }}
+      />
+
+      {conf && (
+        <Chip
+          label={conf.label}
+          size="small"
+          color={conf.color}
+          variant="outlined"
+          sx={{ fontSize: '0.6rem', height: 20, flexShrink: 0 }}
+        />
+      )}
+    </Box>
+  );
+}
