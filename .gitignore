@@ -7,3 +7,6 @@ docs/
 .kanban/board.json
 .DS_Store
 *.log
+
+# Ops brain — local only, never push (contains API tokens)
+_ops/
