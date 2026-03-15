@@ -20,13 +20,17 @@ vi.mock('../services/api', () => ({
 
 const mockLogSession = vi.fn();
 const mockFetchSessions = vi.fn();
+const mockFetchWeek = vi.fn();
 
 vi.mock('../store/practiceStore', () => ({
   usePracticeStore: () => ({
     sessions: [],
+    weekDays: [],
     loading: false,
+    weekLoading: false,
     error: null,
     fetchSessions: mockFetchSessions,
+    fetchWeek: mockFetchWeek,
     logSession: mockLogSession,
     reset: vi.fn(),
   }),
@@ -53,65 +57,72 @@ function renderPractice() {
 beforeEach(() => {
   mockLogSession.mockReset();
   mockFetchSessions.mockReset();
+  mockFetchWeek.mockReset();
   mockLogSession.mockResolvedValue({
     id: 'sess-1',
     date: '2026-03-15',
     duration_min: 30,
     sections: null,
     notes: null,
+    confidence: null,
     created_at: '2026-03-15T10:00:00Z',
   });
 });
 
 describe('Practice', () => {
-  it('fetches sessions on mount', async () => {
+  it('fetches sessions and week on mount', async () => {
     renderPractice();
     await waitFor(() => {
       expect(mockFetchSessions).toHaveBeenCalledOnce();
+      expect(mockFetchWeek).toHaveBeenCalledOnce();
     });
   });
 
-  it('calls logSession with correct date and duration when Log session is clicked', async () => {
+  it('shows Start Timer and Log Manually buttons', () => {
     renderPractice();
+    expect(screen.getByRole('button', { name: /Start Timer/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Log Manually/i })).toBeInTheDocument();
+  });
 
-    // Set duration via the 30-min quick chip
+  it('shows manual log form when Log Manually is clicked', async () => {
+    renderPractice();
+    fireEvent.click(screen.getByRole('button', { name: /Log Manually/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Log session/i })).toBeInTheDocument();
+    });
+  });
+
+  it('calls logSession with correct duration when quick-log form submitted', async () => {
+    renderPractice();
+    fireEvent.click(screen.getByRole('button', { name: /Log Manually/i }));
+    await waitFor(() => screen.getByText('30 min'));
+
     fireEvent.click(screen.getByText('30 min'));
-
     fireEvent.click(screen.getByRole('button', { name: /Log session/i }));
 
     await waitFor(() => {
       expect(mockLogSession).toHaveBeenCalledOnce();
       const call = mockLogSession.mock.calls[0][0];
       expect(call.duration_min).toBe(30);
-      expect(typeof call.date).toBe('string');
       expect(call.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    });
-  });
-
-  it('shows success alert after logging a session', async () => {
-    renderPractice();
-    fireEvent.click(screen.getByText('30 min'));
-    fireEvent.click(screen.getByRole('button', { name: /Log session/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText(/Session logged!/i)).toBeInTheDocument();
     });
   });
 
   it('shows validation error when Log session clicked with no duration', async () => {
     renderPractice();
+    fireEvent.click(screen.getByRole('button', { name: /Log Manually/i }));
+    await waitFor(() => screen.getByRole('button', { name: /Log session/i }));
+
     fireEvent.click(screen.getByRole('button', { name: /Log session/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Date and duration are required/i)).toBeInTheDocument();
+      expect(screen.getByText(/valid duration/i)).toBeInTheDocument();
     });
     expect(mockLogSession).not.toHaveBeenCalled();
   });
 
-  it('does not call logSession when duration is missing', async () => {
+  it('shows empty state when no sessions', () => {
     renderPractice();
-    fireEvent.click(screen.getByRole('button', { name: /Log session/i }));
-    await waitFor(() => expect(screen.getByText(/required/i)).toBeInTheDocument());
-    expect(mockLogSession).not.toHaveBeenCalled();
+    expect(screen.getByText(/No sessions yet/i)).toBeInTheDocument();
   });
 });
