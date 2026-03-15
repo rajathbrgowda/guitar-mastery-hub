@@ -4,6 +4,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { useAuth } from './context/AuthContext';
 import AppLayout from './components/AppLayout';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Roadmap from './pages/Roadmap';
 import Practice from './pages/Practice';
@@ -12,7 +15,6 @@ import Analytics from './pages/Analytics';
 import Resources from './pages/Resources';
 import Tools from './pages/Tools';
 import Settings from './pages/Settings';
-import Login from './pages/Login';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth();
@@ -29,12 +31,14 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 }
 
 export const router = createBrowserRouter([
+  // Public routes
+  { path: '/', element: <Landing /> },
+  { path: '/login', element: <Login /> },
+  { path: '/reset-password', element: <ResetPassword /> },
+
+  // Protected app shell — all pages live under /app
   {
-    path: '/login',
-    element: <Login />,
-  },
-  {
-    path: '/',
+    path: '/app',
     element: (
       <ProtectedRoute>
         <AppLayout />
@@ -51,8 +55,7 @@ export const router = createBrowserRouter([
       { path: 'settings', element: <Settings /> },
     ],
   },
-  {
-    path: '*',
-    element: <Navigate to="/" replace />,
-  },
+
+  // Catch-all
+  { path: '*', element: <Navigate to="/" replace /> },
 ]);

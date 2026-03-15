@@ -28,13 +28,13 @@ import { supabase } from '../lib/supabase';
 const DRAWER_WIDTH = 220;
 
 const navItems = [
-  { label: 'Dashboard', to: '/', icon: <DashboardOutlinedIcon fontSize="small" /> },
-  { label: 'Roadmap', to: '/roadmap', icon: <MapOutlinedIcon fontSize="small" /> },
-  { label: 'Practice', to: '/practice', icon: <TimerOutlinedIcon fontSize="small" /> },
-  { label: 'Skill Tree', to: '/skills', icon: <AccountTreeOutlinedIcon fontSize="small" /> },
-  { label: 'Analytics', to: '/analytics', icon: <BarChartOutlinedIcon fontSize="small" /> },
-  { label: 'Resources', to: '/resources', icon: <LibraryBooksOutlinedIcon fontSize="small" /> },
-  { label: 'Tools', to: '/tools', icon: <BuildOutlinedIcon fontSize="small" /> },
+  { label: 'Dashboard', to: '/app', icon: <DashboardOutlinedIcon fontSize="small" /> },
+  { label: 'Roadmap', to: '/app/roadmap', icon: <MapOutlinedIcon fontSize="small" /> },
+  { label: 'Practice', to: '/app/practice', icon: <TimerOutlinedIcon fontSize="small" /> },
+  { label: 'Skill Tree', to: '/app/skills', icon: <AccountTreeOutlinedIcon fontSize="small" /> },
+  { label: 'Analytics', to: '/app/analytics', icon: <BarChartOutlinedIcon fontSize="small" /> },
+  { label: 'Resources', to: '/app/resources', icon: <LibraryBooksOutlinedIcon fontSize="small" /> },
+  { label: 'Tools', to: '/app/tools', icon: <BuildOutlinedIcon fontSize="small" /> },
 ];
 
 export default function AppLayout() {
@@ -78,7 +78,7 @@ export default function AppLayout() {
         <ListItem disablePadding>
           <ListItemButton
             component={NavLink}
-            to="/settings"
+            to="/app/settings"
             onClick={() => setMobileOpen(false)}
             sx={{ py: 0.75, px: 1.5 }}
           >
