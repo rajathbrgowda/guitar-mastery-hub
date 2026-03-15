@@ -30,6 +30,60 @@ router.get('/streak', async (req: AuthRequest, res) => {
   res.json({ streak });
 });
 
+// GET /api/analytics/streak/detail — full streak data
+router.get('/streak/detail', async (req: AuthRequest, res) => {
+  const userId = req.user!.id;
+
+  const [sessionsRes, userRes] = await Promise.all([
+    supabase
+      .from('practice_sessions')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: false }),
+    supabase.from('users').select('timezone').eq('id', userId).single(),
+  ]);
+
+  if (sessionsRes.error) {
+    res.status(500).json({ error: sessionsRes.error.message });
+    return;
+  }
+
+  const timezone = userRes.data?.timezone ?? 'UTC';
+  const dates = (sessionsRes.data ?? []).map((r: { date: string }) => r.date);
+  const unique = [...new Set(dates)].sort().reverse();
+
+  const today = todayInTz(timezone);
+  const yesterday = offsetDate(today, -1);
+
+  // Current streak
+  const currentStreak = calcStreak(dates, timezone);
+
+  // Longest streak — iterate all dates
+  let longestStreak = 0;
+  let tempStreak = 1;
+  const sortedAsc = [...unique].reverse(); // oldest first
+  for (let i = 1; i < sortedAsc.length; i++) {
+    const expected = offsetDate(sortedAsc[i - 1], 1);
+    if (sortedAsc[i] === expected) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      tempStreak = 1;
+    }
+  }
+  if (sortedAsc.length > 0) longestStreak = Math.max(longestStreak, 1);
+
+  const lastPracticed = unique[0] ?? null;
+  const atRisk = lastPracticed === yesterday && unique[0] !== today;
+
+  res.json({
+    current_streak: currentStreak,
+    longest_streak: longestStreak,
+    last_practiced: lastPracticed,
+    at_risk: atRisk,
+  });
+});
+
 // GET /api/analytics/summary — total mins, sessions, streak, current phase, weak spots
 router.get('/summary', async (req: AuthRequest, res) => {
   const userId = req.user!.id;
