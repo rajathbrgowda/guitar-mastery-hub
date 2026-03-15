@@ -295,7 +295,7 @@ export default function Dashboard() {
                       tickLine={false}
                     />
                     <Tooltip
-                      formatter={(v: number) => [`${v} min`, '']}
+                      formatter={(v) => [`${v ?? 0} min`, '']}
                       contentStyle={{ fontSize: '0.75rem', borderRadius: 6, border: '1px solid #e5e0df' }}
                       cursor={{ fill: alpha(primaryColor, 0.08) }}
                     />
