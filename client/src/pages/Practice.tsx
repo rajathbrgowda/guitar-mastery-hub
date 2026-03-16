@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -86,7 +87,7 @@ function SessionRow({ s }: { s: PracticeSession }) {
               fontWeight: 600,
               color: 'primary.main',
               ml: 2,
-              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             {s.duration_min} min
@@ -259,38 +260,39 @@ export default function Practice() {
 
       {/* Stats strip */}
       {!loading && sessions.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
           {[
             { label: 'SESSIONS', value: sessions.length },
             { label: 'TOTAL MIN', value: totalMins },
             { label: 'AVG MIN', value: avgMins },
             { label: 'LONGEST', value: `${longest} min` },
           ].map((stat) => (
-            <Card
-              key={stat.label}
-              sx={{ flex: '1 1 100px', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}
-            >
-              <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
-                >
-                  {stat.label}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontWeight: 700,
-                    fontSize: '1.25rem',
-                  }}
-                >
-                  {stat.value}
-                </Typography>
-              </CardContent>
-            </Card>
+            <Grid key={stat.label} size={{ xs: 6, sm: 3 }}>
+              <Card
+                sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}
+              >
+                <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                  >
+                    {stat.label}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: '"IBM Plex Mono", monospace',
+                      fontWeight: 700,
+                      fontSize: '1.25rem',
+                    }}
+                  >
+                    {stat.value}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
           ))}
-        </Box>
+        </Grid>
       )}
 
       {/* Session history — grouped by week */}
