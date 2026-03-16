@@ -29,6 +29,7 @@ import { PhaseMap } from '../components/PhaseMap';
 import { WeekCalendar } from '../components/WeekCalendar';
 import { WeeklyDigestCard } from '../components/WeeklyDigestCard';
 import { SkillFocusRow } from '../components/SkillFocusRow';
+import { RoomScene } from '../components/RoomScene';
 import type { AnalyticsSummary } from '@gmh/shared/types/analytics';
 
 const DAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -63,6 +64,8 @@ export default function Dashboard() {
   const name = profile?.display_name ?? user?.email?.split('@')[0] ?? 'there';
   const dailyGoal = profile?.daily_goal_min ?? 20;
   const daysTarget = profile?.practice_days_target ?? 5;
+  const hour = new Date().getHours();
+  const lampOn = theme.palette.mode === 'dark' || hour < 7 || hour >= 20;
 
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
@@ -107,69 +110,86 @@ export default function Dashboard() {
   return (
     <Box sx={{ maxWidth: 960, mx: 'auto' }}>
       {/* ─── ZONE 1: Greeting ─────────────────────────────────────── */}
-      <Box sx={{ mb: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 1,
-          }}
-        >
-          <Box>
-            <Typography variant="h4" fontWeight={800} sx={{ lineHeight: 1.2, mb: 0.5 }}>
-              Good {timeOfDay()}, {name} {streakEmoji}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {streakText}
-            </Typography>
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+        {/* Left: greeting + goal progress */}
+        <Box sx={{ flex: 1 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 1,
+            }}
+          >
+            <Box>
+              <Typography variant="h4" fontWeight={800} sx={{ lineHeight: 1.2, mb: 0.5 }}>
+                Good {timeOfDay()}, {name} {streakEmoji}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {streakText}
+              </Typography>
+            </Box>
+
+            {/* Streak badge */}
+            {!summaryLoading && streak > 0 && (
+              <Chip
+                icon={<LocalFireDepartmentIcon sx={{ fontSize: '1rem !important' }} />}
+                label={`${streak} day streak`}
+                color={streak >= 7 ? 'error' : 'warning'}
+                variant="filled"
+                sx={{ fontWeight: 700, fontSize: '0.75rem', height: 32 }}
+              />
+            )}
           </Box>
 
-          {/* Streak badge */}
-          {!summaryLoading && streak > 0 && (
-            <Chip
-              icon={<LocalFireDepartmentIcon sx={{ fontSize: '1rem !important' }} />}
-              label={`${streak} day streak`}
-              color={streak >= 7 ? 'error' : 'warning'}
-              variant="filled"
-              sx={{ fontWeight: 700, fontSize: '0.75rem', height: 32 }}
-            />
-          )}
-        </Box>
-
-        {/* Today's goal progress */}
-        {!summaryLoading && (
-          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ flex: 1 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                <Typography variant="caption" color="text.secondary">
-                  Today's goal
-                </Typography>
-                <Typography
-                  variant="caption"
-                  fontWeight={600}
-                  color={todayPct >= 100 ? 'success.main' : 'text.primary'}
-                >
-                  {todayMins} / {dailyGoal} min {todayPct >= 100 && '✓'}
-                </Typography>
+          {/* Today's goal progress */}
+          {!summaryLoading && (
+            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Today's goal
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    color={todayPct >= 100 ? 'success.main' : 'text.primary'}
+                  >
+                    {todayMins} / {dailyGoal} min {todayPct >= 100 && '✓'}
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={todayPct}
+                  color={todayPct >= 100 ? 'success' : 'primary'}
+                  sx={{ height: 8, borderRadius: 4 }}
+                />
               </Box>
-              <LinearProgress
-                variant="determinate"
-                value={todayPct}
-                color={todayPct >= 100 ? 'success' : 'primary'}
-                sx={{ height: 8, borderRadius: 4 }}
+              <Chip
+                label={`${daysPracticed}/${daysTarget} days`}
+                size="small"
+                variant="outlined"
+                sx={{ fontSize: '0.7rem' }}
               />
             </Box>
-            <Chip
-              label={`${daysPracticed}/${daysTarget} days`}
-              size="small"
-              variant="outlined"
-              sx={{ fontSize: '0.7rem' }}
-            />
-          </Box>
-        )}
-        {summaryLoading && <Skeleton variant="rounded" height={36} sx={{ mt: 2 }} />}
+          )}
+          {summaryLoading && <Skeleton variant="rounded" height={36} sx={{ mt: 2 }} />}
+        </Box>
+
+        {/* Right: room scene — desktop only */}
+        <Box
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            width: 240,
+            flexShrink: 0,
+            borderRadius: 2,
+            overflow: 'hidden',
+            opacity: 0.88,
+          }}
+        >
+          <RoomScene lampOn={lampOn} />
+        </Box>
       </Box>
 
       <Divider sx={{ mb: 3 }} />
