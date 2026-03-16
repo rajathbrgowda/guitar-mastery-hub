@@ -1,16 +1,18 @@
 import { create } from 'zustand';
 import { api } from '../services/api';
 import type { RoadmapResponse } from '@gmh/shared/types/roadmap';
+import type { ConfidenceRating } from '@gmh/shared/types/practice-plan';
 
 interface RoadmapState {
   data: RoadmapResponse | null;
   loading: boolean;
   error: string;
   fetchRoadmap: () => Promise<void>;
+  updateSkillConfidence: (skillKey: string, confidence: ConfidenceRating) => void;
   reset: () => void;
 }
 
-export const useRoadmapStore = create<RoadmapState>((set) => ({
+export const useRoadmapStore = create<RoadmapState>((set, get) => ({
   data: null,
   loading: false,
   error: '',
@@ -24,6 +26,19 @@ export const useRoadmapStore = create<RoadmapState>((set) => ({
     } finally {
       set({ loading: false });
     }
+  },
+  updateSkillConfidence: (skillKey, confidence) => {
+    const data = get().data;
+    if (!data) return;
+
+    const updated = {
+      ...data,
+      phases: data.phases.map((phase) => ({
+        ...phase,
+        skills: phase.skills.map((s) => (s.skill_key === skillKey ? { ...s, confidence } : s)),
+      })),
+    };
+    set({ data: updated });
   },
   reset: () => set({ data: null, loading: false, error: '' }),
 }));

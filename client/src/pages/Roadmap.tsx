@@ -1,39 +1,47 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import PreviewIcon from '@mui/icons-material/Visibility';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { useNavigate } from 'react-router-dom';
 import { useRoadmapStore } from '../store/roadmapStore';
 import { RoadmapPhaseCard } from '../components/RoadmapPhaseCard';
 import { PhasePreviewDrawer } from '../components/PhasePreviewDrawer';
 import { WeeklyPaceEstimate } from '../components/WeeklyPaceEstimate';
+import { PhaseProgressStrip } from '../components/PhaseProgressStrip';
+import { SkillDetailDrawer } from '../components/SkillDetailDrawer';
+import type { RoadmapSkill } from '@gmh/shared/types/roadmap';
 
 export default function Roadmap() {
   const { data, loading, error, fetchRoadmap } = useRoadmapStore();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerPhase, setDrawerPhase] = useState<number | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<RoadmapSkill | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchRoadmap();
   }, [fetchRoadmap]);
 
   const currentPhase = data?.phases.find((p) => p.phase_number === data.current_phase);
-  const nextPhase = data?.phases.find((p) => p.phase_number === data.current_phase + 1) ?? null;
-
   const skillsPerWeek = data?.skills_per_week ?? null;
+  const isSongFirst = data?.curriculum_style === 'song-first';
+
+  // Phase scroll refs
+  const phaseRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  const totalSkills = data?.phases.reduce((s, p) => s + p.total_skills, 0) ?? 0;
+
+  // Preview drawer — any future phase
+  const previewPhase =
+    drawerPhase != null ? (data?.phases.find((p) => p.phase_number === drawerPhase) ?? null) : null;
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          mb: 3,
-        }}
-      >
-        <Box>
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', mb: 0.5 }}>
           <Typography
             variant="h4"
             fontWeight={700}
@@ -42,20 +50,22 @@ export default function Roadmap() {
             Roadmap
           </Typography>
           {data && (
-            <Typography variant="body2" color="text.secondary">
-              {data.phases.length} phases · Phase {data.current_phase} active
-            </Typography>
+            <Chip
+              label={data.curriculum_name}
+              size="small"
+              variant="outlined"
+              icon={<OpenInNewIcon sx={{ fontSize: '14px !important' }} />}
+              onClick={() => navigate('/app/settings')}
+              sx={{ cursor: 'pointer', fontSize: '0.7rem', height: 24 }}
+            />
           )}
+          {loading && <Skeleton width={90} height={24} sx={{ borderRadius: 1 }} />}
         </Box>
-        {nextPhase && (
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<PreviewIcon />}
-            onClick={() => setDrawerOpen(true)}
-          >
-            Preview Phase {nextPhase.phase_number}
-          </Button>
+        {data && (
+          <Typography variant="body2" color="text.secondary">
+            {data.phases.length} phases · {totalSkills} skills · {isSongFirst ? 'Set' : 'Phase'}{' '}
+            {data.current_phase} active
+          </Typography>
         )}
       </Box>
 
@@ -73,29 +83,65 @@ export default function Roadmap() {
         </Alert>
       ) : (
         <>
+          {/* Sparse curriculum warning */}
+          {totalSkills > 0 && totalSkills < 5 && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Your curriculum is still being set up. Content will appear here soon.
+            </Alert>
+          )}
+
+          {/* Phase progress strip */}
+          <PhaseProgressStrip
+            phases={data.phases}
+            currentPhase={data.current_phase}
+            isSongFirst={isSongFirst}
+            onDotClick={(phaseNum) => {
+              phaseRefs.current[phaseNum]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+          />
+
+          {/* Pace estimator */}
           {currentPhase && (
-            <Box sx={{ mb: 1 }}>
+            <Box sx={{ mb: 1.5 }}>
               <WeeklyPaceEstimate phase={currentPhase} skillsPerWeek={skillsPerWeek} />
             </Box>
           )}
+
+          {/* Phase cards */}
           {data.phases.map((phase) => (
-            <RoadmapPhaseCard
+            <div
               key={phase.phase_number}
-              phase={phase}
-              isCurrentPhase={phase.phase_number === data.current_phase}
-              defaultExpanded={phase.phase_number === data.current_phase}
-              onConfidenceRate={() => {
-                // confidence rating handled via plan flow, not inline
+              ref={(el) => {
+                phaseRefs.current[phase.phase_number] = el;
               }}
-            />
+            >
+              <RoadmapPhaseCard
+                phase={phase}
+                isCurrentPhase={phase.phase_number === data.current_phase}
+                isSongFirst={isSongFirst}
+                defaultExpanded={phase.phase_number === data.current_phase}
+                onSkillClick={setSelectedSkill}
+                onPreviewClick={
+                  phase.phase_number > data.current_phase
+                    ? () => setDrawerPhase(phase.phase_number)
+                    : undefined
+                }
+              />
+            </div>
           ))}
         </>
       )}
 
       <PhasePreviewDrawer
-        nextPhase={nextPhase}
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        nextPhase={previewPhase}
+        open={previewPhase != null}
+        onClose={() => setDrawerPhase(null)}
+      />
+
+      <SkillDetailDrawer
+        skill={selectedSkill}
+        onClose={() => setSelectedSkill(null)}
+        curriculumKey={data?.curriculum_key ?? ''}
       />
     </Box>
   );

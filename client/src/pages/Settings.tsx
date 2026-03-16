@@ -28,7 +28,9 @@ import { supabase } from '../lib/supabase';
 import api from '../services/api';
 import { THEME_COLORS } from '../theme/themeColors';
 import type { ThemeKey } from '../types/user';
+import LinearProgress from '@mui/material/LinearProgress';
 import { CurriculumPicker } from '../components/CurriculumPicker';
+import { useCurriculumStore } from '../store/curriculumStore';
 
 const GUITAR_TYPES = [
   { value: 'acoustic', label: 'Acoustic' },
@@ -42,6 +44,7 @@ export default function Settings() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { profile, loading: profileLoading, fetchProfile, updateProfile } = useUserStore();
+  const { isSwitching } = useCurriculumStore();
 
   // Profile fields
   const [displayName, setDisplayName] = useState('');
@@ -170,6 +173,7 @@ export default function Settings() {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto' }}>
+      {isSwitching && <LinearProgress sx={{ mb: 1, borderRadius: 1 }} />}
       <Typography variant="h4" fontWeight={700} gutterBottom>
         Settings
       </Typography>
