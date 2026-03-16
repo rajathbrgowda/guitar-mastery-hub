@@ -24,17 +24,6 @@ beforeEach(() => {
   mockFrom.mockReset();
 });
 
-// ── Helper to build a fluent Supabase mock chain ─────────────────────────────
-function makeChain(result: object) {
-  const chain: Record<string, unknown> = {};
-  const terminal = vi.fn().mockResolvedValue(result);
-  ['select', 'eq', 'single', 'not', 'order', 'limit'].forEach((m) => {
-    chain[m] = vi.fn().mockReturnValue(chain);
-  });
-  (chain as Record<string, unknown>).single = terminal;
-  return chain;
-}
-
 // ── GET /api/roadmap — curriculum fallback ────────────────────────────────────
 describe('GET /api/roadmap — curriculum fallback', () => {
   it('falls back to best_of_all when user curriculum is inactive', async () => {
@@ -47,11 +36,9 @@ describe('GET /api/roadmap — curriculum fallback', () => {
           error: null,
         });
         return {
-          select: vi
-            .fn()
-            .mockReturnValue({
-              eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
-            }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
+          }),
         } as never;
       }
       if (table === 'curriculum_sources') {
@@ -62,50 +49,38 @@ describe('GET /api/roadmap — curriculum fallback', () => {
             : { data: { id: 'fallback-uuid' }, error: null },
         );
         return {
-          select: vi
-            .fn()
-            .mockReturnValue({
-              eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
-            }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
+          }),
         } as never;
       }
       if (table === 'curriculum_skill_entries') {
         return {
-          select: vi
-            .fn()
-            .mockReturnValue({
-              eq: vi
-                .fn()
-                .mockReturnValue({ order: vi.fn().mockResolvedValue({ data: [], error: null }) }),
-            }),
+          select: vi.fn().mockReturnValue({
+            eq: vi
+              .fn()
+              .mockReturnValue({ order: vi.fn().mockResolvedValue({ data: [], error: null }) }),
+          }),
         } as never;
       }
       if (table === 'skill_progress') {
         return {
-          select: vi
-            .fn()
-            .mockReturnValue({
-              eq: vi
-                .fn()
-                .mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: [], error: null }) }),
-            }),
+          select: vi.fn().mockReturnValue({
+            eq: vi
+              .fn()
+              .mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: [], error: null }) }),
+          }),
         } as never;
       }
       if (table === 'practice_sessions') {
         return {
-          select: vi
-            .fn()
-            .mockReturnValue({
-              eq: vi
-                .fn()
-                .mockReturnValue({
-                  order: vi
-                    .fn()
-                    .mockReturnValue({
-                      limit: vi.fn().mockResolvedValue({ data: [], error: null }),
-                    }),
-                }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              order: vi.fn().mockReturnValue({
+                limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+              }),
             }),
+          }),
         } as never;
       }
       return {
@@ -133,11 +108,9 @@ describe('GET /api/roadmap — curriculum fallback', () => {
         // All curricula inactive
         const single = vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } });
         return {
-          select: vi
-            .fn()
-            .mockReturnValue({
-              eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
-            }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
+          }),
         } as never;
       }
       return {
@@ -166,12 +139,10 @@ describe('PATCH /api/roadmap/skill/:key/confidence — validation', () => {
         } as never;
       }
       if (table === 'skills') {
-        const single = vi
-          .fn()
-          .mockResolvedValue({
-            data: skillData,
-            error: skillData ? null : { message: 'not found' },
-          });
+        const single = vi.fn().mockResolvedValue({
+          data: skillData,
+          error: skillData ? null : { message: 'not found' },
+        });
         return {
           select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
         } as never;
@@ -185,15 +156,11 @@ describe('PATCH /api/roadmap/skill/:key/confidence — validation', () => {
             error: null,
           });
           return {
-            select: vi
-              .fn()
-              .mockReturnValue({
-                eq: vi
-                  .fn()
-                  .mockReturnValue({
-                    eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
-                  }),
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
               }),
+            }),
           } as never;
         }
         // UPDATE
@@ -267,9 +234,7 @@ describe('PATCH /api/roadmap/skill/:key/confidence — validation', () => {
   });
 
   it('returns 404 when skill has no progress row (must complete first)', async () => {
-    let callCount = 0;
     mockFrom.mockImplementation((table: string) => {
-      callCount++;
       if (table === 'users') {
         const single = vi
           .fn()
@@ -288,15 +253,11 @@ describe('PATCH /api/roadmap/skill/:key/confidence — validation', () => {
         // No progress row exists
         const single = vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } });
         return {
-          select: vi
-            .fn()
-            .mockReturnValue({
-              eq: vi
-                .fn()
-                .mockReturnValue({
-                  eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
-                }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
             }),
+          }),
         } as never;
       }
       return {
