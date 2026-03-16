@@ -73,19 +73,31 @@ export default function Landing() {
         <Typography variant="h6" fontWeight={700} color="primary" component="span">
           Fretwork
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-          <Button component="a" href="#who-its-for" color="inherit" size="small">
+        <Box sx={{ display: 'flex', gap: { xs: 0.75, sm: 1.5 }, alignItems: 'center' }}>
+          <Button
+            component="a"
+            href="#who-its-for"
+            color="inherit"
+            size="small"
+            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+          >
             About
           </Button>
-          <Button variant="text" size="small" color="inherit" onClick={() => navigate('/demo')}>
+          <Button
+            variant="text"
+            size="small"
+            color="inherit"
+            onClick={() => navigate('/demo')}
+            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+          >
             Demo
           </Button>
           <DarkModeToggle />
-          <Button variant="text" color="inherit" onClick={() => navigate('/login')}>
+          <Button variant="text" size="small" color="inherit" onClick={() => navigate('/login')}>
             Log in
           </Button>
-          <Button variant="contained" onClick={() => navigate('/login?mode=signup')}>
-            Sign up free
+          <Button variant="contained" size="small" onClick={() => navigate('/login?mode=signup')}>
+            Sign up
           </Button>
         </Box>
       </Box>
@@ -95,7 +107,7 @@ export default function Landing() {
         id="hero"
         component="section"
         aria-labelledby="hero-heading"
-        sx={{ bgcolor: '#1c1917', py: { xs: 8, md: 14 }, overflow: 'hidden' }}
+        sx={{ bgcolor: '#1c1917', py: { xs: 5, md: 14 }, overflow: 'hidden' }}
       >
         <Container maxWidth="lg" sx={{ ...fadeInUp }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { md: 6 } }}>
@@ -155,7 +167,7 @@ export default function Landing() {
                   size="large"
                   component={RouterLink}
                   to="/login?mode=signup"
-                  sx={{ px: 4, py: 1.25, fontSize: '1rem', fontWeight: 600 }}
+                  sx={{ px: { xs: 2.5, sm: 4 }, py: 1.25, fontSize: '1rem', fontWeight: 600 }}
                   aria-label="Start free — sign up"
                 >
                   Start free
@@ -166,7 +178,7 @@ export default function Landing() {
                   component="a"
                   href="#how-it-works"
                   sx={{
-                    px: 4,
+                    px: { xs: 2.5, sm: 4 },
                     py: 1.25,
                     fontSize: '1rem',
                     color: 'rgba(255,255,255,0.85)',
