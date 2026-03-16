@@ -2,9 +2,10 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StreakCalendar from '../components/StreakCalendar';
 import WhyIBuiltThis from '../components/WhyIBuiltThis';
@@ -483,11 +484,58 @@ export default function Landing() {
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
       <Box
         component="footer"
-        sx={{ borderTop: '1px solid', borderColor: 'divider', py: 3, textAlign: 'center' }}
+        sx={{
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          py: 4,
+          px: { xs: 2, sm: 6 },
+          bgcolor: 'background.paper',
+        }}
       >
-        <Typography variant="caption" color="text.secondary">
-          Guitar Mastery Hub — built to learn, built to last
-        </Typography>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'center', sm: 'center' }}
+          spacing={2}
+        >
+          <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+            <Typography variant="body2" fontWeight={600}>
+              Built by one person.
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              © 2026 Guitar Mastery Hub
+            </Typography>
+          </Box>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            flexWrap="wrap"
+            justifyContent={{ xs: 'center', sm: 'flex-end' }}
+          >
+            <Button component="a" href="#who-its-for" size="small" color="inherit">
+              About
+            </Button>
+            <Button component={RouterLink} to="/demo" size="small" color="inherit">
+              Demo
+            </Button>
+            <Button
+              component="a"
+              href="https://github.com/rajathbrgowda/guitar-mastery-hub"
+              target="_blank"
+              rel="noopener noreferrer"
+              size="small"
+              color="inherit"
+            >
+              GitHub
+            </Button>
+            <Button component={RouterLink} to="/privacy" size="small" color="inherit">
+              Privacy
+            </Button>
+            <Button component={RouterLink} to="/terms" size="small" color="inherit">
+              Terms
+            </Button>
+          </Stack>
+        </Stack>
       </Box>
     </Box>
   );
