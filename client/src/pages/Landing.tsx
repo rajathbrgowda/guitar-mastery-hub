@@ -11,6 +11,7 @@ import { DarkModeToggle } from '../components/DarkModeToggle';
 import { RoomScene } from '../components/RoomScene';
 import { ROOM_SCENE_ENABLED } from '../lib/featureFlags';
 import HowItWorks from '../components/landing/HowItWorks';
+import TypicalTuesday from '../components/landing/TypicalTuesday';
 import IsThisForYou from '../components/landing/IsThisForYou';
 import TheProblem from '../components/landing/TheProblem';
 import WeekStripMockup from '../components/landing/WeekStripMockup';
@@ -209,6 +210,9 @@ export default function Landing() {
 
       {/* ── HowItWorks ───────────────────────────────────────────────────────── */}
       <HowItWorks />
+
+      {/* ── TypicalTuesday ───────────────────────────────────────────────────── */}
+      <TypicalTuesday />
 
       {/* ── Testimonials (redesigned) ─────────────────────────────────────────── */}
       <TestimonialSection />
