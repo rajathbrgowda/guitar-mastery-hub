@@ -75,9 +75,9 @@ router.get('/map', async (req: AuthRequest, res: Response) => {
   // 5. Recent practice plan items for confidence history (last 90 days)
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-  const { data: planDays } = await supabase
-    .from('practice_plan_days')
-    .select('items')
+  const { data: recentPlans } = await supabase
+    .from('daily_practice_plans')
+    .select('id')
     .eq('user_id', userId)
     .eq('curriculum_key', curriculumKey)
     .gte('plan_date', ninetyDaysAgo)
@@ -86,13 +86,20 @@ router.get('/map', async (req: AuthRequest, res: Response) => {
 
   // Build skill_id → last-5-confidence-ratings map
   const confidenceMap = new Map<string, ConfidenceRating[]>();
-  for (const day of planDays ?? []) {
-    const items = (day.items as Array<{ skill_id?: string; confidence_rating?: number }>) ?? [];
-    for (const item of items) {
-      if (item.skill_id && item.confidence_rating != null) {
-        const hist = confidenceMap.get(item.skill_id) ?? [];
-        if (hist.length < 5) hist.push(item.confidence_rating as ConfidenceRating);
-        confidenceMap.set(item.skill_id, hist);
+  const planIds = (recentPlans ?? []).map((p) => (p as { id: string }).id);
+  if (planIds.length > 0) {
+    const { data: planItems } = await supabase
+      .from('daily_practice_plan_items')
+      .select('skill_id, confidence_rating')
+      .in('plan_id', planIds)
+      .not('confidence_rating', 'is', null);
+
+    for (const item of planItems ?? []) {
+      const it = item as { skill_id?: string; confidence_rating?: number };
+      if (it.skill_id && it.confidence_rating != null) {
+        const hist = confidenceMap.get(it.skill_id) ?? [];
+        if (hist.length < 5) hist.push(it.confidence_rating as ConfidenceRating);
+        confidenceMap.set(it.skill_id, hist);
       }
     }
   }
