@@ -1,9 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import type { ThemeMode } from '@gmh/shared/types/user';
 
 const KEY = 'gmh_theme_mode';
 
-function getStored(): ThemeMode {
+// Module-level singleton — all hook instances share the same value.
+// When one instance calls setLocalMode(), every mounted instance re-renders.
+let current: ThemeMode = (() => {
   try {
     const v = localStorage.getItem(KEY);
     if (v === 'light' || v === 'dark') return v;
@@ -11,19 +13,29 @@ function getStored(): ThemeMode {
     // ignore storage errors
   }
   return 'light';
+})();
+
+const listeners = new Set<(m: ThemeMode) => void>();
+
+function broadcast(m: ThemeMode) {
+  current = m;
+  try {
+    localStorage.setItem(KEY, m);
+  } catch {
+    // ignore storage errors
+  }
+  listeners.forEach((fn) => fn(m));
 }
 
 export function useLocalThemeMode(): [ThemeMode, (mode: ThemeMode) => void] {
-  const [mode, setModeState] = useState<ThemeMode>(getStored);
+  const [mode, setMode] = useState<ThemeMode>(current);
 
-  const setMode = useCallback((m: ThemeMode) => {
-    setModeState(m);
-    try {
-      localStorage.setItem(KEY, m);
-    } catch {
-      // ignore storage errors
-    }
+  useEffect(() => {
+    listeners.add(setMode);
+    return () => {
+      listeners.delete(setMode);
+    };
   }, []);
 
-  return [mode, setMode];
+  return [mode, broadcast];
 }
