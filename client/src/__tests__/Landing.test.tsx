@@ -118,14 +118,9 @@ describe('Landing — FAQSection (CARD-312/313/314)', () => {
 // ── Epic 10: Social proof ─────────────────────────────────────────────────────
 
 describe('Landing — TestimonialSection (CARD-315/316)', () => {
-  it('renders testimonials heading', () => {
+  it('testimonials hidden behind feature flag by default', () => {
     renderLanding();
-    expect(screen.getByText(/from people actually using it/i)).toBeInTheDocument();
-  });
-
-  it('renders a testimonial quote', () => {
-    renderLanding();
-    expect(screen.getByText(/i kept telling myself i was practicing/i)).toBeInTheDocument();
+    expect(screen.queryByText(/from people actually using it/i)).not.toBeInTheDocument();
   });
 });
 

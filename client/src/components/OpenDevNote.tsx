@@ -43,16 +43,15 @@ export default function OpenDevNote() {
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-              The core features are live and working: session log, streak tracking, roadmap, mastery
-              map, analytics, and a structured daily practice plan. I use the app myself every day.
+              Core features are live: session log, streak tracking, roadmap, mastery map, daily
+              practice plan. I use it every day.
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-              It is not polished in every corner. Some flows are rough. There are features I want to
-              add — better mobile UX, export, sharing streaks. They are not done yet.
+              Not everything is polished. Some flows are rough. Better mobile, export, and streak
+              sharing are next — just not done yet.
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-              If you find something broken or confusing, please tell me. I read every message and I
-              ship fixes fast. This project is worth building and I intend to keep building it.
+              If something&apos;s broken or confusing, tell me. I ship fixes fast.
             </Typography>
           </Box>
         </Paper>

@@ -9,9 +9,9 @@ const COPY = {
   label: 'Why I Built This',
   heading: 'I was the guitarist who kept quitting.',
   paragraphs: [
-    'Every app I tried was either a metronome or a subscription wall asking for £9.99 before I had logged a single session. I wanted something honest: show me what I actually practiced, remind me when my streak was at risk, and give me a structured path instead of a random playlist.',
-    'I follow JustinGuitar. The curriculum is free and genuinely brilliant. But there was no practice tracker built around it. No way to say "I worked on barre chords for 20 minutes on Tuesday and I can see that I have done it 12 times this month." No mastery map. No streaks without a paywall.',
-    'So I built one. No subscription. No premium tier. No dark patterns. Just a clean tracker that respects your time and tells you the truth about your progress — even when that truth is that you skipped three days.',
+    "Every app I tried was either a metronome or a £9.99 subscription wall. I just wanted to see what I'd actually practiced.",
+    'I follow JustinGuitar. Great curriculum, free, genuinely works. But there was no tracker built around it — no mastery map, no honest streak, nothing that said "you\'ve done barre chords 12 times this month."',
+    'So I built one. No subscription, no dark patterns. Just a tracker that tells you the truth — including when that truth is you skipped three days.',
   ],
 };
 

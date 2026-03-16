@@ -9,7 +9,12 @@ import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 import { RoomScene } from '../components/RoomScene';
-import { ROOM_SCENE_ENABLED } from '../lib/featureFlags';
+import {
+  ROOM_SCENE_ENABLED,
+  TYPICAL_TUESDAY_ENABLED,
+  BEFORE_AFTER_ENABLED,
+  TESTIMONIALS_ENABLED,
+} from '../lib/featureFlags';
 import HowItWorks from '../components/landing/HowItWorks';
 import TypicalTuesday from '../components/landing/TypicalTuesday';
 import BeforeAfter from '../components/landing/BeforeAfter';
@@ -214,16 +219,16 @@ export default function Landing() {
       <HowItWorks />
 
       {/* ── TypicalTuesday ───────────────────────────────────────────────────── */}
-      <TypicalTuesday />
+      {TYPICAL_TUESDAY_ENABLED && <TypicalTuesday />}
 
       {/* ── BeforeAfter ──────────────────────────────────────────────────────── */}
-      <BeforeAfter />
+      {BEFORE_AFTER_ENABLED && <BeforeAfter />}
 
       {/* ── Manifesto ────────────────────────────────────────────────────────── */}
       <Manifesto />
 
       {/* ── Testimonials (redesigned) ─────────────────────────────────────────── */}
-      <TestimonialSection />
+      {TESTIMONIALS_ENABLED && <TestimonialSection />}
 
       {/* ── Why I Built This ─────────────────────────────────────────────────── */}
       <WhyIBuiltThis />
