@@ -10,6 +10,7 @@ import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 import { RoomScene } from '../components/RoomScene';
+import IsThisForYou from '../components/landing/IsThisForYou';
 import WeekStripMockup from '../components/landing/WeekStripMockup';
 import WhyIBuiltThis from '../components/WhyIBuiltThis';
 import AboutDeveloper from '../components/AboutDeveloper';
@@ -260,6 +261,9 @@ export default function Landing() {
           </Box>
         </Container>
       </Box>
+
+      {/* ── IsThisForYou ─────────────────────────────────────────────────────── */}
+      <IsThisForYou />
 
       {/* ── Section 1: What a week looks like ───────────────────────────────── */}
       <Box
