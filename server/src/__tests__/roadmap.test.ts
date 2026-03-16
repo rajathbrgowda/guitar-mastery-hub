@@ -55,39 +55,49 @@ describe('GET /api/roadmap', () => {
       }
 
       if (callCount === 2) {
-        // curriculum_sources table
-        return makeChain({ data: { id: 'cs-uuid' }, error: null }) as never;
+        // curriculum_sources table (with name for v2)
+        return makeChain({ data: { id: 'cs-uuid', name: 'Best of All' }, error: null }) as never;
       }
 
       if (callCount === 3) {
-        // curriculum_skill_entries with skills join
-        const single = vi.fn();
-        const orderFn = vi.fn().mockResolvedValue({
+        // curriculum_skill_entries with skills join — supports .order().order()
+        const entriesData = {
           data: [
             {
               phase_number: 1,
+              phase_title: 'Grade 1',
+              sort_order: 0,
               practice_tip: 'Practice slowly',
               video_youtube_id: null,
               skills: {
                 id: 'skill-1',
-                key: 'em-chord',
+                key: 'em_chord',
                 title: 'Em Chord',
                 category: 'chord',
               },
             },
           ],
           error: null,
-        });
+        };
+        const order2 = vi.fn().mockResolvedValue(entriesData);
+        const order1 = vi.fn().mockReturnValue({ order: order2 });
         const eq: ReturnType<typeof vi.fn> = vi.fn();
-        eq.mockReturnValue({ eq, order: orderFn, single });
+        eq.mockReturnValue({ eq, order: order1 });
         const select = vi.fn().mockReturnValue({ eq });
         return { select } as never;
       }
 
       if (callCount === 4) {
-        // skill_progress
+        // skill_progress (with completed_at)
         return makeChain({
-          data: [{ skill_id: 'skill-1', completed: true, confidence: 3 }],
+          data: [
+            {
+              skill_id: 'skill-1',
+              completed: true,
+              confidence: 3,
+              completed_at: '2026-03-10T00:00:00Z',
+            },
+          ],
           error: null,
         }) as never;
       }
@@ -103,6 +113,18 @@ describe('GET /api/roadmap', () => {
         return { select } as never;
       }
 
+      if (callCount === 6) {
+        // skill_progress for skills_per_week (recentCompletions)
+        const notFn = vi.fn().mockResolvedValue({
+          data: [{ completed_at: '2026-03-10T00:00:00Z' }],
+          error: null,
+        });
+        const eq: ReturnType<typeof vi.fn> = vi.fn();
+        eq.mockReturnValue({ eq, not: notFn });
+        const select = vi.fn().mockReturnValue({ eq });
+        return { select } as never;
+      }
+
       // fallback
       return makeChain({ data: null, error: null }) as never;
     });
@@ -114,6 +136,16 @@ describe('GET /api/roadmap', () => {
     expect(Array.isArray(res.body.phases)).toBe(true);
     expect(res.body.current_phase).toBe(1);
     expect(res.body.curriculum_key).toBe('best_of_all');
+    // v2 fields
+    expect(res.body.curriculum_name).toBeDefined();
+    expect(res.body).toHaveProperty('skills_per_week');
+    if (res.body.phases.length > 0) {
+      const phase = res.body.phases[0];
+      expect(phase).toHaveProperty('phase_title');
+      expect(phase).toHaveProperty('started_at');
+      expect(phase).toHaveProperty('completed_at');
+      expect(phase).toHaveProperty('focus_skill');
+    }
   });
 
   it('returns 404 when user not found', async () => {

@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 const router = Router();
 router.use(requireAuth);
 
-// GET /api/roadmap — all phases + skills for user's active curriculum
+// GET /api/roadmap — all phases + skills for user's active curriculum (v2)
 router.get('/', async (req: AuthRequest, res) => {
   const userId = req.user!.id;
 
@@ -26,10 +26,10 @@ router.get('/', async (req: AuthRequest, res) => {
   const curriculumKey: string = user.selected_curriculum_key ?? 'best_of_all';
   const currentPhase: number = user.current_phase ?? 1;
 
-  // 2. Get curriculum source — fallback to best_of_all if inactive or missing
+  // 2. Get curriculum source + name — fallback to best_of_all if inactive or missing
   let { data: curriculumSource } = await supabase
     .from('curriculum_sources')
-    .select('id')
+    .select('id, name')
     .eq('key', curriculumKey)
     .eq('is_active', true)
     .single();
@@ -37,7 +37,7 @@ router.get('/', async (req: AuthRequest, res) => {
   if (!curriculumSource && curriculumKey !== 'best_of_all') {
     const { data: fallback } = await supabase
       .from('curriculum_sources')
-      .select('id')
+      .select('id, name')
       .eq('key', 'best_of_all')
       .eq('is_active', true)
       .single();
@@ -49,34 +49,46 @@ router.get('/', async (req: AuthRequest, res) => {
     return;
   }
 
-  // 3. Get all curriculum skill entries with skill details
+  const curriculumName: string = (curriculumSource as { id: string; name: string }).name;
+
+  // 3. Get all curriculum skill entries with skill details + phase_title
   const { data: entries, error } = await supabase
     .from('curriculum_skill_entries')
-    .select('phase_number, practice_tip, video_youtube_id, skills ( id, key, title, category )')
+    .select(
+      'phase_number, phase_title, sort_order, practice_tip, video_youtube_id, skills ( id, key, title, category )',
+    )
     .eq('curriculum_id', curriculumSource.id)
-    .order('phase_number', { ascending: true });
+    .order('phase_number', { ascending: true })
+    .order('sort_order', { ascending: true });
 
   if (error) {
     res.status(500).json({ error: error.message });
     return;
   }
 
-  // 4. Get user's skill progress for this curriculum
+  // 4. Get user's skill progress (including completed_at for date tracking)
   const { data: progressRows } = await supabase
     .from('skill_progress')
-    .select('skill_id, completed, confidence')
+    .select('skill_id, completed, confidence, completed_at')
     .eq('user_id', userId)
     .eq('curriculum_key', curriculumKey);
 
-  const progressMap = new Map<string, { completed: boolean; confidence: number | null }>();
+  type ProgressEntry = {
+    completed: boolean;
+    confidence: number | null;
+    completed_at: string | null;
+  };
+  const progressMap = new Map<string, ProgressEntry>();
   for (const row of progressRows ?? []) {
     progressMap.set(row.skill_id as string, {
       completed: row.completed as boolean,
       confidence: (row.confidence as number | null) ?? null,
+      completed_at: (row.completed_at as string | null) ?? null,
     });
   }
 
-  // 5. Get last_practiced_at per skill title from practice_sessions
+  // 5. Get last_practiced_at per skill — use practice_sessions sections matching by title
+  // (sections JSONB stores { name: "Skill Title", duration_min })
   const { data: sessions } = await supabase
     .from('practice_sessions')
     .select('sections, date')
@@ -85,8 +97,6 @@ router.get('/', async (req: AuthRequest, res) => {
     .limit(90);
 
   const lastPracticedMap = new Map<string, string>();
-  // sessions.sections is JSONB array of {name, duration_min}
-  // Match by skill title since that is what sections stores
   for (const session of sessions ?? []) {
     const sects = (session.sections as Array<{ name: string }>) ?? [];
     for (const s of sects) {
@@ -96,30 +106,67 @@ router.get('/', async (req: AuthRequest, res) => {
     }
   }
 
-  // 6. Build RoadmapPhase array
+  // 6. Calculate skills_per_week (4-week lookback average)
+  const { data: recentCompletions } = await supabase
+    .from('skill_progress')
+    .select('completed_at')
+    .eq('user_id', userId)
+    .eq('curriculum_key', curriculumKey)
+    .eq('completed', true)
+    .not('completed_at', 'is', null);
+
+  let skillsPerWeek: number | null = null;
+  if (recentCompletions && recentCompletions.length > 0) {
+    const fourWeeksAgo = new Date();
+    fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+    const recentCount = recentCompletions.filter((r) => {
+      const d = new Date(r.completed_at as string);
+      return d >= fourWeeksAgo;
+    }).length;
+
+    // Only show pace if user has at least 7 days of data (earliest completed_at >= 7 days ago)
+    const allDates = recentCompletions
+      .map((r) => new Date(r.completed_at as string).getTime())
+      .sort();
+    const earliest = allDates[0];
+    const daysSinceFirst = (Date.now() - earliest) / (1000 * 60 * 60 * 24);
+    if (daysSinceFirst >= 7) {
+      skillsPerWeek = Math.round((recentCount / 4) * 10) / 10; // 1 decimal
+    }
+  }
+
+  // 7. Build RoadmapPhase array with v2 fields
   type EntryRow = {
     phase_number: number;
+    phase_title: string;
+    sort_order: number;
     practice_tip: string | null;
     video_youtube_id: string | null;
     skills: { id: string; key: string; title: string; category: string } | null;
   };
 
+  type SkillRow = {
+    skill_id: string;
+    skill_key: string;
+    skill_title: string;
+    skill_category: string;
+    practice_tip: string | null;
+    video_youtube_id: string | null;
+    completed: boolean;
+    confidence: number | null;
+    last_practiced_at: string | null;
+  };
+
   type PhaseAccumulator = {
     phase_number: number;
-    skills: Array<{
-      skill_id: string;
-      skill_key: string;
-      skill_title: string;
-      skill_category: string;
-      practice_tip: string | null;
-      video_youtube_id: string | null;
-      completed: boolean;
-      confidence: number | null;
-      last_practiced_at: string | null;
-    }>;
+    phase_title: string;
+    skills: SkillRow[];
     total_skills: number;
     completed_skills: number;
     completion_pct: number;
+    started_at: string | null;
+    completed_at: string | null;
+    focus_skill: SkillRow | null;
   };
 
   const phases: PhaseAccumulator[] = [];
@@ -134,10 +181,14 @@ router.get('/', async (req: AuthRequest, res) => {
       phaseNumbersSeen.add(phaseNum);
       phases.push({
         phase_number: phaseNum,
+        phase_title: entry.phase_title,
         skills: [],
         total_skills: 0,
         completed_skills: 0,
         completion_pct: 0,
+        started_at: null,
+        completed_at: null,
+        focus_skill: null,
       });
     }
 
@@ -162,16 +213,51 @@ router.get('/', async (req: AuthRequest, res) => {
     if (completed) phase.completed_skills++;
   }
 
-  // Compute completion_pct for each phase
+  // 8. Compute completion_pct, started_at, completed_at, focus_skill for each phase
   for (const phase of phases) {
     phase.completion_pct =
       phase.total_skills > 0 ? Math.round((phase.completed_skills / phase.total_skills) * 100) : 0;
+
+    // started_at = earliest completed_at among skills in this phase
+    // completed_at = latest completed_at, but ONLY if all skills are completed
+    const completionDates: string[] = [];
+    for (const sk of phase.skills) {
+      const prog = progressMap.get(sk.skill_id);
+      if (prog?.completed_at) {
+        completionDates.push(prog.completed_at);
+      }
+    }
+
+    if (completionDates.length > 0) {
+      completionDates.sort();
+      phase.started_at = completionDates[0];
+      if (phase.completed_skills === phase.total_skills) {
+        phase.completed_at = completionDates[completionDates.length - 1];
+      }
+    }
+
+    // focus_skill — only for current phase, pick lowest-confidence incomplete skill
+    if (phase.phase_number === currentPhase) {
+      const incompleteSkills = phase.skills.filter((s) => !s.completed);
+      if (incompleteSkills.length > 0) {
+        // Sort: confidence 1 (Hard) first, then 2 (Okay), then null (no rating)
+        // Tiebreak: first by sort order (already in order from DB)
+        const sorted = [...incompleteSkills].sort((a, b) => {
+          const ca = a.confidence ?? 4; // null → treat as lowest priority
+          const cb = b.confidence ?? 4;
+          return ca - cb;
+        });
+        phase.focus_skill = sorted[0];
+      }
+    }
   }
 
   res.json({
     phases,
     current_phase: currentPhase,
     curriculum_key: curriculumKey,
+    curriculum_name: curriculumName,
+    skills_per_week: skillsPerWeek,
   });
 });
 
