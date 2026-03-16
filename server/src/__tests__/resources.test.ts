@@ -69,7 +69,7 @@ describe('GET /api/resources', () => {
           id: 'res-2',
           title: 'F Chord Masterclass',
           url: 'https://www.justinguitar.com/fchord',
-          type: 'video',
+          type: 'article',
           phase_index: 2,
           is_featured: true,
           description: 'Barre chord',
@@ -125,6 +125,64 @@ describe('GET /api/resources', () => {
     expect(res.status).toBe(200);
     expect(res.body.recommended).toHaveLength(0);
     expect(res.body.all).toHaveLength(1);
+  });
+
+  it('returns 500 when DB returns an invalid resource type', async () => {
+    // Regression: before migration 018, DB had type='course' which is not in ResourceType.
+    // The Zod output validation must catch this and return 500 instead of serving bad data.
+    const usersChain = singleChain({ data: { current_phase: 1 }, error: null });
+    const resourcesChain = orderChain({
+      data: [
+        {
+          id: 'res-bad',
+          title: 'Some Course',
+          url: 'https://example.com',
+          type: 'course', // invalid — not in ResourceType enum
+          phase_index: 1,
+          is_featured: true,
+          description: null,
+        },
+      ],
+      error: null,
+    });
+    const completionsChain = eqChain({ data: [], error: null });
+
+    mockFrom
+      .mockReturnValueOnce(usersChain as never)
+      .mockReturnValueOnce(resourcesChain as never)
+      .mockReturnValueOnce(completionsChain as never);
+
+    const res = await request(app).get('/api/resources').set(AUTH);
+    expect(res.status).toBe(500);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('handles resource with null url', async () => {
+    const usersChain = singleChain({ data: { current_phase: 4 }, error: null });
+    const resourcesChain = orderChain({
+      data: [
+        {
+          id: 'res-null-url',
+          title: 'Transcription practice',
+          url: null,
+          type: 'article',
+          phase_index: 4,
+          is_featured: false,
+          description: 'Pick songs you love and learn them by ear',
+        },
+      ],
+      error: null,
+    });
+    const completionsChain = eqChain({ data: [], error: null });
+
+    mockFrom
+      .mockReturnValueOnce(usersChain as never)
+      .mockReturnValueOnce(resourcesChain as never)
+      .mockReturnValueOnce(completionsChain as never);
+
+    const res = await request(app).get('/api/resources').set(AUTH);
+    expect(res.status).toBe(200);
+    expect(res.body.all[0].url).toBeNull();
   });
 });
 

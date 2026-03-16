@@ -143,17 +143,19 @@ export function ResourceCard({ resource, onMarkComplete }: ResourceCardProps) {
             Mark complete
           </Typography>
         )}
-        <Box sx={{ ml: 'auto' }}>
-          <IconButton
-            size="small"
-            href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open resource"
-          >
-            <OpenInNewIcon sx={{ fontSize: 16 }} />
-          </IconButton>
-        </Box>
+        {resource.url && (
+          <Box sx={{ ml: 'auto' }}>
+            <IconButton
+              size="small"
+              href={resource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open resource"
+            >
+              <OpenInNewIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          </Box>
+        )}
       </CardActions>
     </Card>
   );

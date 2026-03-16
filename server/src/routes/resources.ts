@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { requireAuth } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
 import { supabase } from '../lib/supabase';
+import { resourcesResponseSchema } from '../schemas/resources';
 
 const router = Router();
 router.use(requireAuth);
@@ -60,7 +61,14 @@ router.get('/', async (req: AuthRequest, res) => {
   // Cap recommended at 3
   const top3Recommended = recommended.slice(0, 3);
 
-  res.json({ recommended: top3Recommended, all: enriched });
+  const payload = { recommended: top3Recommended, all: enriched };
+  const parsed = resourcesResponseSchema.safeParse(payload);
+  if (!parsed.success) {
+    res.status(500).json({ error: 'Resource data shape invalid', details: parsed.error.flatten() });
+    return;
+  }
+
+  res.json(parsed.data);
 });
 
 // PUT /api/resources/:id/completion

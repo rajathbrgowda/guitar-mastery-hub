@@ -4,7 +4,7 @@ export type ResourceStatus = 'not_started' | 'in_progress' | 'completed';
 export interface Resource {
   id: string;
   title: string;
-  url: string;
+  url: string | null;
   type: ResourceType;
   phase_index: number;
   is_featured: boolean;

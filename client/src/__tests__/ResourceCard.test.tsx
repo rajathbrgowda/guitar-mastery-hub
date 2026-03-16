@@ -60,4 +60,22 @@ describe('ResourceCard', () => {
     screen.getByText('Mark complete').click();
     expect(fn).toHaveBeenCalledWith('r1');
   });
+
+  it('does not render open-link button when url is null', () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <ResourceCard resource={{ ...base, url: null }} onMarkComplete={vi.fn()} />
+      </ThemeProvider>,
+    );
+    expect(screen.queryByLabelText('Open resource')).toBeNull();
+  });
+
+  it('renders open-link button when url is present', () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <ResourceCard resource={base} onMarkComplete={vi.fn()} />
+      </ThemeProvider>,
+    );
+    expect(screen.getByLabelText('Open resource')).toBeTruthy();
+  });
 });
