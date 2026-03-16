@@ -183,7 +183,7 @@ export default function Settings() {
 
       {/* ── Profile ── */}
       <Card sx={{ mb: 3 }}>
-        <CardContent>
+        <CardContent sx={{ px: { xs: 1.5, sm: 2 } }}>
           <Typography variant="overline" color="text.secondary">
             Profile
           </Typography>
@@ -235,7 +235,7 @@ export default function Settings() {
               value={yearsPlaying}
               onChange={(e) => setYearsPlaying(Math.max(0, parseInt(e.target.value) || 0))}
               size="small"
-              sx={{ width: 160 }}
+              sx={{ width: { xs: '100%', sm: 160 } }}
               inputProps={{ min: 0, max: 60 }}
             />
             <TextField
@@ -268,7 +268,7 @@ export default function Settings() {
 
       {/* ── Practice Goals ── */}
       <Card sx={{ mb: 3 }}>
-        <CardContent>
+        <CardContent sx={{ px: { xs: 1.5, sm: 2 } }}>
           <Typography variant="overline" color="text.secondary">
             Practice Goals
           </Typography>
@@ -305,7 +305,11 @@ export default function Settings() {
                 <ToggleButton
                   key={d}
                   value={d}
-                  sx={{ px: 1.5, textTransform: 'none', fontSize: '0.8rem' }}
+                  sx={{
+                    px: { xs: 0.5, sm: 1.5 },
+                    textTransform: 'none',
+                    fontSize: { xs: '0.65rem', sm: '0.8rem' },
+                  }}
                 >
                   {d}
                 </ToggleButton>
