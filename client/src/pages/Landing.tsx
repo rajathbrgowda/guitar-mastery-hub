@@ -8,7 +8,6 @@ import Paper from '@mui/material/Paper';
 import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
-import StreakCalendar from '../components/StreakCalendar';
 import WhyIBuiltThis from '../components/WhyIBuiltThis';
 import AboutDeveloper from '../components/AboutDeveloper';
 import FAQSection from '../components/FAQSection';
@@ -141,9 +140,10 @@ export default function Landing() {
 
       {/* ── Dark hero ────────────────────────────────────────────────────────── */}
       <Box
+        id="hero"
         component="section"
         aria-labelledby="hero-heading"
-        sx={{ bgcolor: '#1c1917', pt: { xs: 8, sm: 12 }, pb: { xs: 8, sm: 12 } }}
+        sx={{ bgcolor: '#1c1917', py: { xs: 8, md: 14 } }}
       >
         <Container maxWidth="sm" sx={{ textAlign: 'center', ...fadeInUp }}>
           <Chip
@@ -165,40 +165,52 @@ export default function Landing() {
             variant="h1"
             fontWeight={700}
             sx={{
-              fontSize: { xs: '2.25rem', sm: '3rem' },
+              fontSize: { xs: '2rem', sm: '3rem', md: '3.75rem' },
               letterSpacing: '-0.03em',
               lineHeight: 1.1,
               color: '#ffffff',
               mb: 2.5,
             }}
           >
-            Finally stick{' '}
-            <Box component="span" sx={{ color: 'primary.main' }}>
-              with guitar.
-            </Box>
+            Stop starting over.
           </Typography>
 
           <Typography
             variant="body1"
-            sx={{ color: 'rgba(255,255,255,0.6)', mb: 4, fontSize: '1.0625rem', lineHeight: 1.65 }}
+            sx={{
+              color: 'rgba(255,255,255,0.6)',
+              mb: 4,
+              fontSize: { xs: '1rem', sm: '1.2rem' },
+              lineHeight: 1.65,
+            }}
           >
-            Structured practice. Real data. No noise.
+            A practice tracker for guitarists working through JustinGuitar Grades 1–3. Log sessions,
+            see streaks, stay honest.
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              justifyContent: 'center',
+              flexDirection: { xs: 'column', sm: 'row' },
+            }}
+          >
             <Button
               variant="contained"
               size="large"
-              onClick={() => navigate('/login?mode=signup')}
+              component={RouterLink}
+              to="/login?mode=signup"
               sx={{ px: 4, py: 1.25, fontSize: '1rem', fontWeight: 600 }}
-              aria-label="Get started free — sign up"
+              aria-label="Start free — sign up"
             >
-              Get started free
+              Start free
             </Button>
             <Button
               variant="outlined"
               size="large"
-              onClick={() => navigate('/demo')}
+              component="a"
+              href="#how-it-works"
               sx={{
                 px: 4,
                 py: 1.25,
@@ -210,13 +222,11 @@ export default function Landing() {
                   bgcolor: 'rgba(255,255,255,0.05)',
                 },
               }}
-              aria-label="See how it works — demo"
+              aria-label="See how it works"
             >
               See how it works
             </Button>
           </Box>
-
-          <StreakCalendar />
         </Container>
       </Box>
 
