@@ -5,9 +5,11 @@ import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import { useTheme } from '@mui/material/styles';
 import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
+import { RoomScene } from '../components/RoomScene';
 import WeekStripMockup from '../components/landing/WeekStripMockup';
 import WhyIBuiltThis from '../components/WhyIBuiltThis';
 import AboutDeveloper from '../components/AboutDeveloper';
@@ -96,6 +98,9 @@ function SectionLabel({ children }: { children: string }) {
 export default function Landing() {
   const navigate = useNavigate();
   const { session, loading } = useAuth();
+  const theme = useTheme();
+  const hour = new Date().getHours();
+  const lampOn = theme.palette.mode === 'dark' || hour < 7 || hour >= 20;
 
   if (!loading && session) return <Navigate to="/app" replace />;
 
