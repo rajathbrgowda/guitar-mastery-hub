@@ -6,19 +6,19 @@ import Typography from '@mui/material/Typography';
 // CARD-309: WhyIBuiltThis component
 
 const COPY = {
-  label: 'Why I Built This',
-  heading: 'I was the guitarist who kept quitting.',
+  label: 'The thinking behind it',
+  heading: 'For the guitarist who keeps picking it back up.',
   paragraphs: [
-    "Every app I tried was either a metronome or a £9.99 subscription wall. I just wanted to see what I'd actually practiced.",
-    'I follow an online guitar curriculum — JustinGuitar. The lessons are free and genuinely good. But there was no simple practice tracker built for people like me — no mastery map, no honest streak, nothing that said "you\'ve done barre chords 12 times this month."',
-    'So I built one. No subscription, no dark patterns. Just a tracker that tells you the truth — including when that truth is you skipped three days.',
+    'Most practice apps are either a metronome or a paywall. Neither one tells you what you have actually been working on.',
+    "JustinGuitar's lessons are free and genuinely good. What was missing was something to track the slow, unglamorous work between lessons — the barre chords you have run twelve times this month, the streak you broke on Tuesday, the progress that is real even when it does not feel like it.",
+    'So this exists. No subscription, no dark patterns. Just a quiet, honest record of the practice you show up for — and the days you do not.',
   ],
 };
 
 export default function WhyIBuiltThis() {
   return (
     <Box
-      id="why-i-built-this"
+      id="the-thinking"
       sx={{ bgcolor: 'background.paper', py: { xs: 5, md: 10 } }}
       aria-labelledby="why-heading"
     >

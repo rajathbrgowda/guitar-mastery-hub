@@ -73,31 +73,31 @@ describe('Landing', () => {
 // ── Epic 8: Developer sections ────────────────────────────────────────────────
 
 describe('Landing — WhyIBuiltThis section (CARD-308/309)', () => {
-  it('renders Why I Built This heading', () => {
+  it('renders section label', () => {
     renderLanding();
-    expect(screen.getByText(/why i built this/i)).toBeInTheDocument();
+    expect(screen.getByText(/the thinking behind it/i)).toBeInTheDocument();
   });
 
-  it('renders the frustrated guitarist copy', () => {
+  it('renders heading focused on the learner', () => {
     renderLanding();
-    expect(screen.getByText(/i was the guitarist who kept quitting/i)).toBeInTheDocument();
+    expect(screen.getByText(/for the guitarist who keeps picking it back up/i)).toBeInTheDocument();
   });
 });
 
 describe('Landing — AboutDeveloper section (CARD-310/311)', () => {
-  it('renders About the Developer label', () => {
+  it('renders Behind the app label', () => {
     renderLanding();
-    expect(screen.getByText(/about the developer/i)).toBeInTheDocument();
+    expect(screen.getByText(/behind the app/i)).toBeInTheDocument();
   });
 
-  it('renders solo indie dev heading', () => {
+  it('renders learner-forward heading', () => {
     renderLanding();
-    expect(screen.getByText(/one person\. one guitar app\./i)).toBeInTheDocument();
+    expect(screen.getByText(/made for the love of the practice/i)).toBeInTheDocument();
   });
 
-  it('renders solo indie dev chip', () => {
+  it('renders Made with care chip', () => {
     renderLanding();
-    expect(screen.getByText(/solo indie dev/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/made with care/i).length).toBeGreaterThanOrEqual(1);
   });
 });
 

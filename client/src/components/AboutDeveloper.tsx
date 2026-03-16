@@ -6,7 +6,7 @@ import Chip from '@mui/material/Chip';
 // CARD-310: About Developer copy
 // CARD-311: AboutDeveloper component
 
-const TAGS = ['Solo indie dev', 'Building in public', 'Open to feedback'];
+const TAGS = ['Made with care', 'Free forever', 'Shaped by feedback'];
 
 export default function AboutDeveloper() {
   return (
@@ -26,7 +26,7 @@ export default function AboutDeveloper() {
             display: 'block',
           }}
         >
-          About the Developer
+          Behind the app
         </Typography>
 
         <Typography
@@ -36,7 +36,7 @@ export default function AboutDeveloper() {
           fontWeight={700}
           sx={{ mb: 2, letterSpacing: '-0.02em', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
         >
-          One person. One guitar app.
+          Made for the love of the practice.
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
@@ -47,14 +47,12 @@ export default function AboutDeveloper() {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
-            I am not a guitar teacher or a music platform. I am a developer who plays guitar badly
-            and wanted a practice tracker that did not assume I had money to spend or hours to
-            configure. I built this for myself, then made it public.
+            This started as a personal tool — a simple way to track guitar practice without
+            subscriptions, noise, or configuration. It became something worth sharing.
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
-            This is a solo project. I ship it in the open, write about what I am building, and
-            change things based on what users actually say. If something is broken or confusing, you
-            can tell me. I will read it.
+            It is built in the open and shaped by the people who use it. If something feels off or
+            could be better, there is a real person reading the feedback.
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
             The app is free. It will stay free. The only cost is your practice time — which you were

@@ -275,7 +275,7 @@ export default function Landing() {
         >
           <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
             <Typography variant="body2" fontWeight={600}>
-              Built by one person.
+              Made with care.
             </Typography>
             <Typography variant="caption" color="text.secondary">
               © 2026 Fretwork
