@@ -121,8 +121,11 @@ export default function Landing() {
           Guitar Mastery Hub
         </Typography>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+          <Button component="a" href="#who-its-for" color="inherit" size="small">
+            About
+          </Button>
           <Button variant="text" size="small" color="inherit" onClick={() => navigate('/demo')}>
-            See demo
+            Demo
           </Button>
           <Button variant="text" color="inherit" onClick={() => navigate('/login')}>
             Log in
