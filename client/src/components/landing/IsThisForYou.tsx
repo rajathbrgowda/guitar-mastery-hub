@@ -6,18 +6,18 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
 const FOR_YOU = [
-  "You're working through JustinGuitar Grades 1, 2, or 3",
-  "You've restarted guitar at least once",
+  'You follow a structured curriculum — JustinGuitar, Marty Music, Andy Guitar, or your own path',
+  "You've restarted guitar at least once (or three times)",
   "You practice, but you're not sure if you're actually improving",
-  'You want a log, not another lesson app',
-  'You practice in short sessions — 15 to 30 minutes at a time',
+  'You want a practice log, not another lesson app',
+  'You learn in short sessions — 15 to 30 minutes at a time',
 ];
 
 const NOT_FOR_YOU = [
-  "You're looking for lessons or chord tutorials",
-  'You play classical or fingerstyle and need a different structure',
+  "You're looking for lessons, chord tutorials, or structured courses",
   'You want gamification, streaks with rewards, or social features',
-  "You're already an advanced player who has their practice sorted",
+  'You want theory tracking or sheet music tools',
+  "You're already consistent and just want a metronome",
 ];
 
 export default function IsThisForYou() {
