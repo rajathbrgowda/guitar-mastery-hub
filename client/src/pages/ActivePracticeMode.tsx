@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { alpha, useTheme } from '@mui/material/styles';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -88,9 +89,11 @@ export default function ActivePracticeMode() {
   const {
     currentItemIndex,
     timerStatus,
+    submitError,
     startSession,
     pauseTimer,
     resumeTimer,
+    clearSubmitError,
     timerComplete,
     markDone,
     submitRating,
@@ -272,6 +275,13 @@ export default function ActivePracticeMode() {
           Done
         </Button>
       </Box>
+
+      {/* Submit error — shown above confidence overlay so user can retry */}
+      {submitError && (
+        <Alert severity="error" onClose={clearSubmitError} sx={{ mb: 2 }}>
+          {submitError}
+        </Alert>
+      )}
 
       {/* Confidence overlay */}
       {timerStatus === 'rating' && (

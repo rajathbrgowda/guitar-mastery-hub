@@ -29,6 +29,7 @@ export const useResourcesStore = create<ResourcesState>((set, get) => ({
   },
 
   markComplete: async (resourceId: string) => {
+    set({ error: '' });
     try {
       await api.put(`/api/resources/${resourceId}/completion`, {
         completion: 100,

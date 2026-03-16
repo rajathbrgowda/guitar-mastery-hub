@@ -11,10 +11,13 @@ interface PracticeModeState {
   ratings: Record<string, ConfidenceRating>;
   /** itemId → actual elapsed seconds (set when timer ends or item is skipped) */
   elapsed: Record<string, number>;
+  /** Set when submitRating API call fails; cleared on next attempt or resetSession */
+  submitError: string | null;
 
   startSession: () => void;
   pauseTimer: () => void;
   resumeTimer: () => void;
+  clearSubmitError: () => void;
   /** Called when timer ends naturally — show confidence rating overlay */
   timerComplete: (itemId: string, elapsedSec: number) => void;
   /** User tapped Done manually — same as timer complete */
@@ -36,13 +39,22 @@ export const usePracticeModeStore = create<PracticeModeState>((set, get) => ({
   timerStatus: 'idle',
   ratings: {},
   elapsed: {},
+  submitError: null,
 
   startSession: () =>
-    set({ currentItemIndex: 0, timerStatus: 'running', ratings: {}, elapsed: {} }),
+    set({
+      currentItemIndex: 0,
+      timerStatus: 'running',
+      ratings: {},
+      elapsed: {},
+      submitError: null,
+    }),
 
   pauseTimer: () => set({ timerStatus: 'paused' }),
 
   resumeTimer: () => set({ timerStatus: 'running' }),
+
+  clearSubmitError: () => set({ submitError: null }),
 
   timerComplete: (itemId, elapsedSec) => {
     set((s) => ({ elapsed: { ...s.elapsed, [itemId]: elapsedSec }, timerStatus: 'rating' }));
@@ -53,16 +65,28 @@ export const usePracticeModeStore = create<PracticeModeState>((set, get) => ({
   },
 
   submitRating: async (itemId, rating, elapsedSec, totalItems) => {
+    set({ submitError: null });
+    // Optimistic: record rating and elapsed locally
     set((s) => ({
       ratings: { ...s.ratings, [itemId]: rating },
       elapsed: { ...s.elapsed, [itemId]: elapsedSec },
     }));
 
     const actualMin = Math.max(1, Math.round(elapsedSec / 60));
-    await api.post(`/api/practice/plan/today/items/${itemId}/complete`, {
-      actual_duration_min: actualMin,
-      confidence_rating: rating,
-    });
+    try {
+      await api.post(`/api/practice/plan/today/items/${itemId}/complete`, {
+        actual_duration_min: actualMin,
+        confidence_rating: rating,
+      });
+    } catch {
+      // Revert optimistic rating and stay on rating screen so user can retry
+      set((s) => {
+        const ratings = { ...s.ratings };
+        delete ratings[itemId];
+        return { ratings, submitError: 'Failed to save rating. Tap a rating to retry.' };
+      });
+      return;
+    }
 
     const nextIndex = get().currentItemIndex + 1;
     if (nextIndex >= totalItems) {
@@ -81,5 +105,6 @@ export const usePracticeModeStore = create<PracticeModeState>((set, get) => ({
     }
   },
 
-  resetSession: () => set({ currentItemIndex: 0, timerStatus: 'idle', ratings: {}, elapsed: {} }),
+  resetSession: () =>
+    set({ currentItemIndex: 0, timerStatus: 'idle', ratings: {}, elapsed: {}, submitError: null }),
 }));

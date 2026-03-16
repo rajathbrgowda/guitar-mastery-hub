@@ -65,6 +65,8 @@ export default function Tools() {
       } else {
         await addTool(tool.key);
       }
+    } catch {
+      // Error already surfaced via store.error — Alert in JSX will show it
     } finally {
       setToggling(null);
     }

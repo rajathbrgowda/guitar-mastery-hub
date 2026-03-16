@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -34,6 +34,7 @@ const STATUS_COLOR: Record<string, 'default' | 'primary' | 'success' | 'error'> 
 export function TodaysPractice() {
   const { todaysPlan, isLoading, error, noplan, fetchTodaysPlan, completeItem, skipPlan } =
     usePracticePlanStore();
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTodaysPlan();
@@ -81,11 +82,21 @@ export function TodaysPractice() {
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   const handleComplete = async (itemId: string) => {
-    await completeItem(itemId);
+    try {
+      setActionError(null);
+      await completeItem(itemId);
+    } catch {
+      setActionError('Could not mark item complete. Check your connection and try again.');
+    }
   };
 
   const handleSkip = async () => {
-    await skipPlan();
+    try {
+      setActionError(null);
+      await skipPlan();
+    } catch {
+      setActionError("Could not skip today's plan. Check your connection and try again.");
+    }
   };
 
   const isCompleted = todaysPlan.status === 'completed';
@@ -146,6 +157,13 @@ export function TodaysPractice() {
       {isSkipped && (
         <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
           You skipped today's plan. That's okay — come back tomorrow.
+        </Alert>
+      )}
+
+      {/* Action error */}
+      {actionError && (
+        <Alert severity="error" onClose={() => setActionError(null)} sx={{ mb: 1.5 }}>
+          {actionError}
         </Alert>
       )}
 

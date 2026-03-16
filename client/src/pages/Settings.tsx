@@ -261,7 +261,7 @@ export default function Settings() {
           <Button
             variant="contained"
             onClick={handleSaveProfile}
-            disabled={savingProfile}
+            disabled={savingProfile || profileFailed}
             startIcon={savingProfile ? <CircularProgress size={16} color="inherit" /> : null}
             sx={{ mt: 2 }}
           >
@@ -333,7 +333,7 @@ export default function Settings() {
           <Button
             variant="contained"
             onClick={handleSaveGoals}
-            disabled={savingGoals}
+            disabled={savingGoals || profileFailed}
             startIcon={savingGoals ? <CircularProgress size={16} color="inherit" /> : null}
             sx={{ mt: 2 }}
           >

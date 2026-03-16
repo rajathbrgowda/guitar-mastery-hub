@@ -37,13 +37,25 @@ export const useToolsStore = create<ToolsStoreState>((set) => ({
   },
 
   addTool: async (key: string) => {
-    const { data } = await api.post<ToolsResponse>(`/api/tools/${key}`);
-    set({ all: data.all, my_toolkit: data.my_toolkit, recommended: data.recommended });
+    set({ error: null });
+    try {
+      const { data } = await api.post<ToolsResponse>(`/api/tools/${key}`);
+      set({ all: data.all, my_toolkit: data.my_toolkit, recommended: data.recommended });
+    } catch {
+      set({ error: 'Failed to add tool. Please try again.' });
+      throw new Error('addTool failed');
+    }
   },
 
   removeTool: async (key: string) => {
-    const { data } = await api.delete<ToolsResponse>(`/api/tools/${key}`);
-    set({ all: data.all, my_toolkit: data.my_toolkit, recommended: data.recommended });
+    set({ error: null });
+    try {
+      const { data } = await api.delete<ToolsResponse>(`/api/tools/${key}`);
+      set({ all: data.all, my_toolkit: data.my_toolkit, recommended: data.recommended });
+    } catch {
+      set({ error: 'Failed to remove tool. Please try again.' });
+      throw new Error('removeTool failed');
+    }
   },
 
   reset: () => set({ all: [], my_toolkit: [], recommended: [], isLoading: false, error: null }),
