@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 
 const STATEMENTS = [
-  'This is not a lesson app. JustinGuitar teaches you. This just keeps score.',
+  'This is not a lesson app. Your lessons are elsewhere — YouTube, JustinGuitar, Marty Music, wherever. This just keeps score.',
   "This is not a streak app. The streak breaks. Life happens. That's fine.",
   'This is not a social app. Your practice is not a performance.',
   'This is not a gamification experiment. There are no badges, no leaderboards, no dopamine traps.',
