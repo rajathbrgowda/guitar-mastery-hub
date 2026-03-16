@@ -33,9 +33,11 @@ const STYLE_CHIP: Record<
 interface CurriculumPickerProps {
   currentKey: string;
   onSwitch?: (newKey: string) => void;
+  /** Compact mode: hides description and website link; reduces card height */
+  compact?: boolean;
 }
 
-export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps) {
+export function CurriculumPicker({ currentKey, onSwitch, compact = false }: CurriculumPickerProps) {
   const { curricula, isLoadingList, listError, fetchCurricula, switchCurriculum } =
     useCurriculumStore();
   const [confirmKey, setConfirmKey] = useState<string | null>(null);
@@ -107,10 +109,11 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
 
   return (
     <>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: compact ? 1 : 1.5 }}>
         {curricula.map((c: CurriculumSource) => {
           const isActive = c.key === effectiveKey;
           const styleChip = c.style ? STYLE_CHIP[c.style] : null;
+          const cardPadding = compact ? 1.25 : 2;
 
           return (
             <Card
@@ -123,13 +126,12 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
               }}
             >
               <CardActionArea onClick={() => handleSelect(c.key)} disabled={isActive}>
-                <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                <CardContent sx={{ p: cardPadding, '&:last-child': { pb: cardPadding } }}>
                   <Box
                     sx={{
                       display: 'flex',
-                      alignItems: 'flex-start',
+                      alignItems: 'center',
                       justifyContent: 'space-between',
-                      mb: 0.5,
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
@@ -163,17 +165,17 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
                     </Box>
                   </Box>
 
-                  {c.description && (
+                  {!compact && c.description && (
                     <Typography
                       variant="caption"
                       color="text.secondary"
-                      sx={{ display: 'block', lineHeight: 1.5 }}
+                      sx={{ display: 'block', lineHeight: 1.5, mt: 0.5 }}
                     >
                       {c.description}
                     </Typography>
                   )}
 
-                  {c.website_url && (
+                  {!compact && c.website_url && (
                     <Box
                       component="a"
                       href={c.website_url}
