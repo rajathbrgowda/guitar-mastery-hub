@@ -180,7 +180,7 @@ async function generatePlan(userId: string, today: string): Promise<DailyPractic
 
   if (!user) return null;
 
-  const currentPhase: number = user.current_phase ?? 1;
+  const currentPhase: number = user.current_phase ?? 0;
   const dailyGoalMin: number = user.daily_goal_min > 0 ? user.daily_goal_min : 20;
   const curriculumKey: string = user.selected_curriculum_key ?? 'best_of_all';
 
@@ -241,14 +241,15 @@ async function generatePlan(userId: string, today: string): Promise<DailyPractic
     `,
     )
     .eq('curriculum_id', resolvedCurriculum.id)
-    .eq('phase_number', currentPhase)
+    .eq('phase_number', currentPhase + 1)
     .order('sort_order');
 
   let entries = phaseEntries ?? [];
 
   // Edge: no skills in current phase — try next phase down or phase 1
   if (entries.length === 0) {
-    const fallbackPhase = currentPhase > 1 ? currentPhase - 1 : 1;
+    // fallbackPhase is phase_number (1-based); currentPhase is 0-based
+    const fallbackPhase = currentPhase > 0 ? currentPhase : 1;
     const { data: fallback } = await supabase
       .from('curriculum_skill_entries')
       .select(`sort_order, video_youtube_id, practice_tip, skills ( id, key, category, title )`)
