@@ -3,9 +3,6 @@ import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-// CARD-317: Open Dev Note copy — honest note from developer
-// CARD-318: OpenDevNote component
-
 export default function OpenDevNote() {
   return (
     <Box

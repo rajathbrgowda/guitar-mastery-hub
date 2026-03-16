@@ -7,10 +7,6 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-// CARD-312: FAQ copy — 7 honest Q&A pairs
-// CARD-313: FAQ accordion component
-// CARD-314: Mobile layout for FAQ
-
 const FAQ_ITEMS = [
   {
     q: 'Is it really free?',

@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
-// CARD-324: Tests for GET /api/public/stats
-
 vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: { getUser: vi.fn() },

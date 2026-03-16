@@ -3,9 +3,6 @@ import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-// CARD-315: Rewrite testimonial copy — more authentic, specific
-// CARD-316: Redesign TestimonialSection component
-
 const TESTIMONIALS = [
   {
     quote:

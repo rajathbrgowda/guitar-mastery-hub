@@ -6,10 +6,6 @@ import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
 import type { PublicStats } from '@gmh/shared/types';
 
-// CARD-319: Quiet confident close CTA copy
-// CARD-320: CloseCTA component
-// CARD-321: Wire public stats with graceful fallback
-
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
 export default function CloseCTA() {

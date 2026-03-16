@@ -2,9 +2,6 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-// CARD-308: Why I Built This copy
-// CARD-309: WhyIBuiltThis component
-
 const COPY = {
   label: 'Why this exists',
   heading: 'You know that feeling of picking it up after three weeks?',

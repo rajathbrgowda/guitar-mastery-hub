@@ -2,9 +2,6 @@ import { Router } from 'express';
 import { supabase } from '../lib/supabase';
 import type { PublicStats } from '@gmh/shared/types';
 
-// CARD-323: GET /api/public/stats — no-auth route
-// CARD-325: Registered in app.ts
-
 const router = Router();
 
 router.get('/', async (_req, res, next) => {

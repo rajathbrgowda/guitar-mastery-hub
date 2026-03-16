@@ -3,9 +3,6 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 
-// CARD-310: About Developer copy
-// CARD-311: AboutDeveloper component
-
 const TAGS = ['Made with care', 'Free forever', 'Shaped by feedback'];
 
 export default function AboutDeveloper() {
