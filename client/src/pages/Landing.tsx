@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 import { RoomScene } from '../components/RoomScene';
 import { ROOM_SCENE_ENABLED } from '../lib/featureFlags';
+import HowItWorks from '../components/landing/HowItWorks';
 import IsThisForYou from '../components/landing/IsThisForYou';
 import TheProblem from '../components/landing/TheProblem';
 import WeekStripMockup from '../components/landing/WeekStripMockup';
@@ -205,6 +206,9 @@ export default function Landing() {
 
       {/* ── TheProblem ───────────────────────────────────────────────────────── */}
       <TheProblem />
+
+      {/* ── HowItWorks ───────────────────────────────────────────────────────── */}
+      <HowItWorks />
 
       {/* ── Testimonials (redesigned) ─────────────────────────────────────────── */}
       <TestimonialSection />
