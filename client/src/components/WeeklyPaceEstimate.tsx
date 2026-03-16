@@ -5,10 +5,10 @@ import type { RoadmapPhase } from '@gmh/shared/types/roadmap';
 
 interface WeeklyPaceEstimateProps {
   phase: RoadmapPhase;
-  sessionsLast7: number; // sessions in last 7 days
+  skillsPerWeek: number | null; // from API: 4-week lookback average, null if < 7 days data
 }
 
-export function WeeklyPaceEstimate({ phase, sessionsLast7 }: WeeklyPaceEstimateProps) {
+export function WeeklyPaceEstimate({ phase, skillsPerWeek }: WeeklyPaceEstimateProps) {
   const remaining = phase.total_skills - phase.completed_skills;
 
   if (remaining === 0) {
@@ -22,7 +22,7 @@ export function WeeklyPaceEstimate({ phase, sessionsLast7 }: WeeklyPaceEstimateP
     );
   }
 
-  if (sessionsLast7 === 0) {
+  if (skillsPerWeek == null || skillsPerWeek === 0) {
     return (
       <Typography variant="caption" color="text.disabled">
         Practice regularly to see your pace estimate
@@ -30,7 +30,6 @@ export function WeeklyPaceEstimate({ phase, sessionsLast7 }: WeeklyPaceEstimateP
     );
   }
 
-  const skillsPerWeek = sessionsLast7 * 2;
   const weeksRemaining = Math.ceil(remaining / skillsPerWeek);
 
   return (

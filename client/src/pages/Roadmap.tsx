@@ -21,8 +21,7 @@ export default function Roadmap() {
   const currentPhase = data?.phases.find((p) => p.phase_number === data.current_phase);
   const nextPhase = data?.phases.find((p) => p.phase_number === data.current_phase + 1) ?? null;
 
-  // sessions last 7 — approximated as 0 until analytics store integration is wired
-  const sessionsLast7 = 0;
+  const skillsPerWeek = data?.skills_per_week ?? null;
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
@@ -76,7 +75,7 @@ export default function Roadmap() {
         <>
           {currentPhase && (
             <Box sx={{ mb: 1 }}>
-              <WeeklyPaceEstimate phase={currentPhase} sessionsLast7={sessionsLast7} />
+              <WeeklyPaceEstimate phase={currentPhase} skillsPerWeek={skillsPerWeek} />
             </Box>
           )}
           {data.phases.map((phase) => (
