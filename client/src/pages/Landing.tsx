@@ -13,6 +13,7 @@ import { ROOM_SCENE_ENABLED } from '../lib/featureFlags';
 import HowItWorks from '../components/landing/HowItWorks';
 import TypicalTuesday from '../components/landing/TypicalTuesday';
 import BeforeAfter from '../components/landing/BeforeAfter';
+import Manifesto from '../components/landing/Manifesto';
 import IsThisForYou from '../components/landing/IsThisForYou';
 import TheProblem from '../components/landing/TheProblem';
 import WeekStripMockup from '../components/landing/WeekStripMockup';
@@ -217,6 +218,9 @@ export default function Landing() {
 
       {/* ── BeforeAfter ──────────────────────────────────────────────────────── */}
       <BeforeAfter />
+
+      {/* ── Manifesto ────────────────────────────────────────────────────────── */}
+      <Manifesto />
 
       {/* ── Testimonials (redesigned) ─────────────────────────────────────────── */}
       <TestimonialSection />
