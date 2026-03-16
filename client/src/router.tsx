@@ -20,6 +20,7 @@ import Resources from './pages/Resources';
 import Tools from './pages/Tools';
 import Settings from './pages/Settings';
 import ActivePracticeMode from './pages/ActivePracticeMode';
+import Privacy from './pages/Privacy';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading: authLoading } = useAuth();
@@ -87,6 +88,7 @@ export const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
   { path: '/reset-password', element: <ResetPassword /> },
   { path: '/auth/callback', element: <AuthCallback /> },
+  { path: '/privacy', element: <Privacy /> },
 
   // Onboarding (authenticated but not yet onboarded)
   {
