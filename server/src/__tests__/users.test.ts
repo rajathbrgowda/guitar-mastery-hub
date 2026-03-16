@@ -42,6 +42,36 @@ beforeEach(() => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// PATCH /api/users/me — theme_mode
+// ─────────────────────────────────────────────────────────────
+describe('PATCH /api/users/me — theme_mode', () => {
+  it('returns 200 and updated profile when theme_mode is valid', async () => {
+    const updated = { ...USER_PROFILE, theme_mode: 'dark' };
+
+    const single = vi.fn().mockResolvedValue({ data: updated, error: null });
+    const select = vi.fn().mockReturnValue({ single });
+    const eq = vi.fn().mockReturnValue({ select });
+    const update = vi.fn().mockReturnValue({ eq });
+
+    mockFrom.mockReturnValueOnce({ update } as never);
+
+    const res = await request(app).patch('/api/users/me').set(AUTH).send({ theme_mode: 'dark' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.theme_mode).toBe('dark');
+  });
+
+  it('returns 400 when theme_mode is not a valid enum value', async () => {
+    const res = await request(app)
+      .patch('/api/users/me')
+      .set(AUTH)
+      .send({ theme_mode: 'solarized' });
+
+    expect(res.status).toBe(400);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
 // PUT /api/users/me/curriculum
 // ─────────────────────────────────────────────────────────────
 describe('PUT /api/users/me/curriculum', () => {
