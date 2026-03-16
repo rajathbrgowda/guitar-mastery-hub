@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
+import WeekStripMockup from '../components/landing/WeekStripMockup';
 import WhyIBuiltThis from '../components/WhyIBuiltThis';
 import AboutDeveloper from '../components/AboutDeveloper';
 import FAQSection from '../components/FAQSection';
@@ -143,89 +144,114 @@ export default function Landing() {
         id="hero"
         component="section"
         aria-labelledby="hero-heading"
-        sx={{ bgcolor: '#1c1917', py: { xs: 8, md: 14 } }}
+        sx={{ bgcolor: '#1c1917', py: { xs: 8, md: 12 }, overflow: 'hidden' }}
       >
-        <Container maxWidth="sm" sx={{ textAlign: 'center', ...fadeInUp }}>
-          <Chip
-            label="Built for JustinGuitar learners"
-            size="small"
-            variant="outlined"
-            sx={{
-              mb: 3,
-              color: '#fbbf24',
-              borderColor: '#78350f',
-              bgcolor: '#1c110a',
-              fontWeight: 500,
-              fontSize: '0.75rem',
-            }}
-          />
+        <Container maxWidth="lg" sx={{ ...fadeInUp }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { md: 6 } }}>
+            {/* Left: text + CTA */}
+            <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
+              <Chip
+                label="Built for JustinGuitar learners"
+                size="small"
+                variant="outlined"
+                sx={{
+                  mb: 3,
+                  color: '#fbbf24',
+                  borderColor: '#78350f',
+                  bgcolor: '#1c110a',
+                  fontWeight: 500,
+                  fontSize: '0.75rem',
+                }}
+              />
 
-          <Typography
-            id="hero-heading"
-            variant="h1"
-            fontWeight={700}
-            sx={{
-              fontSize: { xs: '2rem', sm: '3rem', md: '3.75rem' },
-              letterSpacing: '-0.03em',
-              lineHeight: 1.1,
-              color: '#ffffff',
-              mb: 2.5,
-            }}
-          >
-            Stop starting over.
-          </Typography>
+              <Typography
+                id="hero-heading"
+                variant="h1"
+                fontWeight={700}
+                sx={{
+                  fontSize: { xs: '2rem', sm: '3rem', md: '3.75rem' },
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.1,
+                  color: '#ffffff',
+                  mb: 2.5,
+                }}
+              >
+                Stop starting over.
+              </Typography>
 
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'rgba(255,255,255,0.6)',
-              mb: 4,
-              fontSize: { xs: '1rem', sm: '1.2rem' },
-              lineHeight: 1.65,
-            }}
-          >
-            A practice tracker for guitarists working through JustinGuitar Grades 1–3. Log sessions,
-            see streaks, stay honest.
-          </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: 'rgba(255,255,255,0.6)',
+                  mb: 4,
+                  fontSize: { xs: '1rem', sm: '1.2rem' },
+                  lineHeight: 1.65,
+                }}
+              >
+                A practice tracker for guitarists working through JustinGuitar Grades 1–3. Log
+                sessions, see streaks, stay honest.
+              </Typography>
 
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 2,
-              justifyContent: 'center',
-              flexDirection: { xs: 'column', sm: 'row' },
-            }}
-          >
-            <Button
-              variant="contained"
-              size="large"
-              component={RouterLink}
-              to="/login?mode=signup"
-              sx={{ px: 4, py: 1.25, fontSize: '1rem', fontWeight: 600 }}
-              aria-label="Start free — sign up"
-            >
-              Start free
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              component="a"
-              href="#how-it-works"
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  justifyContent: { xs: 'center', md: 'flex-start' },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                }}
+              >
+                <Button
+                  variant="contained"
+                  size="large"
+                  component={RouterLink}
+                  to="/login?mode=signup"
+                  sx={{ px: 4, py: 1.25, fontSize: '1rem', fontWeight: 600 }}
+                  aria-label="Start free — sign up"
+                >
+                  Start free
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  component="a"
+                  href="#how-it-works"
+                  sx={{
+                    px: 4,
+                    py: 1.25,
+                    fontSize: '1rem',
+                    color: 'rgba(255,255,255,0.85)',
+                    borderColor: 'rgba(255,255,255,0.3)',
+                    '&:hover': {
+                      borderColor: 'rgba(255,255,255,0.6)',
+                      bgcolor: 'rgba(255,255,255,0.05)',
+                    },
+                  }}
+                  aria-label="See how it works"
+                >
+                  See how it works
+                </Button>
+              </Box>
+
+              <Box
+                sx={{ mt: 4, display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}
+              >
+                <WeekStripMockup />
+              </Box>
+            </Box>
+
+            {/* Right: room scene — desktop only */}
+            <Box
               sx={{
-                px: 4,
-                py: 1.25,
-                fontSize: '1rem',
-                color: 'rgba(255,255,255,0.85)',
-                borderColor: 'rgba(255,255,255,0.3)',
-                '&:hover': {
-                  borderColor: 'rgba(255,255,255,0.6)',
-                  bgcolor: 'rgba(255,255,255,0.05)',
-                },
+                display: { xs: 'none', md: 'block' },
+                width: '46%',
+                flexShrink: 0,
+                borderRadius: 3,
+                overflow: 'hidden',
+                opacity: 0.92,
               }}
-              aria-label="See how it works"
             >
-              See how it works
-            </Button>
+              <RoomScene lampOn={lampOn} />
+            </Box>
           </Box>
         </Container>
       </Box>
