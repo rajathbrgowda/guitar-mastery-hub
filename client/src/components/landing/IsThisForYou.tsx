@@ -7,8 +7,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 const FOR_YOU = [
   'You follow a structured curriculum — JustinGuitar, Marty Music, Andy Guitar, or your own path',
-  "You've restarted guitar at least once (or three times)",
-  "You practice, but you're not sure if you're actually improving",
+  "You've picked it back up more than once — and that feels embarrassing",
+  "You practice, but you can't tell if anything is actually moving",
   'You want a practice log, not another lesson app',
   'You learn in short sessions — 15 to 30 minutes at a time',
 ];

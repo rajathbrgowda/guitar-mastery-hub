@@ -6,12 +6,12 @@ import Typography from '@mui/material/Typography';
 // CARD-309: WhyIBuiltThis component
 
 const COPY = {
-  label: 'The thinking behind it',
-  heading: 'For the guitarist who keeps picking it back up.',
+  label: 'Why this exists',
+  heading: 'You know that feeling of picking it up after three weeks?',
   paragraphs: [
-    'Most practice apps are either a metronome or a paywall. Neither one tells you what you have actually been working on.',
-    "JustinGuitar's lessons are free and genuinely good. What was missing was something to track the slow, unglamorous work between lessons — the barre chords you have run twelve times this month, the streak you broke on Tuesday, the progress that is real even when it does not feel like it.",
-    'So this exists. No subscription, no dark patterns. Just a quiet, honest record of the practice you show up for — and the days you do not.',
+    'Most apps give you lessons or a metronome. Neither one remembers what you have been working on.',
+    'The lessons are out there — JustinGuitar, Marty, wherever you learn. What was missing was a quiet record of the slow work between them. The barre chords you have done twelve times. The streak you broke on Tuesday. The progress that is real even when it does not feel like it.',
+    'So this is here. Free, quiet, no noise. A record of the days you showed up — and the ones you did not.',
   ],
 };
 

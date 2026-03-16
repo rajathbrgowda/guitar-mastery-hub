@@ -38,7 +38,7 @@ export default function OpenDevNote() {
             fontWeight={700}
             sx={{ mb: 2 }}
           >
-            Where the app is right now
+            Early, honest, and in use
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -51,7 +51,7 @@ export default function OpenDevNote() {
               sharing are next — just not done yet.
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-              If something&apos;s broken or confusing, tell me. I ship fixes fast.
+              If something feels broken or confusing — tell me. It gets fixed.
             </Typography>
           </Box>
         </Paper>

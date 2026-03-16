@@ -36,7 +36,7 @@ export default function AboutDeveloper() {
           fontWeight={700}
           sx={{ mb: 2, letterSpacing: '-0.02em', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
         >
-          Made for the love of the practice.
+          Small, careful, free.
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
@@ -47,12 +47,11 @@ export default function AboutDeveloper() {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
-            This started as a personal tool — a simple way to track guitar practice without
-            subscriptions, noise, or configuration. It became something worth sharing.
+            Built because the gap existed. No subscriptions, no configuration. Just a place to put
+            your practice.
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
-            It is built in the open and shaped by the people who use it. If something feels off or
-            could be better, there is a real person reading the feedback.
+            If something feels off, say so. There is a real person reading it.
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
             The app is free. It will stay free. The only cost is your practice time — which you were

@@ -21,7 +21,7 @@ const STEPS = [
     number: '03',
     title: 'Stop second-guessing your progress',
     description:
-      "22 sessions logged. Bar chords took 4 weeks. When someone asks how it's going, you have an actual answer.",
+      "You practiced bar chords 11 times last month. You know it. When someone asks how it's going — you have a real answer.",
   },
 ];
 

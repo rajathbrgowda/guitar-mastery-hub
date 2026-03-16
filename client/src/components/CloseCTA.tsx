@@ -60,8 +60,7 @@ export default function CloseCTA() {
         </Typography>
 
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.65 }}>
-          Your practice history, streaks, and roadmap — all in one place. Takes 30 seconds to set
-          up.
+          Log your first session tonight. That is all it takes to start.
         </Typography>
 
         <Button

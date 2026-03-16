@@ -114,7 +114,7 @@ export default function Landing() {
             {/* Left: text + CTA */}
             <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
               <Chip
-                label="Built for self-taught guitarists"
+                label="For the guitarist who keeps starting over"
                 size="small"
                 variant="outlined"
                 sx={{
@@ -151,7 +151,7 @@ export default function Landing() {
                   lineHeight: 1.65,
                 }}
               >
-                Track your practice. Follow any curriculum. See real progress.
+                15 minutes logged. A chord finally clicked. That's worth knowing.
               </Typography>
 
               <Box
