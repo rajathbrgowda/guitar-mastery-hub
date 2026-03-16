@@ -23,7 +23,8 @@ router.get('/', async (_req, res, next) => {
     const stats: PublicStats = {
       total_users: usersResult.count ?? 0,
       total_sessions: sessionsResult.count ?? 0,
-      total_minutes: totalMinutes,
+      total_practice_minutes: totalMinutes,
+      active_streaks: 0,
     };
 
     res.json(stats);
