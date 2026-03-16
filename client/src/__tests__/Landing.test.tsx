@@ -39,9 +39,9 @@ describe('Landing', () => {
     expect(screen.getByText(/stop starting over/i)).toBeInTheDocument();
   });
 
-  it('renders JustinGuitar badge', () => {
+  it('renders self-taught guitarists chip', () => {
     renderLanding();
-    expect(screen.getByText(/built for justinguitar learners/i)).toBeInTheDocument();
+    expect(screen.getByText(/built for self-taught guitarists/i)).toBeInTheDocument();
   });
 
   it('StreakCalendar not in hero', () => {
