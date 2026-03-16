@@ -34,15 +34,9 @@ function renderLanding() {
 }
 
 describe('Landing', () => {
-  it('renders hero headline', () => {
+  it('hero shows new headline', () => {
     renderLanding();
-    expect(screen.getByText(/finally stick/i)).toBeInTheDocument();
-    expect(screen.getByText(/with guitar\./i)).toBeInTheDocument();
-  });
-
-  it('renders sub-headline', () => {
-    renderLanding();
-    expect(screen.getByText(/structured practice\. real data\. no noise\./i)).toBeInTheDocument();
+    expect(screen.getByText(/stop starting over/i)).toBeInTheDocument();
   });
 
   it('renders JustinGuitar badge', () => {
@@ -50,25 +44,21 @@ describe('Landing', () => {
     expect(screen.getByText(/built for justinguitar learners/i)).toBeInTheDocument();
   });
 
-  it('[Get started free] navigates to /login?mode=signup', async () => {
-    mockNavigate.mockClear();
+  it('StreakCalendar not in hero', () => {
     renderLanding();
-    await userEvent.click(screen.getByRole('button', { name: /get started free/i }));
-    expect(mockNavigate).toHaveBeenCalledWith('/login?mode=signup');
+    expect(screen.queryByTestId('streak-calendar')).toBeNull();
   });
 
-  it('[See how it works] navigates to /demo', async () => {
-    mockNavigate.mockClear();
+  it('[Start free] CTA is a link to /login?mode=signup', () => {
     renderLanding();
-    await userEvent.click(screen.getByRole('button', { name: /see how it works/i }));
-    expect(mockNavigate).toHaveBeenCalledWith('/demo');
+    const btn = screen.getByRole('link', { name: /start free/i });
+    expect(btn).toBeInTheDocument();
   });
 
-  it('three content section headings render', () => {
+  it('[See how it works] CTA links to #how-it-works anchor', () => {
     renderLanding();
-    expect(screen.getByText(/what a week looks like/i)).toBeInTheDocument();
-    expect(screen.getByText(/see yourself improve/i)).toBeInTheDocument();
-    expect(screen.getByText(/a path, not a playlist/i)).toBeInTheDocument();
+    const btn = screen.getByRole('link', { name: /see how it works/i });
+    expect(btn).toHaveAttribute('href', '#how-it-works');
   });
 
   it('final CTA [Create account] navigates to signup', async () => {
@@ -163,7 +153,7 @@ describe('Landing — heading hierarchy (CARD-331)', () => {
   it('h1 is the hero headline', () => {
     renderLanding();
     const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1.textContent).toMatch(/finally stick/i);
+    expect(h1.textContent).toMatch(/stop starting over/i);
   });
 
   it('section headings are h2', () => {

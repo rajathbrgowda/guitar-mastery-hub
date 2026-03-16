@@ -149,7 +149,7 @@ export default function Landing() {
         id="hero"
         component="section"
         aria-labelledby="hero-heading"
-        sx={{ bgcolor: '#1c1917', py: { xs: 8, md: 12 }, overflow: 'hidden' }}
+        sx={{ bgcolor: '#1c1917', py: { xs: 8, md: 14 }, overflow: 'hidden' }}
       >
         <Container maxWidth="lg" sx={{ ...fadeInUp }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { md: 6 } }}>
