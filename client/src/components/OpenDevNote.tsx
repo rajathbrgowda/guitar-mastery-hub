@@ -10,7 +10,7 @@ export default function OpenDevNote() {
   return (
     <Box
       id="dev-note"
-      sx={{ bgcolor: 'background.default', py: { xs: 6, sm: 8 } }}
+      sx={{ bgcolor: 'background.default', py: { xs: 4, md: 8 } }}
       aria-labelledby="dev-note-heading"
     >
       <Container maxWidth="sm">

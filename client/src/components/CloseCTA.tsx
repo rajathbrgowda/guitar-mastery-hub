@@ -30,7 +30,7 @@ export default function CloseCTA() {
   return (
     <Box
       id="get-started"
-      sx={{ bgcolor: 'background.default', py: { xs: 10, sm: 14 }, textAlign: 'center' }}
+      sx={{ bgcolor: 'background.default', py: { xs: 6, sm: 10 }, textAlign: 'center' }}
       aria-labelledby="close-cta-heading"
     >
       <Container maxWidth="sm">
