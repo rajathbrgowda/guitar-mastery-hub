@@ -49,7 +49,15 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
   return (
     <Box sx={{ overflowX: 'auto' }}>
       {/* Month labels row */}
-      <Box sx={{ display: 'flex', ml: '24px', mb: 0.5, position: 'relative', height: 16 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          ml: { xs: '12px', sm: '24px' },
+          mb: 0.5,
+          position: 'relative',
+          height: 16,
+        }}
+      >
         {monthPositions.map(({ label, week }) => (
           <Typography
             key={label + week}
@@ -71,10 +79,10 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
               variant="caption"
               color="text.secondary"
               sx={{
-                fontSize: '0.55rem',
+                fontSize: { xs: '0.5rem', sm: '0.55rem' },
                 height: 10,
                 lineHeight: '10px',
-                width: 20,
+                width: { xs: 16, sm: 20 },
                 textAlign: 'right',
               }}
             >
