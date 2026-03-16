@@ -1,6 +1,6 @@
 # Guitar Mastery Hub
 
-A structured guitar practice tracker built around the [JustinGuitar](https://www.justinguitar.com) curriculum. Log sessions, follow a 5-phase learning roadmap, track skill progress, and visualise your growth over time.
+A practice tracker for self-taught guitarists. Track sessions, follow any curriculum, and see real progress over time.
 
 **Live demo → [guitar-mastery-hub-mu.vercel.app](https://guitar-mastery-hub-mu.vercel.app)**
 
@@ -21,7 +21,7 @@ A structured guitar practice tracker built around the [JustinGuitar](https://www
 ## Features
 
 - **Practice log** — record sessions with duration, sections, and notes
-- **Skill tree** — 5-phase curriculum mapped to JustinGuitar; mark skills complete
+- **Skill tree** — phase-based curriculum path; choose from JustinGuitar, Marty Music, Andy Guitar or a general path
 - **Analytics** — streak tracker, daily/weekly totals, session history chart
 - **Roadmap** — phase-by-phase learning path with progress indicators
 - **Resources** — curated resource library with completion tracking
