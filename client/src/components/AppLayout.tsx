@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
@@ -13,6 +13,9 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import Paper from '@mui/material/Paper';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
@@ -22,7 +25,7 @@ import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
-import MenuIcon from '@mui/icons-material/Menu';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import Avatar from '@mui/material/Avatar';
 import { supabase } from '../lib/supabase';
@@ -45,9 +48,18 @@ const navItems = [
   { label: 'Tools', to: '/app/tools', icon: <BuildOutlinedIcon fontSize="small" /> },
 ];
 
+// Bottom nav — 4 primary destinations + More drawer trigger
+const bottomNavItems = [
+  { label: 'Dashboard', to: '/app', exact: true, icon: <DashboardOutlinedIcon /> },
+  { label: 'Practice', to: '/app/practice', icon: <TimerOutlinedIcon /> },
+  { label: 'Roadmap', to: '/app/roadmap', icon: <MapOutlinedIcon /> },
+  { label: 'Analytics', to: '/app/analytics', icon: <BarChartOutlinedIcon /> },
+];
+
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { profile, fetchProfile } = useUserStore();
   const { fetchInsights } = useInsightsStore();
@@ -58,7 +70,6 @@ export default function AppLayout() {
   }, [fetchProfile]);
 
   useEffect(() => {
-    // Non-critical background fetches — no spinner
     fetchInsights();
     fetchMilestones();
   }, [fetchInsights, fetchMilestones]);
@@ -72,6 +83,10 @@ export default function AppLayout() {
     await supabase.auth.signOut();
     navigate('/login');
   }
+
+  const bottomNavValue = bottomNavItems.findIndex((item) =>
+    item.exact ? location.pathname === item.to : location.pathname.startsWith(item.to),
+  );
 
   const drawerContent = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -105,7 +120,7 @@ export default function AppLayout() {
             <ListItemButton
               component={NavLink}
               to={item.to}
-              end={item.to === '/'}
+              end={item.to === '/app'}
               onClick={() => setMobileOpen(false)}
               sx={{ py: 0.75, px: 1.5 }}
             >
@@ -119,7 +134,6 @@ export default function AppLayout() {
         ))}
       </List>
       <Divider />
-      {/* Avatar footer */}
       <Box
         sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.25, cursor: 'pointer' }}
         onClick={() => {
@@ -195,25 +209,25 @@ export default function AppLayout() {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Mobile AppBar */}
+      {/* Mobile AppBar — slim: logo + dark toggle only (hamburger removed in favour of bottom nav) */}
       <AppBar position="fixed" sx={{ display: { sm: 'none' }, zIndex: (t) => t.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <Tooltip title="Menu">
-            <IconButton edge="start" onClick={() => setMobileOpen(true)} sx={{ mr: 1 }}>
-              <MenuIcon />
-            </IconButton>
-          </Tooltip>
+        <Toolbar sx={{ minHeight: 52 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-            <PlayCircleIcon sx={{ fontSize: 24, color: 'primary.main' }} />
+            <PlayCircleIcon sx={{ fontSize: 22, color: 'primary.main' }} />
             <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: 'text.primary' }}>
               Fretwork
             </Typography>
           </Box>
+          <Tooltip title="More">
+            <IconButton size="small" onClick={() => setMobileOpen(true)} sx={{ mr: 0.5 }}>
+              <MoreHorizIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <DarkModeToggle />
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer — opened by bottom nav More or top-bar ••• */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -248,6 +262,7 @@ export default function AppLayout() {
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
           pt: { xs: 9, sm: 3 },
+          pb: { xs: 9, sm: 3 },
           minHeight: '100vh',
           backgroundColor: 'background.default',
           maxWidth: '100%',
@@ -257,6 +272,45 @@ export default function AppLayout() {
       >
         <Outlet />
       </Box>
+
+      {/* Mobile bottom navigation */}
+      <Paper
+        elevation={0}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: (t) => t.zIndex.appBar,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <BottomNavigation
+          value={bottomNavValue === -1 ? false : bottomNavValue}
+          sx={{ bgcolor: 'background.paper', height: 56 }}
+        >
+          {bottomNavItems.map((item, idx) => (
+            <BottomNavigationAction
+              key={item.to}
+              label={item.label}
+              icon={item.icon}
+              value={idx}
+              onClick={() => navigate(item.to)}
+              sx={{ minWidth: 0, fontSize: '0.65rem', px: 0 }}
+            />
+          ))}
+          <BottomNavigationAction
+            label="More"
+            icon={<MoreHorizIcon />}
+            value={-1}
+            onClick={() => setMobileOpen(true)}
+            sx={{ minWidth: 0, fontSize: '0.65rem', px: 0 }}
+          />
+        </BottomNavigation>
+      </Paper>
+
       <MilestoneCelebration />
     </Box>
   );
