@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles';
+import type { ThemeMode } from '@gmh/shared/types/user';
 
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -7,10 +8,11 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-export function buildTheme(primaryColor: string) {
+export function buildTheme(primaryColor: string, mode: ThemeMode = 'light') {
+  const isDark = mode === 'dark';
   return createTheme({
     palette: {
-      mode: 'light',
+      mode,
       primary: {
         main: primaryColor,
         contrastText: '#ffffff',
@@ -34,14 +36,14 @@ export function buildTheme(primaryColor: string) {
         contrastText: '#ffffff',
       },
       background: {
-        default: '#ffffff',
-        paper: '#f7f5f2',
+        default: isDark ? '#0d1117' : '#ffffff',
+        paper: isDark ? '#161b22' : '#f7f5f2',
       },
       text: {
-        primary: '#171414',
-        secondary: '#5c5858',
+        primary: isDark ? '#e6edf3' : '#171414',
+        secondary: isDark ? '#8b949e' : '#5c5858',
       },
-      divider: '#e5e0df',
+      divider: isDark ? '#30363d' : '#e5e0df',
     },
     typography: {
       fontFamily: '"Inter", "Helvetica Neue", Arial, sans-serif',
@@ -80,8 +82,8 @@ export function buildTheme(primaryColor: string) {
         styleOverrides: {
           root: {
             borderRadius: 10,
-            border: '1px solid #e5e0df',
-            boxShadow: '0 1px 3px rgba(23,20,20,0.06)',
+            border: `1px solid ${isDark ? '#30363d' : '#e5e0df'}`,
+            boxShadow: isDark ? '0 1px 3px rgba(0,0,0,0.4)' : '0 1px 3px rgba(23,20,20,0.06)',
           },
         },
       },
@@ -102,7 +104,7 @@ export function buildTheme(primaryColor: string) {
       MuiOutlinedInput: {
         styleOverrides: {
           root: { borderRadius: 6 },
-          notchedOutline: { borderColor: '#e5e0df' },
+          notchedOutline: { borderColor: isDark ? '#30363d' : '#e5e0df' },
         },
       },
       MuiLinearProgress: {
@@ -130,23 +132,23 @@ export function buildTheme(primaryColor: string) {
         },
       },
       MuiDivider: {
-        styleOverrides: { root: { borderColor: '#e5e0df' } },
+        styleOverrides: { root: { borderColor: isDark ? '#30363d' : '#e5e0df' } },
       },
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: '#ffffff',
-            borderBottom: '1px solid #e5e0df',
+            backgroundColor: isDark ? '#161b22' : '#ffffff',
+            borderBottom: `1px solid ${isDark ? '#30363d' : '#e5e0df'}`,
             boxShadow: 'none',
-            color: '#171414',
+            color: isDark ? '#e6edf3' : '#171414',
           },
         },
       },
       MuiDrawer: {
         styleOverrides: {
           paper: {
-            borderRight: '1px solid #e5e0df',
-            backgroundColor: '#ffffff',
+            borderRight: `1px solid ${isDark ? '#30363d' : '#e5e0df'}`,
+            backgroundColor: isDark ? '#161b22' : '#ffffff',
           },
         },
       },
