@@ -81,7 +81,12 @@ export default function Tools() {
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          gutterBottom
+          sx={{ fontSize: { xs: '1.4rem', sm: '2.125rem' } }}
+        >
           Tools
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -122,12 +127,17 @@ export default function Tools() {
         sx={{ mb: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}
       >
         {CATEGORIES.map(({ key, label }) => (
-          <Tab key={key} value={key} label={label} sx={{ textTransform: 'none', minWidth: 60 }} />
+          <Tab
+            key={key}
+            value={key}
+            label={label}
+            sx={{ textTransform: 'none', minWidth: { xs: 48, sm: 60 } }}
+          />
         ))}
       </Tabs>
 
       {/* Price filter chips */}
-      <Box sx={{ display: 'flex', gap: 0.75, mb: 2.5, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'flex', gap: { xs: 0.5, sm: 0.75 }, mb: 2.5, flexWrap: 'wrap' }}>
         {PRICES.map(({ key, label }) => (
           <Chip
             key={key}

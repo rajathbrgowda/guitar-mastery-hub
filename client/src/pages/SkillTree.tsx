@@ -64,7 +64,12 @@ export default function SkillTree() {
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          gutterBottom
+          sx={{ fontSize: { xs: '1.4rem', sm: '2.125rem' } }}
+        >
           Mastery Map
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -118,7 +123,11 @@ export default function SkillTree() {
               <Typography variant="overline" color="text.secondary">
                 Phase {phase.phase_index + 1}
               </Typography>
-              <Typography variant="h6" fontWeight={700}>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+              >
                 {phase.phase_title}
               </Typography>
               <Box sx={{ ml: 'auto', display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
@@ -166,10 +175,18 @@ export default function SkillTree() {
             />
 
             {/* Node grid */}
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 1.5 } }}>
-              {phase.nodes.map((node) => (
-                <MasteryNode key={node.skill_key} node={node} onSelect={setSelectedNode} />
-              ))}
+            <Box sx={{ overflowX: { xs: 'auto', sm: 'visible' }, pb: { xs: 0.5, sm: 0 } }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: { xs: 'nowrap', sm: 'wrap' },
+                  gap: { xs: 1, sm: 1.5 },
+                }}
+              >
+                {phase.nodes.map((node) => (
+                  <MasteryNode key={node.skill_key} node={node} onSelect={setSelectedNode} />
+                ))}
+              </Box>
             </Box>
 
             {/* Connector */}
