@@ -63,4 +63,15 @@ describe('WaveBackground', () => {
     const paths = container.querySelectorAll('svg path');
     expect(paths.length).toBe(11);
   });
+
+  it('renders dotted/dashed strokes (not solid lines)', () => {
+    const { container } = renderWithTheme(<WaveBackground variant="calm" />);
+    const paths = container.querySelectorAll('svg path');
+    // Every path should have a stroke-dasharray for the dotted mesh effect
+    Array.from(paths).forEach((p) => {
+      const dash = p.getAttribute('stroke-dasharray');
+      expect(dash).toBeTruthy();
+      expect(dash).toMatch(/^\d+ \d+$/); // pattern like "2 6"
+    });
+  });
 });

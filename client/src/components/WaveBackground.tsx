@@ -20,6 +20,7 @@ interface WaveConfig {
   phaseShift: number;
   strokeOpacity: number;
   strokeWidth: number;
+  dashArray: string; // dotted mesh pattern — varies per line for organic feel
 }
 
 const VIEW_W = 1440;
@@ -47,15 +48,34 @@ function buildWavePath(cfg: WaveConfig): string {
 
 // ── Presets per variant ──────────────────────────────────────────────────────
 
+// Dash patterns — small dot+gap combos for the fine mesh/dotted look.
+// Varying per line so the mesh feels organic, not uniform.
+const DASH_PATTERNS = [
+  '2 6', // fine dots, wide gap
+  '3 5', // slightly longer dots
+  '1 4', // tiny dots, tight
+  '4 7', // medium dashes
+  '2 5', // fine dots
+  '3 8', // sparse dashes
+  '1 5', // tiny dots, wider
+  '2 7', // fine dots, wide
+  '3 6', // medium
+  '4 8', // longer dashes, sparse
+  '2 4', // tighter dots
+  '1 6', // tiny, sparse
+  '3 7', // medium-sparse
+  '2 8', // fine, very sparse
+];
+
 function generateWaves(variant: WaveVariant, isDark: boolean): WaveConfig[] {
   const isHero = variant === 'hero';
   const count = isHero ? 14 : 11;
 
-  // Opacity ranges
-  const opMin = isHero ? 0.1 : 0.06;
-  const opMax = isHero ? 0.28 : 0.18;
-  // Bump slightly in dark mode for visibility
-  const darkBoost = isDark ? 0.04 : 0;
+  // Much lighter opacities — background should whisper, not compete with content
+  const opMin = isHero ? 0.05 : 0.03;
+  const opMax = isHero ? 0.14 : 0.09;
+  // Slight bump in dark mode for visibility against dark backgrounds
+  const darkBoost = isDark ? 0.02 : 0;
 
   const waves: WaveConfig[] = [];
   for (let i = 0; i < count; i++) {
@@ -64,8 +84,9 @@ function generateWaves(variant: WaveVariant, isDark: boolean): WaveConfig[] {
       yBase: 200 + t * 500, // spread across middle 200..700 of 900h viewBox
       amplitude: 30 + Math.sin(i * 1.3) * 25 + t * 20,
       phaseShift: i * 0.9 + t * 2,
-      strokeOpacity: Math.min(opMin + t * (opMax - opMin) + darkBoost, 0.35),
-      strokeWidth: 0.6 + Math.sin(i * 0.7) * 0.4 + t * 0.5,
+      strokeOpacity: Math.min(opMin + t * (opMax - opMin) + darkBoost, 0.18),
+      strokeWidth: 0.5 + Math.sin(i * 0.7) * 0.3 + t * 0.4,
+      dashArray: DASH_PATTERNS[i % DASH_PATTERNS.length],
     });
   }
   return waves;
@@ -122,6 +143,7 @@ export default function WaveBackground({ variant = 'calm' }: WaveBackgroundProps
             stroke={primary}
             strokeOpacity={w.strokeOpacity}
             strokeWidth={w.strokeWidth}
+            strokeDasharray={w.dashArray}
             strokeLinecap="round"
           />
         ))}
