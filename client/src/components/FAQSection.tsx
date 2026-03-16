@@ -17,8 +17,8 @@ const FAQ_ITEMS = [
     a: 'Yes. No credit card, no trial period, no premium tier. I built this to use myself and it costs me almost nothing to run. There are no plans to charge for it.',
   },
   {
-    q: 'Does it work with any guitar curriculum or only JustinGuitar?',
-    a: 'The default curriculum follows JustinGuitar Grade 1–3 because that is what I use. You can switch to other curricula in Settings. The session log, streaks, and analytics work regardless of which curriculum you pick.',
+    q: 'Does it work with any guitar curriculum?',
+    a: 'Yes. You can choose from JustinGuitar, Marty Music, Andy Guitar, or a general path in Settings. Each curriculum has its own skill map, and your progress is tracked independently per curriculum. You can switch anytime without losing data.',
   },
   {
     q: 'I already practice regularly. Why would I log sessions?',
@@ -35,10 +35,6 @@ const FAQ_ITEMS = [
   {
     q: 'What is the mastery map?',
     a: 'It is a visual overview of every skill in your curriculum — not started, learning, mastered, or rusty. A skill goes rusty if you have not practiced it in 21 days. It is a quick way to see what needs attention without digging through session logs.',
-  },
-  {
-    q: 'Can I use it without following JustinGuitar?',
-    a: 'Yes. The practice log, streak calendar, and analytics are generic. The roadmap and skill tree are tied to a structured curriculum, but you can pick the one that matches your current approach or ignore those sections entirely.',
   },
 ];
 
