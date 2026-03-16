@@ -53,6 +53,7 @@ export type {
 
 export type {
   ThemeKey,
+  ThemeMode,
   GuitarType,
   UserProfile,
   UpdateProfileBody,

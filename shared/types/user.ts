@@ -1,5 +1,7 @@
 export type ThemeKey = 'helix' | 'ocean' | 'forest' | 'violet' | 'rose';
 
+export type ThemeMode = 'light' | 'dark';
+
 export type GuitarType = 'acoustic' | 'electric' | 'classical' | 'bass' | 'other';
 
 export interface UserProfile {
@@ -14,6 +16,7 @@ export interface UserProfile {
   avatar_url: string | null;
   current_phase: number;
   theme_color: ThemeKey;
+  theme_mode: ThemeMode;
   selected_curriculum_key: string;
   onboarding_completed: boolean;
   created_at: string;
@@ -37,4 +40,5 @@ export interface UpdateProfileBody {
   timezone?: string;
   avatar_url?: string | null;
   theme_color?: ThemeKey;
+  theme_mode?: ThemeMode;
 }

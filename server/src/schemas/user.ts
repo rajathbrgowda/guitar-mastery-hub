@@ -10,6 +10,7 @@ export const updateProfileSchema = z.object({
   timezone: z.string().max(50).optional(),
   avatar_url: z.string().url().nullable().optional(),
   theme_color: z.enum(['helix', 'ocean', 'forest', 'violet', 'rose']).optional(),
+  theme_mode: z.enum(['light', 'dark']).optional(),
 });
 
 // Type assertion — ensures Zod schema stays in sync with shared contract

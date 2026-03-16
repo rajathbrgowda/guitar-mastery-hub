@@ -10,7 +10,7 @@ const router = Router();
 router.use(requireAuth);
 
 const USER_FIELDS =
-  'id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase, theme_color, selected_curriculum_key, onboarding_completed, created_at';
+  'id, email, display_name, guitar_type, years_playing, daily_goal_min, practice_days_target, timezone, avatar_url, current_phase, theme_color, theme_mode, selected_curriculum_key, onboarding_completed, created_at';
 
 // GET /api/users/me
 router.get('/me', async (req: AuthRequest, res: Response) => {
