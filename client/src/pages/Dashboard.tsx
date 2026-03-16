@@ -124,7 +124,11 @@ export default function Dashboard() {
             }}
           >
             <Box>
-              <Typography variant="h4" fontWeight={800} sx={{ lineHeight: 1.2, mb: 0.5 }}>
+              <Typography
+                variant="h4"
+                fontWeight={800}
+                sx={{ lineHeight: 1.2, mb: 0.5, fontSize: { xs: '1.4rem', sm: '2.125rem' } }}
+              >
                 Good {timeOfDay()}, {name} {streakEmoji}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -198,57 +202,48 @@ export default function Dashboard() {
       <Divider sx={{ mb: 3 }} />
 
       {/* ─── Stat tiles row ──────────────────────────────────────────── */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 1.5,
-          mb: 3,
-          overflowX: 'auto',
-          pb: 0.5,
-          '&::-webkit-scrollbar': { display: 'none' },
-        }}
-      >
+      <Grid container spacing={1.5} sx={{ mb: 3 }}>
         {[
           { label: 'Streak', value: summaryLoading ? null : `${streak}d` },
           { label: 'This week', value: summaryLoading ? null : `${weekMins} min` },
           { label: 'Sessions', value: summaryLoading ? null : String(summary?.totalSessions ?? 0) },
           { label: 'Phase', value: summaryLoading ? null : `${storePhase + 1} / 5` },
         ].map((tile) => (
-          <Card
-            key={tile.label}
-            sx={{
-              flex: '1 0 90px',
-              minWidth: 90,
-              borderTop: '2px solid',
-              borderTopColor: 'primary.main',
-            }}
-          >
-            <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.6rem' }}
-              >
-                {tile.label}
-              </Typography>
-              {tile.value === null ? (
-                <Skeleton width={48} height={28} />
-              ) : (
+          <Grid key={tile.label} size={{ xs: 6, sm: 3 }}>
+            <Card
+              sx={{
+                height: '100%',
+                borderTop: '2px solid',
+                borderTopColor: 'primary.main',
+              }}
+            >
+              <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Typography
-                  sx={{
-                    fontFamily: '"IBM Plex Mono", monospace',
-                    fontWeight: 700,
-                    fontSize: '1.1rem',
-                    mt: 0.25,
-                  }}
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.6rem' }}
                 >
-                  {tile.value}
+                  {tile.label}
                 </Typography>
-              )}
-            </CardContent>
-          </Card>
+                {tile.value === null ? (
+                  <Skeleton width={48} height={28} />
+                ) : (
+                  <Typography
+                    sx={{
+                      fontFamily: '"IBM Plex Mono", monospace',
+                      fontWeight: 700,
+                      fontSize: '1.1rem',
+                      mt: 0.25,
+                    }}
+                  >
+                    {tile.value}
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </Box>
+      </Grid>
 
       {/* ─── Weekly digest (conditional) ────────────────────────────── */}
       {insights?.weeklyDigest && (
