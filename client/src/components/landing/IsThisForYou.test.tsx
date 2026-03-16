@@ -4,6 +4,6 @@ import IsThisForYou from './IsThisForYou';
 
 test('renders both columns', () => {
   render(<IsThisForYou />);
-  expect(screen.getByText(/for you/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/for you/i).length).toBeGreaterThanOrEqual(1);
   expect(screen.getByText(/probably not/i)).toBeInTheDocument();
 });
