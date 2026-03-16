@@ -191,7 +191,7 @@ export default function ActivePracticeMode() {
           {/* Progress bar */}
           <Box
             sx={{
-              width: 120,
+              width: { xs: 80, sm: 120 },
               height: 3,
               bgcolor: 'action.hover',
               borderRadius: 2,
@@ -251,7 +251,7 @@ export default function ActivePracticeMode() {
       </Box>
 
       {/* Actions */}
-      <Box sx={{ display: 'flex', gap: 2, mt: 'auto', pb: 3 }}>
+      <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 }, mt: 'auto', pb: 3 }}>
         <Button
           variant="outlined"
           startIcon={<SkipNextIcon />}

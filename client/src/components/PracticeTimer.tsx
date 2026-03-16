@@ -77,53 +77,61 @@ export function PracticeTimer({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-      <Box sx={{ position: 'relative', width: SVG_SIZE, height: SVG_SIZE }}>
-        <svg width={SVG_SIZE} height={SVG_SIZE} style={{ transform: 'rotate(-90deg)' }}>
-          {/* Background track */}
-          <circle
-            cx={SVG_SIZE / 2}
-            cy={SVG_SIZE / 2}
-            r={RADIUS}
-            fill="none"
-            stroke={trackColor}
-            strokeWidth={STROKE}
-          />
-          {/* Progress arc */}
-          <circle
-            cx={SVG_SIZE / 2}
-            cy={SVG_SIZE / 2}
-            r={RADIUS}
-            fill="none"
-            stroke={primaryColor}
-            strokeWidth={STROKE}
-            strokeLinecap="round"
-            strokeDasharray={CIRCUMFERENCE}
-            strokeDashoffset={dashOffset}
-            style={{ transition: 'stroke-dashoffset 0.9s linear' }}
-          />
-        </svg>
+      <Box
+        sx={{
+          transform: { xs: 'scale(0.8)', sm: 'scale(1)' },
+          transformOrigin: 'top center',
+          mb: { xs: -2, sm: 0 },
+        }}
+      >
+        <Box sx={{ position: 'relative', width: SVG_SIZE, height: SVG_SIZE }}>
+          <svg width={SVG_SIZE} height={SVG_SIZE} style={{ transform: 'rotate(-90deg)' }}>
+            {/* Background track */}
+            <circle
+              cx={SVG_SIZE / 2}
+              cy={SVG_SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              stroke={trackColor}
+              strokeWidth={STROKE}
+            />
+            {/* Progress arc */}
+            <circle
+              cx={SVG_SIZE / 2}
+              cy={SVG_SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              stroke={primaryColor}
+              strokeWidth={STROKE}
+              strokeLinecap="round"
+              strokeDasharray={CIRCUMFERENCE}
+              strokeDashoffset={dashOffset}
+              style={{ transition: 'stroke-dashoffset 0.9s linear' }}
+            />
+          </svg>
 
-        {/* Time remaining text in centre */}
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Typography
-            variant="h4"
-            fontWeight={700}
-            sx={{ fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}
+          {/* Time remaining text in centre */}
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            {fmt(remaining)}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            remaining
-          </Typography>
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              sx={{ fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}
+            >
+              {fmt(remaining)}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              remaining
+            </Typography>
+          </Box>
         </Box>
       </Box>
 
