@@ -84,7 +84,7 @@ export default function TodayHeroCard({ todaySessions, todayStr, onLog }: TodayH
           background: alpha(theme.palette.success.main, 0.04),
         }}
       >
-        <CardContent>
+        <CardContent sx={{ px: { xs: 1.5, sm: 2 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
             <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
             <Typography variant="overline" color="success.main">
@@ -138,7 +138,7 @@ export default function TodayHeroCard({ todaySessions, todayStr, onLog }: TodayH
         borderLeftColor: 'primary.main',
       }}
     >
-      <CardContent>
+      <CardContent sx={{ px: { xs: 1.5, sm: 2 } }}>
         {mode === 'choose' && (
           <>
             <Typography variant="overline" color="text.secondary">
@@ -212,7 +212,7 @@ export default function TodayHeroCard({ todaySessions, todayStr, onLog }: TodayH
               value={durationMin}
               onChange={(e) => setDurationMin(e.target.value)}
               size="small"
-              sx={{ width: 140, mb: 2 }}
+              sx={{ width: { xs: '100%', sm: 140 }, mb: 2 }}
               inputProps={{ min: 1 }}
             />
 
@@ -259,7 +259,7 @@ export default function TodayHeroCard({ todaySessions, todayStr, onLog }: TodayH
               </Alert>
             )}
 
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
               <Button
                 variant="contained"
                 onClick={handleManualSubmit}
