@@ -40,8 +40,12 @@ export function SkillRow({ skill }: SkillRowProps) {
 
       <Typography
         variant="body2"
+        noWrap
         sx={{
           flex: 1,
+          minWidth: 0,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
           fontWeight: skill.completed ? 400 : 500,
           color: skill.completed ? 'text.secondary' : 'text.primary',
           textDecoration: skill.completed ? 'line-through' : 'none',

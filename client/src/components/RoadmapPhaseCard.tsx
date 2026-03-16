@@ -35,6 +35,8 @@ export function RoadmapPhaseCard({
         borderLeft: '3px solid',
         borderLeftColor: isCurrentPhase ? 'primary.main' : 'divider',
         bgcolor: isCurrentPhase ? alpha(theme.palette.primary.main, 0.03) : 'background.paper',
+        overflow: 'hidden',
+        minWidth: 0,
       }}
     >
       <CardContent sx={{ pb: '12px !important' }}>
@@ -47,8 +49,8 @@ export function RoadmapPhaseCard({
             mb: 1,
           }}
         >
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ minWidth: 0, overflow: 'hidden' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
               <Typography
                 variant="overline"
                 color={isCurrentPhase ? 'primary' : 'text.secondary'}
