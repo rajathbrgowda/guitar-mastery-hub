@@ -74,7 +74,7 @@ export default function Analytics() {
 
   useEffect(() => {
     fetchSkillsAnalytics();
-    fetchActivityHistory(30);
+    fetchActivityHistory(365);
     fetchHeatmap();
     fetchStreakDetail();
     fetchInsightCards();
