@@ -26,16 +26,26 @@ router.get('/', async (req: AuthRequest, res) => {
   const curriculumKey: string = user.selected_curriculum_key ?? 'best_of_all';
   const currentPhase: number = user.current_phase ?? 1;
 
-  // 2. Get curriculum source
-  const { data: curriculumSource } = await supabase
+  // 2. Get curriculum source — fallback to best_of_all if inactive or missing
+  let { data: curriculumSource } = await supabase
     .from('curriculum_sources')
     .select('id')
     .eq('key', curriculumKey)
     .eq('is_active', true)
     .single();
 
+  if (!curriculumSource && curriculumKey !== 'best_of_all') {
+    const { data: fallback } = await supabase
+      .from('curriculum_sources')
+      .select('id')
+      .eq('key', 'best_of_all')
+      .eq('is_active', true)
+      .single();
+    curriculumSource = fallback;
+  }
+
   if (!curriculumSource) {
-    res.status(404).json({ error: 'Curriculum not found' });
+    res.status(503).json({ error: 'No active curriculum available' });
     return;
   }
 
@@ -166,17 +176,30 @@ router.get('/', async (req: AuthRequest, res) => {
 });
 
 const confidenceSchema = z.object({
-  confidence: z.number().int().min(1).max(3),
+  confidence: z.union([z.literal(1), z.literal(2), z.literal(3)]),
 });
+
+const skillKeySchema = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[a-z0-9_]+$/, 'Skill key must be lowercase alphanumeric with underscores');
 
 // PATCH /api/roadmap/skill/:key/confidence
 router.patch('/skill/:key/confidence', async (req: AuthRequest, res) => {
   const userId = req.user!.id;
-  const skillKey = req.params.key;
+
+  // Validate skill key format
+  const keyParsed = skillKeySchema.safeParse(req.params.key);
+  if (!keyParsed.success) {
+    res.status(422).json({ error: 'Invalid skill key format' });
+    return;
+  }
+  const skillKey = keyParsed.data;
 
   const parsed = confidenceSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.flatten() });
+    res.status(400).json({ error: 'confidence must be 1, 2, or 3' });
     return;
   }
 
@@ -188,11 +211,11 @@ router.patch('/skill/:key/confidence', async (req: AuthRequest, res) => {
     .single();
   const curriculumKey: string = user?.selected_curriculum_key ?? 'best_of_all';
 
-  // Look up skill_id by key
+  // Validate skill exists in the skills table
   const { data: skill } = await supabase.from('skills').select('id').eq('key', skillKey).single();
 
   if (!skill) {
-    res.status(404).json({ error: 'Skill not found' });
+    res.status(422).json({ error: `Skill '${skillKey}' does not exist` });
     return;
   }
 

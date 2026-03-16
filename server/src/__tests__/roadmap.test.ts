@@ -165,7 +165,7 @@ describe('PATCH /api/roadmap/skill/:key/confidence', () => {
     });
 
     const res = await request(app)
-      .patch('/api/roadmap/skill/em-chord/confidence')
+      .patch('/api/roadmap/skill/em_chord/confidence')
       .set(AUTH)
       .send({ confidence: 2 });
 
@@ -174,8 +174,27 @@ describe('PATCH /api/roadmap/skill/:key/confidence', () => {
   });
 
   it('returns 400 when confidence is out of range (5)', async () => {
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'users') {
+        const single = vi
+          .fn()
+          .mockResolvedValue({ data: { selected_curriculum_key: 'best_of_all' }, error: null });
+        return {
+          select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
+        } as never;
+      }
+      if (table === 'skills') {
+        const single = vi.fn().mockResolvedValue({ data: { id: 'skill-uuid' }, error: null });
+        return {
+          select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
+        } as never;
+      }
+      return {
+        select: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: null }) }),
+      } as never;
+    });
     const res = await request(app)
-      .patch('/api/roadmap/skill/em-chord/confidence')
+      .patch('/api/roadmap/skill/em_chord/confidence')
       .set(AUTH)
       .send({ confidence: 5 });
 
@@ -183,8 +202,27 @@ describe('PATCH /api/roadmap/skill/:key/confidence', () => {
   });
 
   it('returns 400 when confidence is missing', async () => {
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'users') {
+        const single = vi
+          .fn()
+          .mockResolvedValue({ data: { selected_curriculum_key: 'best_of_all' }, error: null });
+        return {
+          select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
+        } as never;
+      }
+      if (table === 'skills') {
+        const single = vi.fn().mockResolvedValue({ data: { id: 'skill-uuid' }, error: null });
+        return {
+          select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) }),
+        } as never;
+      }
+      return {
+        select: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: null }) }),
+      } as never;
+    });
     const res = await request(app)
-      .patch('/api/roadmap/skill/em-chord/confidence')
+      .patch('/api/roadmap/skill/em_chord/confidence')
       .set(AUTH)
       .send({});
 
