@@ -360,7 +360,7 @@ export default function OnboardingWizard() {
         {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: '0.1em' }}>
-            Guitar Mastery Hub
+            Fretwork
           </Typography>
           <Typography variant="h4" fontWeight={800} sx={{ mt: 0.5 }}>
             Let's get you set up

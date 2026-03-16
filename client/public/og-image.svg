@@ -9,14 +9,14 @@
   <rect x="80" y="80" width="4" height="60" rx="2" fill="#fbbf24"/>
 
   <!-- App name -->
-  <text x="100" y="128" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="32" fill="#ffffff" letter-spacing="-0.5">Guitar Mastery Hub</text>
+  <text x="100" y="128" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="32" fill="#ffffff" letter-spacing="-0.5">Fretwork</text>
 
   <!-- Headline -->
-  <text x="80" y="260" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="72" fill="#ffffff" letter-spacing="-2">Finally stick</text>
-  <text x="80" y="350" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="72" fill="#fbbf24" letter-spacing="-2">with guitar.</text>
+  <text x="80" y="260" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="72" fill="#ffffff" letter-spacing="-2">Stop starting</text>
+  <text x="80" y="350" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="72" fill="#fbbf24" letter-spacing="-2">over.</text>
 
   <!-- Sub-heading -->
-  <text x="80" y="420" font-family="system-ui,-apple-system,sans-serif" font-weight="400" font-size="28" fill="rgba(255,255,255,0.55)">Structured practice. Real data. No noise.</text>
+  <text x="80" y="420" font-family="system-ui,-apple-system,sans-serif" font-weight="400" font-size="28" fill="rgba(255,255,255,0.55)">Track your practice. Follow any curriculum.</text>
 
   <!-- Feature pills -->
   <rect x="80" y="470" width="160" height="40" rx="20" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>

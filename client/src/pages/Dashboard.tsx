@@ -293,7 +293,7 @@ export default function Dashboard() {
             >
               <EmojiEventsIcon sx={{ fontSize: 36, color: 'warning.main', mb: 1 }} />
               <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                Welcome to Guitar Mastery Hub
+                Welcome to Fretwork
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Log your first practice session to start tracking your journey. Your personalized

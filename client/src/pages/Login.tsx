@@ -94,7 +94,7 @@ export default function Login() {
             sx={{ cursor: 'pointer' }}
             onClick={() => navigate('/')}
           >
-            Guitar Mastery Hub
+            Fretwork
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
             {initialView === 'sign_up' ? 'Create your free account' : 'Welcome back'}

@@ -98,7 +98,7 @@ export default function Demo() {
         }}
       >
         <Typography variant="h6" fontWeight={700} color="primary">
-          Guitar Mastery Hub
+          Fretwork
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button variant="text" size="small" onClick={() => navigate('/')}>

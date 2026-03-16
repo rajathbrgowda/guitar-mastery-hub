@@ -82,7 +82,7 @@ export default function AppLayout() {
             <Typography
               sx={{ fontSize: '0.8rem', fontWeight: 700, lineHeight: 1.2, color: 'text.primary' }}
             >
-              Guitar Mastery Hub
+              Fretwork
             </Typography>
             <Typography
               sx={{
@@ -206,7 +206,7 @@ export default function AppLayout() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
             <PlayCircleIcon sx={{ fontSize: 24, color: 'primary.main' }} />
             <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: 'text.primary' }}>
-              Guitar Mastery Hub
+              Fretwork
             </Typography>
           </Box>
           <DarkModeToggle />

@@ -1,4 +1,4 @@
-# Guitar Mastery Hub
+# Fretwork
 
 A practice tracker for self-taught guitarists. Track sessions, follow any curriculum, and see real progress over time.
 

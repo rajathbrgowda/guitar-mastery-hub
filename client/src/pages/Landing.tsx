@@ -71,7 +71,7 @@ export default function Landing() {
         }}
       >
         <Typography variant="h6" fontWeight={700} color="primary" component="span">
-          Guitar Mastery Hub
+          Fretwork
         </Typography>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
           <Button component="a" href="#who-its-for" color="inherit" size="small">
@@ -266,7 +266,7 @@ export default function Landing() {
               Built by one person.
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              © 2026 Guitar Mastery Hub
+              © 2026 Fretwork
             </Typography>
           </Box>
           <Stack
