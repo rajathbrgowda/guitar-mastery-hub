@@ -10,6 +10,7 @@ import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 import { RoomScene } from '../components/RoomScene';
+import { ROOM_SCENE_ENABLED } from '../lib/featureFlags';
 import IsThisForYou from '../components/landing/IsThisForYou';
 import TheProblem from '../components/landing/TheProblem';
 import WeekStripMockup from '../components/landing/WeekStripMockup';
@@ -247,18 +248,20 @@ export default function Landing() {
             </Box>
 
             {/* Right: room scene — desktop only */}
-            <Box
-              sx={{
-                display: { xs: 'none', md: 'block' },
-                width: '46%',
-                flexShrink: 0,
-                borderRadius: 3,
-                overflow: 'hidden',
-                opacity: 0.92,
-              }}
-            >
-              <RoomScene lampOn={lampOn} />
-            </Box>
+            {ROOM_SCENE_ENABLED && (
+              <Box
+                sx={{
+                  display: { xs: 'none', md: 'block' },
+                  width: '46%',
+                  flexShrink: 0,
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                  opacity: 0.92,
+                }}
+              >
+                <RoomScene lampOn={lampOn} />
+              </Box>
+            )}
           </Box>
         </Container>
       </Box>

@@ -30,6 +30,7 @@ import { WeekCalendar } from '../components/WeekCalendar';
 import { WeeklyDigestCard } from '../components/WeeklyDigestCard';
 import { SkillFocusRow } from '../components/SkillFocusRow';
 import { RoomScene } from '../components/RoomScene';
+import { ROOM_SCENE_ENABLED } from '../lib/featureFlags';
 import type { AnalyticsSummary } from '@gmh/shared/types/analytics';
 
 const DAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -178,18 +179,20 @@ export default function Dashboard() {
         </Box>
 
         {/* Right: room scene — desktop only */}
-        <Box
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            width: 240,
-            flexShrink: 0,
-            borderRadius: 2,
-            overflow: 'hidden',
-            opacity: 0.88,
-          }}
-        >
-          <RoomScene lampOn={lampOn} />
-        </Box>
+        {ROOM_SCENE_ENABLED && (
+          <Box
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              width: 240,
+              flexShrink: 0,
+              borderRadius: 2,
+              overflow: 'hidden',
+              opacity: 0.88,
+            }}
+          >
+            <RoomScene lampOn={lampOn} />
+          </Box>
+        )}
       </Box>
 
       <Divider sx={{ mb: 3 }} />
