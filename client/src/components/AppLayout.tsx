@@ -35,6 +35,8 @@ import { useMilestoneStore } from '../store/milestoneStore';
 import { MilestoneCelebration } from './MilestoneCelebration';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from './DarkModeToggle';
+import WaveBackground from './WaveBackground';
+import { WAVE_BACKGROUND_ENABLED } from '../lib/featureFlags';
 
 const DRAWER_WIDTH = 220;
 
@@ -209,6 +211,8 @@ export default function AppLayout() {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {WAVE_BACKGROUND_ENABLED && <WaveBackground variant="calm" />}
+
       {/* Mobile AppBar — slim: logo + dark toggle only (hamburger removed in favour of bottom nav) */}
       <AppBar position="fixed" sx={{ display: { sm: 'none' }, zIndex: (t) => t.zIndex.drawer + 1 }}>
         <Toolbar sx={{ minHeight: 52 }}>
@@ -263,10 +267,12 @@ export default function AppLayout() {
           p: { xs: 2, sm: 3 },
           pt: { xs: 9, sm: 3 },
           pb: { xs: 9, sm: 3 },
-          backgroundColor: 'background.default',
+          backgroundColor: WAVE_BACKGROUND_ENABLED ? 'transparent' : 'background.default',
           maxWidth: '100%',
           overflowX: 'hidden',
           minWidth: 0,
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Outlet />

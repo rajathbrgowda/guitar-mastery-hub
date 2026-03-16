@@ -28,6 +28,8 @@ import FAQSection from '../components/FAQSection';
 import TestimonialSection from '../components/TestimonialSection';
 import OpenDevNote from '../components/OpenDevNote';
 import CloseCTA from '../components/CloseCTA';
+import WaveBackground from '../components/WaveBackground';
+import { WAVE_BACKGROUND_ENABLED } from '../lib/featureFlags';
 
 // ── Shared fade-in animation ──────────────────────────────────────────────────
 
@@ -51,7 +53,9 @@ export default function Landing() {
   if (!loading && session) return <Navigate to="/app" replace />;
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', position: 'relative' }}>
+      {WAVE_BACKGROUND_ENABLED && <WaveBackground variant="hero" />}
+
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <Box
         component="nav"
@@ -66,7 +70,8 @@ export default function Landing() {
           borderColor: 'divider',
           position: 'sticky',
           top: 0,
-          bgcolor: 'background.default',
+          bgcolor: WAVE_BACKGROUND_ENABLED ? 'transparent' : 'background.default',
+          backdropFilter: WAVE_BACKGROUND_ENABLED ? 'blur(12px)' : undefined,
           zIndex: 10,
         }}
       >
