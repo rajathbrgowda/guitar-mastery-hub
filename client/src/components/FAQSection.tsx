@@ -48,7 +48,7 @@ export default function FAQSection() {
   return (
     <Box
       id="faq"
-      sx={{ bgcolor: 'background.paper', py: { xs: 8, sm: 12 } }}
+      sx={{ bgcolor: 'background.paper', py: { xs: 5, md: 10 } }}
       aria-labelledby="faq-heading"
     >
       <Container maxWidth="sm">
@@ -70,7 +70,7 @@ export default function FAQSection() {
           variant="h4"
           component="h2"
           fontWeight={700}
-          sx={{ mb: 4, letterSpacing: '-0.02em' }}
+          sx={{ mb: 4, letterSpacing: '-0.02em', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
         >
           Honest answers
         </Typography>

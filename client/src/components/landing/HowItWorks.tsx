@@ -27,9 +27,12 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <Box id="how-it-works" sx={{ py: { xs: 8, md: 12 } }}>
+    <Box id="how-it-works" sx={{ py: { xs: 5, md: 10 } }}>
       <Container maxWidth="lg">
-        <Typography variant="h4" sx={{ mb: 8, fontWeight: 700 }}>
+        <Typography
+          variant="h4"
+          sx={{ mb: { xs: 4, sm: 8 }, fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
+        >
           How it works.
         </Typography>
         <Grid container spacing={6}>

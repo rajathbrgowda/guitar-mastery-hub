@@ -22,9 +22,12 @@ const NOT_FOR_YOU = [
 
 export default function IsThisForYou() {
   return (
-    <Box id="who-its-for" sx={{ py: { xs: 8, md: 12 }, bgcolor: 'background.paper' }}>
+    <Box id="who-its-for" sx={{ py: { xs: 5, md: 10 }, bgcolor: 'background.paper' }}>
       <Container maxWidth="lg">
-        <Typography variant="h4" sx={{ mb: 6, fontWeight: 700 }}>
+        <Typography
+          variant="h4"
+          sx={{ mb: 6, fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
+        >
           Is this for you?
         </Typography>
         <Grid container spacing={6}>

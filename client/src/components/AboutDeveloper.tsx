@@ -12,7 +12,7 @@ export default function AboutDeveloper() {
   return (
     <Box
       id="about"
-      sx={{ bgcolor: 'background.default', py: { xs: 8, sm: 12 } }}
+      sx={{ bgcolor: 'background.default', py: { xs: 5, md: 10 } }}
       aria-labelledby="about-heading"
     >
       <Container maxWidth="sm">
@@ -34,7 +34,7 @@ export default function AboutDeveloper() {
           variant="h4"
           component="h2"
           fontWeight={700}
-          sx={{ mb: 2, letterSpacing: '-0.02em' }}
+          sx={{ mb: 2, letterSpacing: '-0.02em', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
         >
           One person. One guitar app.
         </Typography>

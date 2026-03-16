@@ -4,9 +4,17 @@ import Typography from '@mui/material/Typography';
 
 export default function TheProblem() {
   return (
-    <Box id="the-problem" sx={{ py: { xs: 8, md: 12 }, bgcolor: '#1c1917' }}>
+    <Box id="the-problem" sx={{ py: { xs: 5, md: 10 }, bgcolor: '#1c1917' }}>
       <Container maxWidth="sm">
-        <Typography variant="h4" sx={{ mb: 5, fontWeight: 700, color: 'white' }}>
+        <Typography
+          variant="h4"
+          sx={{
+            mb: 5,
+            fontWeight: 700,
+            color: 'white',
+            fontSize: { xs: '1.5rem', sm: '2.125rem' },
+          }}
+        >
           The problem.
         </Typography>
         <Typography sx={{ mb: 3, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>

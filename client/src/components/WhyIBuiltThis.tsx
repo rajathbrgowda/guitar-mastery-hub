@@ -19,7 +19,7 @@ export default function WhyIBuiltThis() {
   return (
     <Box
       id="why-i-built-this"
-      sx={{ bgcolor: 'background.paper', py: { xs: 8, sm: 12 } }}
+      sx={{ bgcolor: 'background.paper', py: { xs: 5, md: 10 } }}
       aria-labelledby="why-heading"
     >
       <Container maxWidth="sm">
@@ -41,7 +41,7 @@ export default function WhyIBuiltThis() {
           variant="h4"
           component="h2"
           fontWeight={700}
-          sx={{ mb: 3, letterSpacing: '-0.02em' }}
+          sx={{ mb: 3, letterSpacing: '-0.02em', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
         >
           {COPY.heading}
         </Typography>

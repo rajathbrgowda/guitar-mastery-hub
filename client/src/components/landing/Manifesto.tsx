@@ -15,7 +15,7 @@ export default function Manifesto() {
   return (
     <Box
       sx={{
-        py: { xs: 8, md: 12 },
+        py: { xs: 5, md: 10 },
         bgcolor: '#1c1917',
         color: 'common.white',
       }}
@@ -29,7 +29,13 @@ export default function Manifesto() {
         </Typography>
         <Typography
           variant="h4"
-          sx={{ fontWeight: 700, mb: 6, color: 'common.white', lineHeight: 1.2 }}
+          sx={{
+            fontWeight: 700,
+            mb: 6,
+            color: 'common.white',
+            lineHeight: 1.2,
+            fontSize: { xs: '1.5rem', sm: '2.125rem' },
+          }}
         >
           Five honest things.
         </Typography>
