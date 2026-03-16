@@ -28,7 +28,7 @@ export default function OpenDevNote() {
               display: 'block',
             }}
           >
-            A note from the developer
+            A quick note
           </Typography>
 
           <Typography
@@ -44,7 +44,7 @@ export default function OpenDevNote() {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
               Core features are live: session log, streak tracking, roadmap, mastery map, daily
-              practice plan. I use it every day.
+              practice plan. It gets used every day.
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
               Not everything is polished. Some flows are rough. Better mobile, export, and streak

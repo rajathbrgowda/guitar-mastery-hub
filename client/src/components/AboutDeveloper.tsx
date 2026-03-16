@@ -47,8 +47,8 @@ export default function AboutDeveloper() {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
-            Built because the gap existed. No subscriptions, no configuration. Just a place to put
-            your practice.
+            The gap was there. This fills it. No subscriptions, no configuration. Just a place to
+            put your practice.
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.75 }}>
             If something feels off, say so. There is a real person reading it.

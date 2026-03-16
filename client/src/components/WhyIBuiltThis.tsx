@@ -10,8 +10,8 @@ const COPY = {
   heading: 'You know that feeling of picking it up after three weeks?',
   paragraphs: [
     'Most apps give you lessons or a metronome. Neither one remembers what you have been working on.',
-    'The lessons are out there — JustinGuitar, Marty, wherever you learn. What was missing was a quiet record of the slow work between them. The barre chords you have done twelve times. The streak you broke on Tuesday. The progress that is real even when it does not feel like it.',
-    'So this is here. Free, quiet, no noise. A record of the days you showed up — and the ones you did not.',
+    'The lessons are out there — JustinGuitar, Marty, wherever you learn. There was nothing keeping track of the slow work between them. The barre chords you have done twelve times. The streak you broke on Tuesday. The progress that is real even when it does not feel like it.',
+    'Free, quiet, no noise. A record of the days you showed up — and the ones you did not.',
   ],
 };
 

@@ -14,7 +14,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const FAQ_ITEMS = [
   {
     q: 'Is it really free?',
-    a: 'Yes. No credit card, no trial period, no premium tier. I built this to use myself and it costs me almost nothing to run. There are no plans to charge for it.',
+    a: 'Yes. No credit card, no trial period, no premium tier. It costs almost nothing to run and there are no plans to ever charge for it.',
   },
   {
     q: 'Does it work with any guitar curriculum?',
@@ -26,7 +26,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Will my data be safe if you shut this down?',
-    a: 'Your data lives in a Supabase database. If I ever shut the app down I will give at least 30 days notice and provide a CSV export. The code is on GitHub — you could self-host it.',
+    a: 'Your data lives in a Supabase database. If the app ever shuts down, there will be at least 30 days notice and a full CSV export. The code is on GitHub — you could self-host it.',
   },
   {
     q: 'Does it work on mobile?',
