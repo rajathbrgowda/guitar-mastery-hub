@@ -457,10 +457,7 @@ export default function Settings() {
             Choose your preferred teaching style. Your progress is tracked independently per
             curriculum — switching keeps your existing progress safe.
           </Typography>
-          <CurriculumPicker
-            currentKey={profile?.selected_curriculum_key ?? 'best_of_all'}
-            onSwitch={() => fetchProfile(true)}
-          />
+          <CurriculumPicker currentKey={profile?.selected_curriculum_key ?? 'best_of_all'} />
         </CardContent>
       </Card>
 

@@ -184,12 +184,16 @@ describe('curriculumStore.switchCurriculum', () => {
     expect(useUserStore.getState().profile?.selected_curriculum_key).toBe('nitsuj_method');
   });
 
-  it('clears isSwitching flag after switch completes', async () => {
+  it('clears isSwitching flag after background fetches complete', async () => {
     mockApiPut.mockResolvedValueOnce({ data: {}, status: 200 });
     mockApiGet.mockImplementation(defaultGetMock);
 
     await useCurriculumStore.getState().switchCurriculum('nitsuj_method');
+    // Still true — background re-fetches are in flight (allows pages to show skeletons)
+    expect(useCurriculumStore.getState().isSwitching).toBe(true);
 
+    // Drain microtask queue so the background Promise.all + finally() can settle
+    await new Promise((r) => setTimeout(r, 0));
     expect(useCurriculumStore.getState().isSwitching).toBe(false);
   });
 

@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useNavigate } from 'react-router-dom';
 import { useRoadmapStore } from '../store/roadmapStore';
+import { useCurriculumStore } from '../store/curriculumStore';
 import { RoadmapPhaseCard } from '../components/RoadmapPhaseCard';
 import { PhasePreviewDrawer } from '../components/PhasePreviewDrawer';
 import { WeeklyPaceEstimate } from '../components/WeeklyPaceEstimate';
@@ -16,6 +17,7 @@ import type { RoadmapSkill } from '@gmh/shared/types/roadmap';
 
 export default function Roadmap() {
   const { data, loading, error, fetchRoadmap } = useRoadmapStore();
+  const { isSwitching } = useCurriculumStore();
   const [drawerPhase, setDrawerPhase] = useState<number | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<RoadmapSkill | null>(null);
   const navigate = useNavigate();
@@ -75,7 +77,7 @@ export default function Roadmap() {
         </Alert>
       )}
 
-      {loading ? (
+      {loading || isSwitching ? (
         [1, 2, 3].map((i) => <Skeleton key={i} variant="rounded" height={80} sx={{ mb: 2 }} />)
       ) : !data || data.phases.length === 0 ? (
         <Alert severity="info">

@@ -71,19 +71,19 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
       useAnalyticsStore.getState().reset();
       useRoadmapStore.getState().reset();
 
-      // Fetch fresh data for the new curriculum in parallel — all must complete
-      // before the switch is considered done so every page reflects the new state.
-      await Promise.all([
+      // Fire re-fetches in the background — caller resolves immediately after the
+      // API PUT so the confirmation dialog can close without waiting for all fetches.
+      // isSwitching stays true until re-fetches finish so pages can show skeletons.
+      void Promise.all([
         get().fetchCurriculumDetail(key),
         usePracticePlanStore.getState().fetchTodaysPlan(),
         useProgressStore.getState().fetchProgress(),
         useRoadmapStore.getState().fetchRoadmap(),
-        useUserStore.getState().fetchProfile(true), // force-refresh so profile.selected_curriculum_key updates
-      ]);
+        useUserStore.getState().fetchProfile(true),
+      ]).finally(() => set({ isSwitching: false }));
     } catch {
-      throw new Error('Failed to switch curriculum');
-    } finally {
       set({ isSwitching: false });
+      throw new Error('Failed to switch curriculum');
     }
   },
 

@@ -36,14 +36,17 @@ interface CurriculumPickerProps {
 }
 
 export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps) {
-  const { curricula, isLoadingList, isSwitching, listError, fetchCurricula, switchCurriculum } =
+  const { curricula, isLoadingList, listError, fetchCurricula, switchCurriculum } =
     useCurriculumStore();
   const [confirmKey, setConfirmKey] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
   const [switchError, setSwitchError] = useState<string | null>(null);
+  // Optimistic key: update card highlight immediately on confirm, before profile re-fetches
+  const [optimisticKey, setOptimisticKey] = useState<string | null>(null);
+  const effectiveKey = optimisticKey ?? currentKey;
 
-  // Keep dialog open with spinner while store is still re-fetching after switch
-  const isSettling = switching || isSwitching;
+  // Dialog spinner only while local API call is in flight; closes as soon as PUT returns
+  const isSettling = switching;
 
   useEffect(() => {
     if (curricula.length === 0) fetchCurricula();
@@ -59,11 +62,13 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
     if (!confirmKey) return;
     setSwitching(true);
     setSwitchError(null);
+    setOptimisticKey(confirmKey); // highlight new card immediately
     try {
-      await switchCurriculum(confirmKey);
+      await switchCurriculum(confirmKey); // resolves after PUT; re-fetches run in background
       onSwitch?.(confirmKey);
-      setConfirmKey(null);
+      setConfirmKey(null); // close dialog right away
     } catch {
+      setOptimisticKey(null); // revert highlight on failure
       setSwitchError('Failed to switch curriculum. Please try again.');
     } finally {
       setSwitching(false);
@@ -104,7 +109,7 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
     <>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {curricula.map((c: CurriculumSource) => {
-          const isActive = c.key === currentKey;
+          const isActive = c.key === effectiveKey;
           const styleChip = c.style ? STYLE_CHIP[c.style] : null;
 
           return (
