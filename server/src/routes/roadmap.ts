@@ -29,7 +29,7 @@ router.get('/', async (req: AuthRequest, res) => {
   // 2. Get curriculum source + name — fallback to best_of_all if inactive or missing
   let { data: curriculumSource } = await supabase
     .from('curriculum_sources')
-    .select('id, name')
+    .select('id, name, style')
     .eq('key', curriculumKey)
     .eq('is_active', true)
     .single();
@@ -37,7 +37,7 @@ router.get('/', async (req: AuthRequest, res) => {
   if (!curriculumSource && curriculumKey !== 'best_of_all') {
     const { data: fallback } = await supabase
       .from('curriculum_sources')
-      .select('id, name')
+      .select('id, name, style')
       .eq('key', 'best_of_all')
       .eq('is_active', true)
       .single();
@@ -49,13 +49,15 @@ router.get('/', async (req: AuthRequest, res) => {
     return;
   }
 
-  const curriculumName: string = (curriculumSource as { id: string; name: string }).name;
+  const currSource = curriculumSource as { id: string; name: string; style: string | null };
+  const curriculumName: string = currSource.name;
+  const curriculumStyle: string | null = currSource.style ?? null;
 
   // 3. Get all curriculum skill entries with skill details + phase_title
   const { data: entries, error } = await supabase
     .from('curriculum_skill_entries')
     .select(
-      'phase_number, phase_title, sort_order, practice_tip, video_youtube_id, skills ( id, key, title, category )',
+      'phase_number, phase_title, sort_order, practice_tip, common_mistake, practice_exercise, video_youtube_id, video_title, skills ( id, key, title, category )',
     )
     .eq('curriculum_id', curriculumSource.id)
     .order('phase_number', { ascending: true })
@@ -141,7 +143,10 @@ router.get('/', async (req: AuthRequest, res) => {
     phase_title: string;
     sort_order: number;
     practice_tip: string | null;
+    common_mistake: string | null;
+    practice_exercise: string | null;
     video_youtube_id: string | null;
+    video_title: string | null;
     skills: { id: string; key: string; title: string; category: string } | null;
   };
 
@@ -151,7 +156,10 @@ router.get('/', async (req: AuthRequest, res) => {
     skill_title: string;
     skill_category: string;
     practice_tip: string | null;
+    common_mistake: string | null;
+    practice_exercise: string | null;
     video_youtube_id: string | null;
+    video_title: string | null;
     completed: boolean;
     confidence: number | null;
     last_practiced_at: string | null;
@@ -203,7 +211,10 @@ router.get('/', async (req: AuthRequest, res) => {
       skill_title: skill.title,
       skill_category: skill.category,
       practice_tip: entry.practice_tip,
+      common_mistake: entry.common_mistake,
+      practice_exercise: entry.practice_exercise,
       video_youtube_id: entry.video_youtube_id,
+      video_title: entry.video_title,
       completed,
       confidence,
       last_practiced_at: lastPracticedMap.get(skill.title) ?? null,
@@ -257,6 +268,7 @@ router.get('/', async (req: AuthRequest, res) => {
     current_phase: currentPhase,
     curriculum_key: curriculumKey,
     curriculum_name: curriculumName,
+    curriculum_style: curriculumStyle,
     skills_per_week: skillsPerWeek,
   });
 });

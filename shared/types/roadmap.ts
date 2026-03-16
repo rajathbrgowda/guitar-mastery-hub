@@ -6,7 +6,10 @@ export interface RoadmapSkill {
   skill_title: string;
   skill_category: string;
   practice_tip: string | null;
+  common_mistake: string | null;
+  practice_exercise: string | null;
   video_youtube_id: string | null;
+  video_title: string | null;
   completed: boolean;
   confidence: ConfidenceRating | null;
   last_practiced_at: string | null;
@@ -29,5 +32,6 @@ export interface RoadmapResponse {
   current_phase: number;
   curriculum_key: string;
   curriculum_name: string;
+  curriculum_style: string | null; // 'structured' | 'song-first' | null
   skills_per_week: number | null; // 4-week lookback average; null if < 7 days of data
 }
