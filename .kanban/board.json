@@ -304,6 +304,10 @@
       "id": "mobile-ux",
       "title": "Mobile UX",
       "color": "#0891b2"
+    },
+    {
+      "id": "curriculum-switch-live",
+      "name": "Curriculum Switch: Live Reflection"
     }
   ],
   "cards": [
@@ -15278,6 +15282,83 @@
         "No horizontal scroll on desktop"
       ],
       "column": "done"
+    },
+    {
+      "id": "CARD-385",
+      "epic": "curriculum-switch-live",
+      "title": "userStore — add force?: boolean to fetchProfile to bypass cache guard",
+      "column": "done",
+      "movedAt": "2026-03-15",
+      "checklist": [
+        {
+          "text": "Add force param; guard: if (!force && get().profile) return",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "CARD-386",
+      "epic": "curriculum-switch-live",
+      "title": "curriculumStore — call fetchProgress + fetchRoadmap + fetchProfile(true) after switch",
+      "column": "done",
+      "movedAt": "2026-03-15",
+      "checklist": [
+        {
+          "text": "Add to Promise.all in switchCurriculum",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "CARD-387",
+      "epic": "curriculum-switch-live",
+      "title": "Settings.tsx — wire onSwitch to fetchProfile(true)",
+      "column": "done",
+      "movedAt": "2026-03-15",
+      "checklist": [
+        {
+          "text": "Replace dead comment with () => fetchProfile(true)",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "CARD-388",
+      "epic": "curriculum-switch-live",
+      "title": "CurriculumPicker + curriculumStore — isSwitching race condition guard",
+      "column": "done",
+      "movedAt": "2026-03-15",
+      "checklist": [
+        {
+          "text": "Add isSwitching flag to store state",
+          "done": true
+        },
+        {
+          "text": "Guard: if (get().isSwitching) return early",
+          "done": true
+        },
+        {
+          "text": "CurriculumPicker: isSettling = switching || isSwitching; block dialog/buttons",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "CARD-389",
+      "epic": "curriculum-switch-live",
+      "title": "Tests — switchCurriculum re-fetches roadmap, progress, profile; isSwitching lifecycle",
+      "column": "done",
+      "movedAt": "2026-03-15",
+      "checklist": [
+        {
+          "text": "11 tests passing in curriculumStoreSwitch.test.ts",
+          "done": true
+        },
+        {
+          "text": "Mock covers both named and default api exports",
+          "done": true
+        }
+      ]
     }
   ]
 }

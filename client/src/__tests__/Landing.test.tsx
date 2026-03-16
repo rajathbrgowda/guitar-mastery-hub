@@ -41,7 +41,7 @@ describe('Landing', () => {
 
   it('renders self-taught guitarists chip', () => {
     renderLanding();
-    expect(screen.getByText(/built for self-taught guitarists/i)).toBeInTheDocument();
+    expect(screen.getByText(/for the guitarist who keeps starting over/i)).toBeInTheDocument();
   });
 
   it('StreakCalendar not in hero', () => {
@@ -75,12 +75,14 @@ describe('Landing', () => {
 describe('Landing — WhyIBuiltThis section (CARD-308/309)', () => {
   it('renders section label', () => {
     renderLanding();
-    expect(screen.getByText(/the thinking behind it/i)).toBeInTheDocument();
+    expect(screen.getByText(/why this exists/i)).toBeInTheDocument();
   });
 
   it('renders heading focused on the learner', () => {
     renderLanding();
-    expect(screen.getByText(/for the guitarist who keeps picking it back up/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/you know that feeling of picking it up after three weeks/i),
+    ).toBeInTheDocument();
   });
 });
 
@@ -92,7 +94,7 @@ describe('Landing — AboutDeveloper section (CARD-310/311)', () => {
 
   it('renders learner-forward heading', () => {
     renderLanding();
-    expect(screen.getByText(/made for the love of the practice/i)).toBeInTheDocument();
+    expect(screen.getByText(/small, careful, free/i)).toBeInTheDocument();
   });
 
   it('renders Made with care chip', () => {
@@ -127,12 +129,12 @@ describe('Landing — TestimonialSection (CARD-315/316)', () => {
 describe('Landing — OpenDevNote (CARD-317/318)', () => {
   it('renders dev note label', () => {
     renderLanding();
-    expect(screen.getByText(/a note from the developer/i)).toBeInTheDocument();
+    expect(screen.getByText(/a quick note/i)).toBeInTheDocument();
   });
 
   it('renders where the app is right now heading', () => {
     renderLanding();
-    expect(screen.getByText(/where the app is right now/i)).toBeInTheDocument();
+    expect(screen.getByText(/early, honest, and in use/i)).toBeInTheDocument();
   });
 });
 
