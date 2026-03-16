@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { DarkModeToggle } from '../components/DarkModeToggle';
 import StreakCalendar from '../components/StreakCalendar';
 import WhyIBuiltThis from '../components/WhyIBuiltThis';
 import AboutDeveloper from '../components/AboutDeveloper';
@@ -128,6 +129,7 @@ export default function Landing() {
           <Button variant="text" size="small" color="inherit" onClick={() => navigate('/demo')}>
             Demo
           </Button>
+          <DarkModeToggle />
           <Button variant="text" color="inherit" onClick={() => navigate('/login')}>
             Log in
           </Button>

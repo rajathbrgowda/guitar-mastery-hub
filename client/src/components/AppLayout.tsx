@@ -31,6 +31,7 @@ import { useInsightsStore } from '../store/insightsStore';
 import { useMilestoneStore } from '../store/milestoneStore';
 import { MilestoneCelebration } from './MilestoneCelebration';
 import { useAuth } from '../context/AuthContext';
+import { DarkModeToggle } from './DarkModeToggle';
 
 const DRAWER_WIDTH = 220;
 
@@ -155,6 +156,9 @@ export default function AppLayout() {
             {profile?.guitar_type ?? 'acoustic'}
           </Typography>
         </Box>
+        <Box sx={{ ml: 'auto' }}>
+          <DarkModeToggle />
+        </Box>
       </Box>
       <Divider />
       <List sx={{ px: 1, py: 1 }}>
@@ -199,12 +203,13 @@ export default function AppLayout() {
               <MenuIcon />
             </IconButton>
           </Tooltip>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
             <PlayCircleIcon sx={{ fontSize: 24, color: 'primary.main' }} />
             <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: 'text.primary' }}>
               Guitar Mastery Hub
             </Typography>
           </Box>
+          <DarkModeToggle />
         </Toolbar>
       </AppBar>
 
