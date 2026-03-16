@@ -122,7 +122,7 @@ router.patch('/skill', async (req: AuthRequest, res) => {
           .from('curriculum_skill_entries')
           .select('skill_id', { count: 'exact', head: true })
           .eq('curriculum_id', curriculumSource.id)
-          .eq('phase_number', currentPhase);
+          .eq('phase_number', currentPhase + 1);
 
         // Get completed skills in this phase for this user
         const { count: completedInPhase } = await supabase
@@ -146,10 +146,11 @@ router.patch('/skill', async (req: AuthRequest, res) => {
             .limit(1)
             .single();
 
-          const maxPhase: number = maxPhaseRow?.phase_number ?? currentPhase;
+          // maxPhase is 1-based (phase_number); nextPhase is 0-based — cap at maxPhase - 1
+          const maxPhase: number = maxPhaseRow?.phase_number ?? currentPhase + 1;
           const nextPhase = currentPhase + 1;
 
-          if (nextPhase <= maxPhase) {
+          if (nextPhase < maxPhase) {
             await supabase
               .from('users')
               .update({ current_phase: nextPhase, updated_at: new Date().toISOString() })
