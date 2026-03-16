@@ -4,13 +4,14 @@ dist/
 .env.local
 .env.production
 docs/
-.kanban/board.json
 .DS_Store
 *.log
 
 # Ops brain — local only, never push (contains API tokens)
 _ops/
 
-# Local tooling config — not for version control
+# Local dev tooling — not project code, never push
+.kanban/
+_patterns/
 CLAUDE.md
 .claude/
