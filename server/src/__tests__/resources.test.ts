@@ -188,13 +188,16 @@ describe('GET /api/resources', () => {
 
 describe('PUT /api/resources/:id/completion', () => {
   it('returns 200 with { success: true } for valid body', async () => {
+    // 1st from: resources.select('id').eq('id', resourceId).single()
+    const existsChain = singleChain({ data: { id: 'res-1' }, error: null });
+
+    // 2nd from: resource_completions.upsert(...)
     const upsertChain = (() => {
       const upsert = vi.fn().mockResolvedValue({ error: null });
-      const from = { upsert };
-      return from;
+      return { upsert };
     })();
 
-    mockFrom.mockReturnValueOnce(upsertChain as never);
+    mockFrom.mockReturnValueOnce(existsChain as never).mockReturnValueOnce(upsertChain as never);
 
     const res = await request(app)
       .put('/api/resources/res-1/completion')
@@ -203,6 +206,19 @@ describe('PUT /api/resources/:id/completion', () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ success: true });
+  });
+
+  it('returns 404 for unknown resource id', async () => {
+    const existsChain = singleChain({ data: null, error: { message: 'not found' } });
+    mockFrom.mockReturnValueOnce(existsChain as never);
+
+    const res = await request(app)
+      .put('/api/resources/does-not-exist/completion')
+      .set(AUTH)
+      .send({ completion: 50 });
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
   });
 
   it('returns 400 when completion is out of range', async () => {

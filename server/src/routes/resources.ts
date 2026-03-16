@@ -96,6 +96,18 @@ router.put('/:id/completion', async (req: AuthRequest, res) => {
         ? 'completed'
         : 'in_progress');
 
+  // Verify resource exists before upserting completion
+  const { data: resource } = await supabase
+    .from('resources')
+    .select('id')
+    .eq('id', resourceId)
+    .single();
+
+  if (!resource) {
+    res.status(404).json({ error: 'Resource not found' });
+    return;
+  }
+
   const { error } = await supabase
     .from('resource_completions')
     .upsert(

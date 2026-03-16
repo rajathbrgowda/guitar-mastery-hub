@@ -181,7 +181,7 @@ router.post('/rusty-check', async (req: AuthRequest, res: Response) => {
   const cutoff = new Date(Date.now() - RUSTY_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
   // Find mastered skills whose last_practiced_at is beyond the cutoff
-  const { data: rustyRows } = await supabase
+  const { data: rustyRows, error: rustyErr } = await supabase
     .from('skill_progress')
     .select('id')
     .eq('user_id', userId)
@@ -189,6 +189,11 @@ router.post('/rusty-check', async (req: AuthRequest, res: Response) => {
     .eq('completed', true)
     .eq('mastery_state', 'mastered')
     .lt('last_practiced_at', cutoff);
+
+  if (rustyErr) {
+    res.status(500).json({ error: rustyErr.message });
+    return;
+  }
 
   const ids = (rustyRows ?? []).map((r) => r.id as string);
   let updatedCount = 0;
