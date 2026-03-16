@@ -10,7 +10,7 @@ const COPY = {
   heading: 'I was the guitarist who kept quitting.',
   paragraphs: [
     "Every app I tried was either a metronome or a £9.99 subscription wall. I just wanted to see what I'd actually practiced.",
-    'I follow JustinGuitar. Great curriculum, free, genuinely works. But there was no tracker built around it — no mastery map, no honest streak, nothing that said "you\'ve done barre chords 12 times this month."',
+    'I follow an online guitar curriculum — JustinGuitar. The lessons are free and genuinely good. But there was no simple practice tracker built for people like me — no mastery map, no honest streak, nothing that said "you\'ve done barre chords 12 times this month."',
     'So I built one. No subscription, no dark patterns. Just a tracker that tells you the truth — including when that truth is you skipped three days.',
   ],
 };
