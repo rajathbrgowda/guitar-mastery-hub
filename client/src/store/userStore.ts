@@ -5,7 +5,7 @@ import type { UserProfile } from '../types/user';
 interface UserStoreState {
   profile: UserProfile | null;
   loading: boolean;
-  fetchProfile: () => Promise<void>;
+  fetchProfile: (force?: boolean) => Promise<void>;
   updateProfile: (
     patch: Partial<Omit<UserProfile, 'id' | 'email' | 'current_phase' | 'created_at'>>,
   ) => Promise<void>;
@@ -16,9 +16,9 @@ export const useUserStore = create<UserStoreState>((set, get) => ({
   profile: null,
   loading: false,
 
-  fetchProfile: async () => {
-    // Skip if already loaded (called from multiple mount points)
-    if (get().profile) return;
+  fetchProfile: async (force = false) => {
+    // Skip if already loaded unless a force-refresh is requested
+    if (!force && get().profile) return;
     set({ loading: true });
     try {
       const { data } = await api.get<UserProfile>('/api/users/me');

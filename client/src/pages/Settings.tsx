@@ -455,9 +455,7 @@ export default function Settings() {
           </Typography>
           <CurriculumPicker
             currentKey={profile?.selected_curriculum_key ?? 'best_of_all'}
-            onSwitch={() => {
-              /* userStore will be refreshed on next profile fetch */
-            }}
+            onSwitch={() => fetchProfile(true)}
           />
         </CardContent>
       </Card>

@@ -36,11 +36,14 @@ interface CurriculumPickerProps {
 }
 
 export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps) {
-  const { curricula, isLoadingList, listError, fetchCurricula, switchCurriculum } =
+  const { curricula, isLoadingList, isSwitching, listError, fetchCurricula, switchCurriculum } =
     useCurriculumStore();
   const [confirmKey, setConfirmKey] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
   const [switchError, setSwitchError] = useState<string | null>(null);
+
+  // Keep dialog open with spinner while store is still re-fetching after switch
+  const isSettling = switching || isSwitching;
 
   useEffect(() => {
     if (curricula.length === 0) fetchCurricula();
@@ -196,7 +199,7 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
       {/* Confirmation dialog */}
       <Dialog
         open={Boolean(confirmKey)}
-        onClose={() => !switching && setConfirmKey(null)}
+        onClose={() => !isSettling && setConfirmKey(null)}
         maxWidth="xs"
         fullWidth
       >
@@ -216,16 +219,16 @@ export function CurriculumPicker({ currentKey, onSwitch }: CurriculumPickerProps
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmKey(null)} disabled={switching}>
+          <Button onClick={() => setConfirmKey(null)} disabled={isSettling}>
             Cancel
           </Button>
           <Button
             variant="contained"
             onClick={handleConfirm}
-            disabled={switching}
-            startIcon={switching ? <CircularProgress size={14} /> : null}
+            disabled={isSettling}
+            startIcon={isSettling ? <CircularProgress size={14} /> : null}
           >
-            {switching ? 'Switching…' : 'Switch curriculum'}
+            {isSettling ? 'Switching…' : 'Switch curriculum'}
           </Button>
         </DialogActions>
       </Dialog>

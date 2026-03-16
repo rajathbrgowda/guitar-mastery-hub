@@ -6,12 +6,14 @@ import { usePracticePlanStore } from './practicePlanStore';
 import { useInsightsStore } from './insightsStore';
 import { useAnalyticsStore } from './analyticsStore';
 import { useRoadmapStore } from './roadmapStore';
+import { useUserStore } from './userStore';
 
 interface CurriculumState {
   curricula: CurriculumSource[];
   activeCurriculum: CurriculumDetail | null;
   isLoadingList: boolean;
   isLoadingDetail: boolean;
+  isSwitching: boolean;
   listError: string | null;
   detailError: string | null;
 
@@ -26,6 +28,7 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
   activeCurriculum: null,
   isLoadingList: false,
   isLoadingDetail: false,
+  isSwitching: false,
   listError: null,
   detailError: null,
 
@@ -53,6 +56,8 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
   },
 
   switchCurriculum: async (key: string) => {
+    if (get().isSwitching) return;
+    set({ isSwitching: true });
     try {
       await api.put('/api/users/me/curriculum', { curriculum_key: key });
       // Clear cached detail so next fetch loads the new curriculum
@@ -66,13 +71,19 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
       useAnalyticsStore.getState().reset();
       useRoadmapStore.getState().reset();
 
-      // Fetch new curriculum detail and a fresh practice plan in parallel
+      // Fetch fresh data for the new curriculum in parallel — all must complete
+      // before the switch is considered done so every page reflects the new state.
       await Promise.all([
         get().fetchCurriculumDetail(key),
         usePracticePlanStore.getState().fetchTodaysPlan(),
+        useProgressStore.getState().fetchProgress(),
+        useRoadmapStore.getState().fetchRoadmap(),
+        useUserStore.getState().fetchProfile(true), // force-refresh so profile.selected_curriculum_key updates
       ]);
     } catch {
       throw new Error('Failed to switch curriculum');
+    } finally {
+      set({ isSwitching: false });
     }
   },
 
@@ -82,6 +93,7 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
       activeCurriculum: null,
       isLoadingList: false,
       isLoadingDetail: false,
+      isSwitching: false,
       listError: null,
       detailError: null,
     }),
