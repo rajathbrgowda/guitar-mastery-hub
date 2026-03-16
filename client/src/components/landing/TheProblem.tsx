@@ -10,8 +10,8 @@ export default function TheProblem() {
           The problem.
         </Typography>
         <Typography sx={{ mb: 3, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>
-          You open JustinGuitar after three weeks away. Lesson&apos;s right where you left it. But
-          you have no idea what you practiced, what felt solid, or what you dodged.
+          You open your lesson app after three weeks away. Lesson&apos;s right where you left it.
+          But you have no idea what you practiced, what felt solid, or what you dodged.
         </Typography>
         <Typography sx={{ mb: 3, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>
           The lesson app doesn&apos;t know either. It just holds your place.
