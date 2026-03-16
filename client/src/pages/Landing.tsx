@@ -102,7 +102,7 @@ export default function Landing() {
             {/* Left: text + CTA */}
             <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
               <Chip
-                label="Built for JustinGuitar learners"
+                label="Built for self-taught guitarists"
                 size="small"
                 variant="outlined"
                 sx={{
@@ -139,8 +139,7 @@ export default function Landing() {
                   lineHeight: 1.65,
                 }}
               >
-                A practice tracker for guitarists working through JustinGuitar Grades 1–3. Log
-                sessions, see streaks, stay honest.
+                Track your practice. Follow any curriculum. See real progress.
               </Typography>
 
               <Box
