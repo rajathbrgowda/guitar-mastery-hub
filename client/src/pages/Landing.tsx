@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 import { RoomScene } from '../components/RoomScene';
 import IsThisForYou from '../components/landing/IsThisForYou';
+import TheProblem from '../components/landing/TheProblem';
 import WeekStripMockup from '../components/landing/WeekStripMockup';
 import WhyIBuiltThis from '../components/WhyIBuiltThis';
 import AboutDeveloper from '../components/AboutDeveloper';
@@ -264,6 +265,9 @@ export default function Landing() {
 
       {/* ── IsThisForYou ─────────────────────────────────────────────────────── */}
       <IsThisForYou />
+
+      {/* ── TheProblem ───────────────────────────────────────────────────────── */}
+      <TheProblem />
 
       {/* ── Section 1: What a week looks like ───────────────────────────────── */}
       <Box
