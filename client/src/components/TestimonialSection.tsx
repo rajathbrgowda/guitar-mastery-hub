@@ -11,7 +11,7 @@ const TESTIMONIALS = [
     quote:
       'I kept telling myself I was practicing. Then I looked at the log and realised I had skipped 11 days in a row without noticing. Seeing it in black and white made me actually show up.',
     name: 'Priya S.',
-    context: '2 months in — working through Grade 1',
+    context: '2 months in',
   },
   {
     quote:
