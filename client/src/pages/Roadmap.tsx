@@ -35,7 +35,11 @@ export default function Roadmap() {
         }}
       >
         <Box>
-          <Typography variant="h4" fontWeight={700}>
+          <Typography
+            variant="h4"
+            fontWeight={700}
+            sx={{ fontSize: { xs: '1.4rem', sm: '2.125rem' } }}
+          >
             Roadmap
           </Typography>
           {data && (

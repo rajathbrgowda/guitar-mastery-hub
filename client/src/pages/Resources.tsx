@@ -30,7 +30,12 @@ export default function Resources() {
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto' }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        gutterBottom
+        sx={{ fontSize: { xs: '1.4rem', sm: '2.125rem' } }}
+      >
         Resources
       </Typography>
 

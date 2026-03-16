@@ -98,7 +98,12 @@ export default function Analytics() {
         background: `radial-gradient(ellipse at top left, ${alpha(theme.palette.primary.main, 0.04)}, transparent 60%)`,
       }}
     >
-      <Typography variant="h4" fontWeight={700} gutterBottom>
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        gutterBottom
+        sx={{ fontSize: { xs: '1.4rem', sm: '2.125rem' } }}
+      >
         Analytics
       </Typography>
 
