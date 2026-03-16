@@ -263,10 +263,9 @@ export default function AppLayout() {
           p: { xs: 2, sm: 3 },
           pt: { xs: 9, sm: 3 },
           pb: { xs: 9, sm: 3 },
-          minHeight: '100vh',
           backgroundColor: 'background.default',
           maxWidth: '100%',
-          overflow: 'auto',
+          overflowX: 'hidden',
           minWidth: 0,
         }}
       >
