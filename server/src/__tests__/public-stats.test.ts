@@ -48,7 +48,7 @@ describe('GET /api/public/stats', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('total_users');
     expect(res.body).toHaveProperty('total_sessions');
-    expect(res.body).toHaveProperty('total_minutes');
+    expect(res.body).toHaveProperty('total_practice_minutes');
   });
 
   it('returns zero stats when tables are empty', async () => {
@@ -58,7 +58,7 @@ describe('GET /api/public/stats', () => {
     expect(res.status).toBe(200);
     expect(res.body.total_users).toBe(0);
     expect(res.body.total_sessions).toBe(0);
-    expect(res.body.total_minutes).toBe(0);
+    expect(res.body.total_practice_minutes).toBe(0);
   });
 
   it('handles null duration_min gracefully', async () => {
@@ -66,7 +66,7 @@ describe('GET /api/public/stats', () => {
 
     const res = await request(app).get('/api/public/stats');
     expect(res.status).toBe(200);
-    expect(res.body.total_minutes).toBe(25);
+    expect(res.body.total_practice_minutes).toBe(25);
   });
 
   it('does not require Authorization header', async () => {
