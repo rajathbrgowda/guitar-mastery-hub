@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRoadmapStore } from '../store/roadmapStore';
 import { useCurriculumStore } from '../store/curriculumStore';
 import { useProgressStore } from '../store/progressStore';
+import { useAuth } from '../context/AuthContext';
 import { RoadmapPhaseCard } from '../components/RoadmapPhaseCard';
 import { PhasePreviewDrawer } from '../components/PhasePreviewDrawer';
 import { WeeklyPaceEstimate } from '../components/WeeklyPaceEstimate';
@@ -21,6 +22,7 @@ export default function Roadmap() {
   const { data, loading, error, fetchRoadmap } = useRoadmapStore();
   const { isSwitching } = useCurriculumStore();
   const { phaseJustCompleted, clearPhaseCompleted } = useProgressStore();
+  const { user } = useAuth();
   const [drawerPhase, setDrawerPhase] = useState<number | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<RoadmapSkill | null>(null);
   const navigate = useNavigate();
@@ -160,6 +162,8 @@ export default function Roadmap() {
           open={Boolean(completedPhase)}
           phase={completedPhase}
           nextPhase={nextPhase}
+          curriculumName={data?.curriculum_name ?? ''}
+          userId={user?.id}
           onClose={clearPhaseCompleted}
           onSongClick={setSelectedSkill}
         />

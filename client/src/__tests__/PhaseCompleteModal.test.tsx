@@ -1,8 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { PhaseCompleteModal } from '../components/PhaseCompleteModal';
 import type { RoadmapPhase, RoadmapSkill } from '@gmh/shared/types/roadmap';
+
+// Mock MilestoneCard utility
+vi.mock('../components/MilestoneCard', () => ({
+  shareOrDownloadMilestoneCard: vi.fn().mockResolvedValue(undefined),
+}));
 
 const theme = createTheme();
 
@@ -20,6 +25,8 @@ function makeSkill(overrides: Partial<RoadmapSkill> = {}): RoadmapSkill {
     completed: false,
     confidence: null,
     last_practiced_at: null,
+    is_song: false,
+    song_artist: null,
     ...overrides,
   };
 }
@@ -44,6 +51,7 @@ function renderModal(props: Partial<Parameters<typeof PhaseCompleteModal>[0]> = 
     open: true,
     phase: makePhase(),
     nextPhase: null,
+    curriculumName: 'Best of All',
     onClose: vi.fn(),
   };
   return render(
@@ -52,6 +60,10 @@ function renderModal(props: Partial<Parameters<typeof PhaseCompleteModal>[0]> = 
     </ThemeProvider>,
   );
 }
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe('PhaseCompleteModal', () => {
   it('renders phase title and skill count', () => {
@@ -149,5 +161,32 @@ describe('PhaseCompleteModal', () => {
     const phase = makePhase({ completed_at: '2026-03-10T12:00:00Z' });
     renderModal({ phase });
     expect(screen.getByText(/finished mar 10/i)).toBeInTheDocument();
+  });
+
+  it('renders Share achievement button', () => {
+    renderModal();
+    expect(screen.getByRole('button', { name: /share achievement/i })).toBeInTheDocument();
+  });
+
+  it('share button calls shareOrDownloadMilestoneCard on click', async () => {
+    const { shareOrDownloadMilestoneCard } = await import('../components/MilestoneCard');
+    renderModal({ phase: makePhase({ phase_title: 'Foundations', completed_skills: 5 }) });
+    fireEvent.click(screen.getByRole('button', { name: /share achievement/i }));
+    await waitFor(() => {
+      expect(shareOrDownloadMilestoneCard).toHaveBeenCalledWith(
+        expect.objectContaining({ headline: 'Foundations Complete', stat: '5' }),
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+      );
+    });
+  });
+
+  it('shows copy-link icon when userId is provided', () => {
+    renderModal({ userId: 'user-abc' });
+    // The copy link icon button should be visible
+    const buttons = screen.getAllByRole('button');
+    // At minimum we have: Continue/Close + Share + Copy = multiple buttons
+    expect(buttons.length).toBeGreaterThanOrEqual(3);
   });
 });

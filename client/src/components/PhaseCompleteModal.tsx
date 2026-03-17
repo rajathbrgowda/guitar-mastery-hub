@@ -1,14 +1,21 @@
+import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { keyframes } from '@mui/material/styles';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import LinkIcon from '@mui/icons-material/Link';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import ShareIcon from '@mui/icons-material/Share';
 import type { RoadmapPhase, RoadmapSkill } from '@gmh/shared/types/roadmap';
+import { shareOrDownloadMilestoneCard } from './MilestoneCard';
 
 const fadeScale = keyframes`
   from { opacity: 0; transform: scale(0.92); }
@@ -19,6 +26,8 @@ interface PhaseCompleteModalProps {
   open: boolean;
   phase: RoadmapPhase;
   nextPhase: RoadmapPhase | null;
+  curriculumName: string;
+  userId?: string;
   onClose: () => void;
   onSongClick?: (skill: RoadmapSkill) => void;
 }
@@ -27,9 +36,14 @@ export function PhaseCompleteModal({
   open,
   phase,
   nextPhase,
+  curriculumName,
+  userId,
   onClose,
   onSongClick,
 }: PhaseCompleteModalProps) {
+  const [shareLoading, setShareLoading] = useState(false);
+  const [copyTooltip, setCopyTooltip] = useState('Copy link');
+
   const songSkills = phase.skills.filter((s) => s.is_song);
   const visibleSongs = songSkills.slice(0, 4);
   const extraSongs = songSkills.length - 4;
@@ -37,6 +51,43 @@ export function PhaseCompleteModal({
   const completedLabel = phase.completed_at
     ? new Date(phase.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : null;
+
+  const handleShare = useCallback(async () => {
+    setShareLoading(true);
+    try {
+      await shareOrDownloadMilestoneCard(
+        {
+          headline: `${phase.phase_title} Complete`,
+          detail: curriculumName,
+          stat: String(phase.completed_skills),
+          statLabel: 'skills mastered',
+          completedAt: phase.completed_at ?? undefined,
+        },
+        `I completed ${phase.phase_title} on Guitar Mastery Hub!`,
+        `Just mastered ${phase.completed_skills} guitar skills. Check it out!`,
+        `milestone-${phase.phase_title.toLowerCase().replace(/\s+/g, '-')}.png`,
+      );
+    } catch (err) {
+      // AbortError = user cancelled share dialog — ignore silently
+      if (!(err instanceof Error && err.name === 'AbortError')) {
+        // other errors: nothing to surface
+      }
+    } finally {
+      setShareLoading(false);
+    }
+  }, [phase, curriculumName]);
+
+  const handleCopyLink = useCallback(async () => {
+    if (!userId) return;
+    const url = `${window.location.origin}/share/${userId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopyTooltip('Copied!');
+      setTimeout(() => setCopyTooltip('Copy link'), 2000);
+    } catch {
+      // clipboard not available
+    }
+  }, [userId]);
 
   return (
     <Dialog
@@ -69,7 +120,7 @@ export function PhaseCompleteModal({
           </Typography>
         </Box>
 
-        {/* ── Songs unlocked (CARD-443) ───────────────────────── */}
+        {/* ── Songs unlocked ──────────────────────────────────── */}
         <Box sx={{ mb: 3 }}>
           <Typography
             variant="caption"
@@ -125,7 +176,7 @@ export function PhaseCompleteModal({
 
         <Divider sx={{ mb: 3 }} />
 
-        {/* ── What's next (CARD-444) ─────────────────────────── */}
+        {/* ── What's next ─────────────────────────────────────── */}
         {nextPhase ? (
           <Box sx={{ mb: 3 }}>
             <Typography
@@ -194,6 +245,45 @@ export function PhaseCompleteModal({
             <Button variant="contained" fullWidth onClick={onClose}>
               Back to Roadmap
             </Button>
+          )}
+        </Box>
+
+        {/* ── Share row ─────────────────────────────────────── */}
+        <Box
+          sx={{
+            mt: 2,
+            pt: 2,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+          }}
+        >
+          <Button
+            variant="text"
+            size="small"
+            startIcon={
+              shareLoading ? (
+                <CircularProgress size={14} color="inherit" />
+              ) : (
+                <ShareIcon sx={{ fontSize: 16 }} />
+              )
+            }
+            onClick={handleShare}
+            disabled={shareLoading}
+            sx={{ fontSize: '0.75rem', textTransform: 'none' }}
+          >
+            {shareLoading ? 'Generating…' : 'Share achievement'}
+          </Button>
+
+          {userId && (
+            <Tooltip title={copyTooltip} placement="top">
+              <IconButton size="small" onClick={handleCopyLink} sx={{ color: 'text.secondary' }}>
+                <LinkIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Tooltip>
           )}
         </Box>
       </DialogContent>

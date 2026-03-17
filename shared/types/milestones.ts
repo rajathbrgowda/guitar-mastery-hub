@@ -12,3 +12,12 @@ export interface MilestonesResponse {
   earned_count: number;
   total_count: number;
 }
+
+/** Returned by GET /api/public/milestones/:userId/latest — no PII */
+export interface PublicMilestoneResponse {
+  phase_number: number;
+  phase_title: string;
+  curriculum_name: string;
+  skills_count: number;
+  completed_at: string | null;
+}
