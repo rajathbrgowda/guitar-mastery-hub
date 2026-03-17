@@ -22,6 +22,7 @@ import Settings from './pages/Settings';
 import ActivePracticeMode from './pages/ActivePracticeMode';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import SharePage from './pages/SharePage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading: authLoading } = useAuth();
@@ -91,6 +92,7 @@ export const router = createBrowserRouter([
   { path: '/auth/callback', element: <AuthCallback /> },
   { path: '/privacy', element: <Privacy /> },
   { path: '/terms', element: <Terms /> },
+  { path: '/share/:userId', element: <SharePage /> },
 
   // Onboarding (authenticated but not yet onboarded)
   {
