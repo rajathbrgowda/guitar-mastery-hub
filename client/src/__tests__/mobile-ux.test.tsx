@@ -174,6 +174,14 @@ describe('Dashboard stat tiles — xs:6 Grid layout (CARD-383)', () => {
         streak: 3,
         currentPhase: 1,
         last7: [],
+        weakSpots: [],
+        totalHours7d: 2,
+        totalHours30d: 8,
+        totalHoursAllTime: 20,
+        totalSessionsAllTime: 8,
+        avgSessionMin30d: 15,
+        graceAvailable: true,
+        graceUsed: false,
       },
     });
   });
@@ -199,7 +207,7 @@ describe('Dashboard stat tiles — xs:6 Grid layout (CARD-383)', () => {
 
   it('renders correct stat values from API response', async () => {
     renderDashboard();
-    await waitFor(() => expect(screen.getByText('3d')).toBeInTheDocument()); // streak
+    await waitFor(() => expect(screen.getAllByText('3d').length).toBeGreaterThanOrEqual(1)); // streak badge + stat tile
     expect(screen.getByText('8')).toBeInTheDocument(); // sessions
     // weekMins = last7.reduce(sum) = 0 → "0 min"
     expect(screen.getByText('0 min')).toBeInTheDocument();

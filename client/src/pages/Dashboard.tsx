@@ -18,6 +18,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useAuth } from '../context/AuthContext';
 import { useUserStore } from '../store/userStore';
 import { useProgressStore } from '../store/progressStore';
@@ -53,6 +54,12 @@ function streakMessage(streak: number): { text: string; emoji: string } {
   return { text: `${streak} day streak. You're unstoppable.`, emoji: '🏆' };
 }
 
+function formatHours(hours: number): string {
+  if (hours === 0) return '0';
+  if (hours < 1) return `${Math.round(hours * 60)}m`;
+  return `${hours}h`;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -81,7 +88,6 @@ export default function Dashboard() {
       .finally(() => setSummaryLoading(false));
   }, [fetchProgress]);
 
-  // Derived values
   const todayStr = new Date().toISOString().split('T')[0];
   const todayMins = summary?.last7?.find((d) => d.date === todayStr)?.duration_min ?? 0;
   const todayPct = Math.min(100, Math.round((todayMins / (dailyGoal || 20)) * 100));
@@ -89,16 +95,13 @@ export default function Dashboard() {
   const streak = summary?.streak ?? 0;
   const { text: streakText, emoji: streakEmoji } = streakMessage(streak);
 
-  // Phase completion %
   const PHASE_SKILL_COUNTS = [11, 9, 10, 9, 8];
   const phaseTotal = PHASE_SKILL_COUNTS[storePhase] ?? 0;
   const phaseCompleted = skills.filter((s) => s.phase_index === storePhase && s.completed).length;
   const phasePct = phaseTotal > 0 ? Math.round((phaseCompleted / phaseTotal) * 100) : 0;
 
-  // Stat tiles
   const weekMins = summary?.last7?.reduce((s, d) => s + d.duration_min, 0) ?? 0;
 
-  // Chart data
   const chartData = [...(summary?.last7 ?? [])]
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((d) => ({
@@ -110,9 +113,46 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ maxWidth: 960, mx: 'auto' }}>
-      {/* ─── ZONE 1: Greeting ─────────────────────────────────────── */}
+      {/* ─── TODAY'S PLAN — HERO POSITION ───────────────────────── */}
+      <Card sx={{ mb: 2.5, borderLeft: '3px solid', borderLeftColor: 'primary.main' }}>
+        <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+          <TodaysPractice />
+        </CardContent>
+      </Card>
+
+      {todaysPlan && (todaysPlan.status === 'pending' || todaysPlan.status === 'in_progress') && (
+        <Button
+          variant="contained"
+          size="large"
+          fullWidth
+          startIcon={<PlayArrowIcon />}
+          onClick={() => navigate('/app/practice/session')}
+          sx={{ mb: 3 }}
+        >
+          {todaysPlan.status === 'in_progress' ? 'Resume Practice' : 'Start Practice'}
+        </Button>
+      )}
+
+      {isFirstTime && !noplan && (
+        <Paper
+          variant="outlined"
+          sx={{ p: 2.5, mb: 3, borderRadius: 2, borderStyle: 'dashed', textAlign: 'center' }}
+        >
+          <EmojiEventsIcon sx={{ fontSize: 36, color: 'warning.main', mb: 1 }} />
+          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+            Welcome to Fretwork
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Log your first practice session to start tracking your journey.
+          </Typography>
+          <Button variant="contained" size="small" href="/app/practice">
+            Log first session
+          </Button>
+        </Paper>
+      )}
+
+      {/* ─── GREETING + STREAK ──────────────────────────────────── */}
       <Box sx={{ mb: 3, display: 'flex', alignItems: 'flex-start', gap: 3 }}>
-        {/* Left: greeting + goal progress */}
         <Box sx={{ flex: 1 }}>
           <Box
             sx={{
@@ -136,19 +176,27 @@ export default function Dashboard() {
               </Typography>
             </Box>
 
-            {/* Streak badge */}
             {!summaryLoading && streak > 0 && (
-              <Chip
-                icon={<LocalFireDepartmentIcon sx={{ fontSize: '1rem !important' }} />}
-                label={`${streak} day streak`}
-                color={streak >= 7 ? 'error' : 'warning'}
-                variant="filled"
-                sx={{ fontWeight: 700, fontSize: '0.75rem', height: 32 }}
-              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <Chip
+                  icon={<LocalFireDepartmentIcon sx={{ fontSize: '1rem !important' }} />}
+                  label={`${streak}d`}
+                  color={streak >= 7 ? 'error' : 'warning'}
+                  variant="filled"
+                  sx={{ fontWeight: 700, fontSize: '0.75rem', height: 32 }}
+                />
+                {summary?.graceAvailable && (
+                  <Chip
+                    label="grace day available"
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.6rem', height: 20, color: 'text.disabled' }}
+                  />
+                )}
+              </Box>
             )}
           </Box>
 
-          {/* Today's goal progress */}
           {!summaryLoading && (
             <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ flex: 1 }}>
@@ -182,7 +230,6 @@ export default function Dashboard() {
           {summaryLoading && <Skeleton variant="rounded" height={36} sx={{ mt: 2 }} />}
         </Box>
 
-        {/* Right: room scene — desktop only */}
         {ROOM_SCENE_ENABLED && (
           <Box
             sx={{
@@ -199,9 +246,31 @@ export default function Dashboard() {
         )}
       </Box>
 
+      {/* ─── Total practice hours ───────────────────────────────── */}
+      {!summaryLoading && summary && summary.totalHoursAllTime > 0 && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 2.5, px: 1 }}>
+          <AccessTimeIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+          <Typography variant="caption" color="text.secondary">
+            This week: <strong>{formatHours(summary.totalHours7d)}</strong>
+          </Typography>
+          <Typography variant="caption" color="text.disabled">
+            ·
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            This month: <strong>{formatHours(summary.totalHours30d)}</strong>
+          </Typography>
+          <Typography variant="caption" color="text.disabled">
+            ·
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            All time: <strong>{formatHours(summary.totalHoursAllTime)}</strong>
+          </Typography>
+        </Box>
+      )}
+
       <Divider sx={{ mb: 3 }} />
 
-      {/* ─── Stat tiles row ──────────────────────────────────────────── */}
+      {/* ─── Stat tiles ──────────────────────────────────────────── */}
       <Grid container spacing={1.5} sx={{ mb: 3 }}>
         {[
           { label: 'Streak', value: summaryLoading ? null : `${streak}d` },
@@ -210,13 +279,7 @@ export default function Dashboard() {
           { label: 'Phase', value: summaryLoading ? null : `${storePhase + 1} / 5` },
         ].map((tile) => (
           <Grid key={tile.label} size={{ xs: 6, sm: 3 }}>
-            <Card
-              sx={{
-                height: '100%',
-                borderTop: '2px solid',
-                borderTopColor: 'primary.main',
-              }}
-            >
+            <Card sx={{ height: '100%', borderTop: '2px solid', borderTopColor: 'primary.main' }}>
               <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Typography
                   variant="caption"
@@ -245,65 +308,17 @@ export default function Dashboard() {
         ))}
       </Grid>
 
-      {/* ─── Weekly digest (conditional) ────────────────────────────── */}
       {insights?.weeklyDigest && (
         <WeeklyDigestCard digest={insights.weeklyDigest} daysTarget={daysTarget} />
       )}
 
-      {/* ─── Skill focus row (conditional) ──────────────────────────── */}
       {insights && (insights.weakSkills.length > 0 || insights.strongSkills.length > 0) && (
         <SkillFocusRow weakSkills={insights.weakSkills} strongSkills={insights.strongSkills} />
       )}
 
-      {/* ─── ZONE 2 + 3: Two-column layout ──────────────────────────── */}
+      {/* ─── Progress + Stats ───────────────────────────────────── */}
       <Grid container spacing={3} alignItems="flex-start">
-        {/* LEFT: Today's Practice (Zone 2) */}
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card sx={{ p: 0 }}>
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <TodaysPractice />
-            </CardContent>
-          </Card>
-
-          {/* Start Practice CTA — shown when plan is ready and not yet completed/skipped */}
-          {todaysPlan &&
-            (todaysPlan.status === 'pending' || todaysPlan.status === 'in_progress') && (
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                startIcon={<PlayArrowIcon />}
-                onClick={() => navigate('/app/practice/session')}
-                sx={{ mt: 1.5 }}
-              >
-                {todaysPlan.status === 'in_progress' ? 'Resume Practice' : 'Start Practice'}
-              </Button>
-            )}
-
-          {/* First-time user CTA — hidden when noplan panel already communicates the same state */}
-          {isFirstTime && !noplan && (
-            <Paper
-              variant="outlined"
-              sx={{ p: 2.5, mt: 2, borderRadius: 2, borderStyle: 'dashed', textAlign: 'center' }}
-            >
-              <EmojiEventsIcon sx={{ fontSize: 36, color: 'warning.main', mb: 1 }} />
-              <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                Welcome to Fretwork
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Log your first practice session to start tracking your journey. Your personalized
-                practice plan will appear here once you've logged a session.
-              </Typography>
-              <Button variant="contained" size="small" href="/app/practice">
-                Log first session
-              </Button>
-            </Paper>
-          )}
-        </Grid>
-
-        {/* RIGHT: Progress + Stats (Zone 3) */}
-        <Grid size={{ xs: 12, md: 5 }}>
-          {/* Phase map */}
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ mb: 2 }}>
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
               <Box
@@ -340,21 +355,9 @@ export default function Dashboard() {
                   storePhase === 4 ? phasePct : 0,
                 ]}
               />
-              {storePhase > 0 && (
-                <Box sx={{ mt: 0.75, display: 'flex', justifyContent: 'center' }}>
-                  <Chip
-                    label={`${storePhase} ${storePhase === 1 ? 'phase' : 'phases'} complete`}
-                    size="small"
-                    color="success"
-                    variant="outlined"
-                    sx={{ fontSize: '0.6rem', height: 18 }}
-                  />
-                </Box>
-              )}
             </CardContent>
           </Card>
 
-          {/* Week calendar */}
           <Card sx={{ mb: 2 }}>
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
               {summaryLoading ? (
@@ -364,8 +367,9 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+        </Grid>
 
-          {/* 7-day bar chart */}
+        <Grid size={{ xs: 12, md: 6 }}>
           {!summaryLoading && chartData.some((d) => d.mins > 0) && (
             <Card sx={{ mb: 2 }}>
               <CardContent sx={{ p: 2, pb: '8px !important' }}>
@@ -420,7 +424,6 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {/* Weak spots */}
           {!summaryLoading && (summary?.weakSpots?.length ?? 0) > 0 && (
             <Card>
               <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
@@ -466,7 +469,6 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {/* Summary error */}
           {summaryError && (
             <Paper variant="outlined" sx={{ p: 1.5, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">
