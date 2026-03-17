@@ -107,6 +107,38 @@ export function RoadmapPhaseCard({
                   CURRENT
                 </Typography>
               )}
+              {phase.phase_number === 4 && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: 'warning.main',
+                    color: 'warning.contrastText',
+                    px: 0.75,
+                    py: 0.25,
+                    borderRadius: 1,
+                    fontSize: '0.6rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  INTERMEDIATE
+                </Typography>
+              )}
+              {phase.phase_number >= 5 && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: 'error.main',
+                    color: 'error.contrastText',
+                    px: 0.75,
+                    py: 0.25,
+                    borderRadius: 1,
+                    fontSize: '0.6rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  ADVANCED
+                </Typography>
+              )}
             </Box>
 
             {/* Phase title */}
