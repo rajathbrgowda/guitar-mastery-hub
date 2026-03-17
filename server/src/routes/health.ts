@@ -3,9 +3,41 @@ import { supabase } from '../lib/supabase';
 
 const router = Router();
 
+// --- Warm-up gate ---
+// Server starts accepting connections immediately but /api/health returns 503
+// until Supabase is confirmed reachable. This ensures keep-alive pings and
+// load-balancer health checks only get 200 when the server is truly ready.
+let supabaseReady = false;
+const bootedAt = new Date().toISOString();
+
+export function isReady(): boolean {
+  return supabaseReady;
+}
+
+/** Call once on startup — resolves when Supabase responds to a lightweight query. */
+export async function warmUp(): Promise<number> {
+  const start = Date.now();
+  const { error } = await supabase.from('resources').select('id').limit(1);
+  if (error) {
+    console.error(`[startup] Supabase warm-up query failed: ${error.message}`);
+  }
+  supabaseReady = true;
+  const elapsed = Date.now() - start;
+  console.warn(`[startup] Supabase warm-up complete in ${elapsed}ms`);
+  return elapsed;
+}
+
 // GET /api/health — basic liveness (used by Render keep-alive ping)
 router.get('/', (_req, res) => {
-  res.json({ status: 'ok' });
+  if (!supabaseReady) {
+    res.status(503).json({ status: 'warming', booted_at: bootedAt });
+    return;
+  }
+  res.json({
+    status: 'ok',
+    uptime_s: Math.round(process.uptime()),
+    booted_at: bootedAt,
+  });
 });
 
 // Required tables per migration — used by /api/health/db and startup guard
