@@ -10,7 +10,16 @@ app.listen(PORT, () => {
   // Eagerly warm the Supabase connection so the first real request is fast.
   // Until warmUp() resolves, GET /api/health returns 503 { status: 'warming' }.
   warmUp()
-    .then(() => checkRequiredTables())
+    .then((warmupMs) => {
+      console.warn(
+        JSON.stringify({
+          event: 'cold_start',
+          timestamp: new Date().toISOString(),
+          warmup_ms: warmupMs,
+        }),
+      );
+      return checkRequiredTables();
+    })
     .catch((err: unknown) => {
       console.error('[startup] Warm-up / migration check failed:', err);
     });
