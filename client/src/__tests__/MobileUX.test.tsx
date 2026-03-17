@@ -31,6 +31,7 @@ const { mockGet } = vi.hoisted(() => ({ mockGet: vi.fn() }));
 vi.mock('../services/api', () => ({
   default: { get: mockGet },
   api: { get: mockGet },
+  onBackendStatus: vi.fn(),
 }));
 
 vi.mock('../context/AuthContext', () => ({

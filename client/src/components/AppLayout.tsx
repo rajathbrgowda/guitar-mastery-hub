@@ -36,6 +36,7 @@ import { MilestoneCelebration } from './MilestoneCelebration';
 import { useAuth } from '../context/AuthContext';
 import { DarkModeToggle } from './DarkModeToggle';
 import WaveBackground from './WaveBackground';
+import BackendWarmingBanner from './BackendWarmingBanner';
 import { WAVE_BACKGROUND_ENABLED } from '../lib/featureFlags';
 
 const DRAWER_WIDTH = 220;
@@ -316,6 +317,7 @@ export default function AppLayout() {
         </BottomNavigation>
       </Paper>
 
+      <BackendWarmingBanner />
       <MilestoneCelebration />
     </Box>
   );

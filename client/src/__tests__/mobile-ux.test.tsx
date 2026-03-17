@@ -85,6 +85,7 @@ const { mockGet } = vi.hoisted(() => ({ mockGet: vi.fn() }));
 vi.mock('../services/api', () => ({
   default: { get: mockGet },
   api: { get: mockGet },
+  onBackendStatus: vi.fn(),
 }));
 
 global.fetch = vi.fn().mockResolvedValue({ ok: false }) as typeof fetch;
