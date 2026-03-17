@@ -8,6 +8,10 @@ export interface CurriculumSource {
   website_url: string | null;
   is_default: boolean;
   sort_order: number;
+  /** Number of phases in this curriculum (populated by list endpoint) */
+  phase_count?: number;
+  /** Total number of skills across all phases (populated by list endpoint) */
+  skill_count?: number;
 }
 
 export interface Skill {

@@ -165,6 +165,21 @@ export function CurriculumPicker({ currentKey, onSwitch, compact = false }: Curr
                     </Box>
                   </Box>
 
+                  {!compact && (c.phase_count || c.skill_count) && (
+                    <Typography
+                      variant="caption"
+                      color="text.disabled"
+                      sx={{ display: 'block', mt: 0.25, fontSize: '0.65rem' }}
+                    >
+                      {[
+                        c.phase_count ? `${c.phase_count} phases` : null,
+                        c.skill_count ? `${c.skill_count} skills` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </Typography>
+                  )}
+
                   {!compact && c.description && (
                     <Typography
                       variant="caption"

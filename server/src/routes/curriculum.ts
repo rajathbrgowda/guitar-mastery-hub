@@ -15,7 +15,7 @@ const router = Router();
 // All curriculum routes require authentication (no PII exposed, but keeps API consistent)
 router.use(requireAuth);
 
-// GET /api/curriculum — list all active curricula
+// GET /api/curriculum — list all active curricula with phase + skill counts
 router.get('/', async (_req: AuthRequest, res: Response) => {
   const { data, error } = await supabase
     .from('curriculum_sources')
@@ -28,7 +28,41 @@ router.get('/', async (_req: AuthRequest, res: Response) => {
     return;
   }
 
-  res.json(data as CurriculumSource[]);
+  // Fetch phase + skill counts for all curricula in one query
+  const { data: entries } = await supabase
+    .from('curriculum_skill_entries')
+    .select('curriculum_id, phase_number');
+
+  // Compute counts per curriculum
+  const countMap = new Map<string, { phase_count: number; skill_count: number }>();
+  for (const entry of entries ?? []) {
+    const id = entry.curriculum_id as string;
+    if (!countMap.has(id)) countMap.set(id, { phase_count: 0, skill_count: 0 });
+    const c = countMap.get(id)!;
+    c.skill_count++;
+  }
+  // Phase count = distinct phase_number per curriculum
+  const phaseSetMap = new Map<string, Set<number>>();
+  for (const entry of entries ?? []) {
+    const id = entry.curriculum_id as string;
+    if (!phaseSetMap.has(id)) phaseSetMap.set(id, new Set());
+    phaseSetMap.get(id)!.add(entry.phase_number as number);
+  }
+  for (const [id, phases] of phaseSetMap) {
+    const c = countMap.get(id);
+    if (c) c.phase_count = phases.size;
+  }
+
+  const result: CurriculumSource[] = (data ?? []).map((row) => {
+    const counts = countMap.get(row.id as string);
+    return {
+      ...(row as CurriculumSource),
+      phase_count: counts?.phase_count ?? 0,
+      skill_count: counts?.skill_count ?? 0,
+    };
+  });
+
+  res.json(result);
 });
 
 // GET /api/curriculum/:key — full curriculum with all phases + skills
