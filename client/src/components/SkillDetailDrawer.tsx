@@ -4,6 +4,8 @@ import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -15,6 +17,7 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { useTheme } from '@mui/material/styles';
 import { api } from '../services/api';
 import { useRoadmapStore } from '../store/roadmapStore';
+import { RecordingTab } from './RecordingTab';
 import type { RoadmapSkill } from '@gmh/shared/types/roadmap';
 
 interface SkillDetailDrawerProps {
@@ -33,6 +36,7 @@ export function SkillDetailDrawer({ skill, onClose }: SkillDetailDrawerProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [ratingError, setRatingError] = useState('');
+  const [tab, setTab] = useState(0);
   const { updateSkillConfidence } = useRoadmapStore();
 
   if (!skill) {
@@ -109,116 +113,126 @@ export function SkillDetailDrawer({ skill, onClose }: SkillDetailDrawerProps) {
         </IconButton>
       </Box>
 
+      <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth" sx={{ minHeight: 36 }}>
+        <Tab label="Learn" sx={{ minHeight: 36, fontSize: '0.75rem', textTransform: 'none' }} />
+        <Tab label="Record" sx={{ minHeight: 36, fontSize: '0.75rem', textTransform: 'none' }} />
+      </Tabs>
       <Divider />
 
-      <Box sx={{ px: 2.5, py: 2, overflowY: 'auto' }}>
-        {/* Video */}
-        {skill.video_youtube_id ? (
-          <Box sx={{ mb: 2.5 }}>
+      {tab === 1 ? (
+        <Box sx={{ px: 2.5, py: 2, overflowY: 'auto' }}>
+          <RecordingTab skillKey={skill.skill_key} />
+        </Box>
+      ) : (
+        <Box sx={{ px: 2.5, py: 2, overflowY: 'auto' }}>
+          {/* Video */}
+          {skill.video_youtube_id ? (
+            <Box sx={{ mb: 2.5 }}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  paddingTop: '56.25%',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  bgcolor: 'action.hover',
+                }}
+              >
+                <iframe
+                  src={`https://www.youtube.com/embed/${skill.video_youtube_id}?rel=0`}
+                  title={skill.video_title ?? skill.skill_title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                  }}
+                />
+              </Box>
+              {skill.video_title && (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 0.5, display: 'block' }}
+                >
+                  {skill.video_title}
+                </Typography>
+              )}
+            </Box>
+          ) : (
             <Box
               sx={{
-                position: 'relative',
-                paddingTop: '56.25%',
-                borderRadius: 2,
-                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                py: 2,
+                px: 2,
                 bgcolor: 'action.hover',
+                borderRadius: 2,
+                mb: 2.5,
               }}
             >
-              <iframe
-                src={`https://www.youtube.com/embed/${skill.video_youtube_id}?rel=0`}
-                title={skill.video_title ?? skill.skill_title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                }}
-              />
-            </Box>
-            {skill.video_title && (
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mt: 0.5, display: 'block' }}
-              >
-                {skill.video_title}
+              <OndemandVideoIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
+              <Typography variant="body2" color="text.disabled">
+                No video for this skill yet
               </Typography>
-            )}
-          </Box>
-        ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              py: 2,
-              px: 2,
-              bgcolor: 'action.hover',
-              borderRadius: 2,
-              mb: 2.5,
-            }}
-          >
-            <OndemandVideoIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
-            <Typography variant="body2" color="text.disabled">
-              No video for this skill yet
-            </Typography>
-          </Box>
-        )}
+            </Box>
+          )}
 
-        {/* Content sections */}
-        {hasContent && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2.5 }}>
-            {skill.practice_tip && (
-              <ContentSection
-                icon={<LightbulbIcon sx={{ fontSize: 16, color: 'primary.main' }} />}
-                title="Practice tip"
-                text={skill.practice_tip}
-              />
-            )}
-            {skill.common_mistake && (
-              <ContentSection
-                icon={<WarningAmberIcon sx={{ fontSize: 16, color: 'warning.main' }} />}
-                title="Common mistake"
-                text={skill.common_mistake}
-              />
-            )}
-            {skill.practice_exercise && (
-              <ContentSection
-                icon={<FitnessCenterIcon sx={{ fontSize: 16, color: 'success.main' }} />}
-                title="Today's exercise"
-                text={skill.practice_exercise}
-              />
-            )}
-          </Box>
-        )}
+          {/* Content sections */}
+          {hasContent && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2.5 }}>
+              {skill.practice_tip && (
+                <ContentSection
+                  icon={<LightbulbIcon sx={{ fontSize: 16, color: 'primary.main' }} />}
+                  title="Practice tip"
+                  text={skill.practice_tip}
+                />
+              )}
+              {skill.common_mistake && (
+                <ContentSection
+                  icon={<WarningAmberIcon sx={{ fontSize: 16, color: 'warning.main' }} />}
+                  title="Common mistake"
+                  text={skill.common_mistake}
+                />
+              )}
+              {skill.practice_exercise && (
+                <ContentSection
+                  icon={<FitnessCenterIcon sx={{ fontSize: 16, color: 'success.main' }} />}
+                  title="Today's exercise"
+                  text={skill.practice_exercise}
+                />
+              )}
+            </Box>
+          )}
 
-        {/* Confidence rating */}
-        <Divider sx={{ mb: 2 }} />
-        <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-          How does this skill feel?
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {CONFIDENCE_OPTIONS.map((opt) => (
-            <Chip
-              key={opt.value}
-              label={opt.label}
-              color={skill.confidence === opt.value ? opt.color : 'default'}
-              variant={skill.confidence === opt.value ? 'filled' : 'outlined'}
-              onClick={() => handleConfidence(opt.value)}
-              sx={{ cursor: 'pointer', flex: 1 }}
-            />
-          ))}
+          {/* Confidence rating */}
+          <Divider sx={{ mb: 2 }} />
+          <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+            How does this skill feel?
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {CONFIDENCE_OPTIONS.map((opt) => (
+              <Chip
+                key={opt.value}
+                label={opt.label}
+                color={skill.confidence === opt.value ? opt.color : 'default'}
+                variant={skill.confidence === opt.value ? 'filled' : 'outlined'}
+                onClick={() => handleConfidence(opt.value)}
+                sx={{ cursor: 'pointer', flex: 1 }}
+              />
+            ))}
+          </Box>
+          {ratingError && (
+            <Alert severity="error" sx={{ mt: 1 }}>
+              {ratingError}
+            </Alert>
+          )}
         </Box>
-        {ratingError && (
-          <Alert severity="error" sx={{ mt: 1 }}>
-            {ratingError}
-          </Alert>
-        )}
-      </Box>
+      )}
     </Drawer>
   );
 }
