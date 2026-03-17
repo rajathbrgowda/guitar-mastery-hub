@@ -17,6 +17,7 @@ import roadmapRouter from './routes/roadmap';
 import masteryRouter from './routes/mastery';
 import toolsRouter from './routes/tools';
 import publicStatsRouter from './routes/public-stats';
+import bpmRouter from './routes/bpm';
 import { errorHandler } from './middleware/error';
 
 const app = express();
@@ -35,7 +36,8 @@ app.use('/api/progress', progressRouter);
 app.use('/api/practice/plan', practicePlanRouter);
 app.use('/api/practice', practiceRouter);
 app.use('/api/resources', resourcesRouter);
-app.use('/api/analytics', analyticsRouter); // includes /api/analytics/insights
+app.use('/api/analytics', analyticsRouter); // includes /api/analytics/insights + /confidence-trends
+app.use('/api/analytics/bpm', bpmRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/curriculum', curriculumRouter);
 app.use('/api/milestones', milestonesRouter);

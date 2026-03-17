@@ -736,4 +736,72 @@ router.get('/insights/cards', async (req: AuthRequest, res) => {
   res.json({ cards });
 });
 
+// GET /api/analytics/confidence-trends — confidence ratings per skill over last 30 days
+router.get('/confidence-trends', async (req: AuthRequest, res) => {
+  const userId = req.user!.id;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  // Get plan items with confidence ratings in last 30 days
+  const { data: plans } = await supabase
+    .from('daily_practice_plans')
+    .select('id, plan_date')
+    .eq('user_id', userId)
+    .gte('plan_date', thirtyDaysAgo);
+
+  const planIds = (plans ?? []).map((p: { id: string }) => p.id);
+  const planDateMap = new Map<string, string>();
+  for (const p of plans ?? []) {
+    planDateMap.set(
+      (p as { id: string; plan_date: string }).id,
+      (p as { id: string; plan_date: string }).plan_date,
+    );
+  }
+
+  if (planIds.length === 0) {
+    res.json({ skills: [] });
+    return;
+  }
+
+  const { data: items } = await supabase
+    .from('daily_practice_plan_items')
+    .select('skill_id, skill_title, confidence_rating, plan_id')
+    .in('plan_id', planIds)
+    .not('confidence_rating', 'is', null);
+
+  // Group by skill_id
+  type ItemRow = {
+    skill_id: string;
+    skill_title: string;
+    confidence_rating: number;
+    plan_id: string;
+  };
+  const skillMap = new Map<
+    string,
+    { skill_title: string; ratings: { date: string; confidence: number }[] }
+  >();
+
+  for (const item of (items ?? []) as unknown as ItemRow[]) {
+    if (!item.skill_id) continue;
+    const date = planDateMap.get(item.plan_id) ?? '';
+    const existing = skillMap.get(item.skill_id) ?? { skill_title: item.skill_title, ratings: [] };
+    existing.ratings.push({ date, confidence: item.confidence_rating });
+    skillMap.set(item.skill_id, existing);
+  }
+
+  // Filter to skills with >= 2 data points, cap at 20
+  const skills: Array<{
+    skill_key: string;
+    skill_title: string;
+    ratings: { date: string; confidence: number }[];
+  }> = [];
+  for (const [skillId, data] of skillMap) {
+    if (data.ratings.length < 2) continue;
+    data.ratings.sort((a, b) => a.date.localeCompare(b.date));
+    skills.push({ skill_key: skillId, skill_title: data.skill_title, ratings: data.ratings });
+    if (skills.length >= 20) break;
+  }
+
+  res.json({ skills });
+});
+
 export default router;
