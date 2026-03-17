@@ -98,7 +98,9 @@ router.get('/summary', async (req: AuthRequest, res) => {
       .order('date', { ascending: false }),
     supabase
       .from('users')
-      .select('current_phase, timezone, selected_curriculum_key')
+      .select(
+        'current_phase, timezone, selected_curriculum_key, streak_grace_week_used, streak_grace_week_start',
+      )
       .eq('id', userId)
       .single(),
     supabase
@@ -120,13 +122,40 @@ router.get('/summary', async (req: AuthRequest, res) => {
 
   const totalMins = sessions.reduce((sum, s) => sum + s.duration_min, 0);
   const totalSessions = sessions.length;
-  const streak = calcStreak(
+
+  // Grace day: check if grace is available this week
+  const graceWeekUsed: number = (userRes.data?.streak_grace_week_used as number) ?? 0;
+  const graceWeekStart: string | null = (userRes.data?.streak_grace_week_start as string) ?? null;
+  const todayLocal = todayInTz(timezone);
+  const todayDate = new Date(todayLocal + 'T12:00:00Z');
+  const dayOfWeek = todayDate.getUTCDay(); // 0=Sun, 1=Mon...
+  // Reset grace on Monday (day 1) — if stored week start is before this Monday
+  const lastMonday = offsetDate(todayLocal, -(dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  const graceResetNeeded = !graceWeekStart || graceWeekStart < lastMonday;
+  const effectiveGraceUsed = graceResetNeeded ? 0 : graceWeekUsed;
+  const graceAvailable = effectiveGraceUsed < 1;
+  const graceUsed = effectiveGraceUsed > 0;
+
+  const streak = calcStreakWithGrace(
     sessions.map((s) => s.date),
     timezone,
+    graceAvailable,
   );
 
+  // Total hours by window
+  const thirtyDaysAgoStr = offsetDate(todayLocal, -30);
+  const sevenDaysAgoStr = offsetDate(todayLocal, -7);
+  const mins7d = sessions
+    .filter((s) => s.date >= sevenDaysAgoStr)
+    .reduce((sum, s) => sum + s.duration_min, 0);
+  const sessions30d = sessions.filter((s) => s.date >= thirtyDaysAgoStr);
+  const mins30d = sessions30d.reduce((sum, s) => sum + s.duration_min, 0);
+  const totalHours7d = Math.round((mins7d / 60) * 10) / 10;
+  const totalHours30d = Math.round((mins30d / 60) * 10) / 10;
+  const totalHoursAllTime = Math.round((totalMins / 60) * 10) / 10;
+  const avgSessionMin30d = sessions30d.length > 0 ? Math.round(mins30d / sessions30d.length) : 0;
+
   // Last 7 days activity for mini chart
-  const todayLocal = todayInTz(timezone);
   const last7: { date: string; duration_min: number }[] = [];
   for (let i = 6; i >= 0; i--) {
     const dateStr = offsetDate(todayLocal, -i);
@@ -189,7 +218,21 @@ router.get('/summary', async (req: AuthRequest, res) => {
       .slice(0, 5);
   }
 
-  res.json({ totalMins, totalSessions, streak, currentPhase, last7, weakSpots });
+  res.json({
+    totalMins,
+    totalSessions,
+    streak,
+    currentPhase,
+    last7,
+    weakSpots,
+    totalHours7d,
+    totalHours30d,
+    totalHoursAllTime,
+    totalSessionsAllTime: totalSessions,
+    avgSessionMin30d,
+    graceAvailable,
+    graceUsed,
+  });
 });
 
 // ---- helpers ----
@@ -203,24 +246,57 @@ function todayInTz(timezone: string): string {
 }
 
 function calcStreak(dates: string[], timezone = 'UTC'): number {
+  return calcStreakWithGrace(dates, timezone, false);
+}
+
+function calcStreakWithGrace(dates: string[], timezone = 'UTC', graceAvailable = false): number {
   if (!dates.length) return 0;
 
   const unique = [...new Set(dates)].sort().reverse(); // newest first
   const today = todayInTz(timezone);
   const yesterday = offsetDate(today, -1);
+  const twoDaysAgo = offsetDate(today, -2);
 
   // Streak only counts if practiced today or yesterday
-  if (unique[0] !== today && unique[0] !== yesterday) return 0;
+  // With grace: also allow 2 days ago (grace covers the missed day)
+  if (unique[0] !== today && unique[0] !== yesterday) {
+    if (graceAvailable && unique[0] === twoDaysAgo) {
+      // Grace covers the gap — streak starts from 2 days ago
+    } else {
+      return 0;
+    }
+  }
 
   let streak = 1;
+  let graceUsedInCalc = false;
   for (let i = 1; i < unique.length; i++) {
     const expected = offsetDate(unique[i - 1], -1);
     if (unique[i] === expected) {
       streak++;
+    } else if (!graceUsedInCalc && graceAvailable) {
+      // Allow one gap (grace day) — check if the day before the gap matches
+      const expectedAfterGrace = offsetDate(unique[i - 1], -2);
+      if (unique[i] === expectedAfterGrace) {
+        streak += 2; // count the grace day + the resumed day
+        graceUsedInCalc = true;
+      } else {
+        break;
+      }
     } else {
       break;
     }
   }
+
+  // Also handle the anchor gap: if practiced 2 days ago with grace
+  if (
+    graceAvailable &&
+    unique[0] !== today &&
+    unique[0] !== yesterday &&
+    unique[0] === twoDaysAgo
+  ) {
+    streak++; // grace covers today/yesterday gap
+  }
+
   return streak;
 }
 
