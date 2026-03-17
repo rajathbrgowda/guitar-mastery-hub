@@ -19,6 +19,8 @@ export interface UserProfile {
   theme_mode: ThemeMode;
   selected_curriculum_key: string;
   onboarding_completed: boolean;
+  streak_grace_week_used: number;
+  streak_grace_week_start: string | null;
   created_at: string;
 }
 

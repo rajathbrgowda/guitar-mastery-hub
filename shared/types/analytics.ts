@@ -17,6 +17,14 @@ export interface AnalyticsSummary {
   currentPhase: number;
   last7: AnalyticsDay[];
   weakSpots: WeakSpot[];
+  // Retention loop fields
+  totalHours7d: number;
+  totalHours30d: number;
+  totalHoursAllTime: number;
+  totalSessionsAllTime: number;
+  avgSessionMin30d: number;
+  graceAvailable: boolean;
+  graceUsed: boolean;
 }
 
 export interface AnalyticsHistoryEntry {
