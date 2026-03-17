@@ -10,6 +10,8 @@ import { useLocalThemeMode } from './hooks/useLocalThemeMode';
 import { router } from './router';
 import ErrorBoundary from './components/ErrorBoundary';
 import { preflightHealthCheck } from './store/backendStatusStore';
+import { OfflineBanner } from './components/OfflineBanner';
+import { InstallPrompt } from './components/InstallPrompt';
 
 function ThemedApp() {
   const { user } = useAuth();
@@ -37,7 +39,9 @@ function ThemedApp() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <OfflineBanner />
       <RouterProvider router={router} />
+      <InstallPrompt />
     </ThemeProvider>
   );
 }

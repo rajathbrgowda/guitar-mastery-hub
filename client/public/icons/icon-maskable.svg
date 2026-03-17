@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Maskable: full bleed bg, safe area inset 10% -->
+  <rect width="512" height="512" fill="#ea580c"/>
+  <circle cx="256" cy="256" r="128" fill="white"/>
+  <polygon points="222,192 320,256 222,320" fill="#ea580c"/>
+</svg>
