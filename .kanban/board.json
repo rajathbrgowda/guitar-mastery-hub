@@ -18053,7 +18053,7 @@
       "description": "BPM (beats per minute) tracking is the only objective self-reported progress measure for technique skills. A guitarist who was doing pentatonic runs at 80 BPM 3 months ago and is now at 115 BPM has undeniable proof of improvement. Create: bpm_logs(id uuid PK, user_id uuid FK auth.users, skill_key text, bpm integer NOT NULL, logged_at timestamptz DEFAULT now()). RLS: user_id = auth.uid(). Index on (user_id, skill_key, logged_at).",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "db",
@@ -18098,7 +18098,7 @@
       "description": "Idempotent migration for bpm_logs table. Standard workflow: write → apply → verify → tracker.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "migration",
@@ -18143,7 +18143,7 @@
       "description": "Endpoint to log a BPM reading for a specific skill. Body: { skill_key: string, bpm: number }. Zod validation: skill_key matches ^[a-z0-9_]+ pattern, bpm is integer 1–399. Returns: { id, skill_key, bpm, logged_at }. Auth required. Inserts into bpm_logs.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "backend",
@@ -18192,7 +18192,7 @@
       "description": "Returns BPM log history for a given skill_key query param. Returns last 50 entries ordered by logged_at ASC (for charting trend). Response: { skill_key, logs: [{id, bpm, logged_at}], min_bpm, max_bpm, latest_bpm }.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "backend",
@@ -18241,7 +18241,7 @@
       "description": "Returns confidence rating history per skill for the authenticated user, covering the last 30 days. Source: skill_progress.confidence and/or practice_plan_items.confidence_rating (whichever is available). Response: { skills: [{ skill_key, skill_title, ratings: [{confidence, rated_at}] }] } for all skills that have any rating in the window. Used by the Analytics confidence trend chart.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "backend",
@@ -18290,7 +18290,7 @@
       "description": "After completing a technique skill in active practice mode, offer an optional BPM input. 'How fast were you playing? (BPM)' — a small numeric field that appears below the confidence rating. Must be clearly optional (skip link visible). Do not block the flow. If user enters BPM, POST /api/analytics/bpm. If skipped, nothing logged. Only show for technique-category skills (not chord or song skills where BPM is less relevant).",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -18343,7 +18343,7 @@
       "description": "New chart section in Analytics: 'Confidence Over Time'. Line chart showing confidence rating (1/2/3) per skill over the last 30 days. Each skill is a separate line. Legend shows skill names. Axis: Y = confidence 1–3 (labelled 'Needs work' / 'Okay' / 'Solid'), X = date. If fewer than 2 skills have data, show empty state: 'Practice more skills to see trends here'. Use Recharts (already a project dep or add it). Keep chart height reasonable on mobile (200px on xs).",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -18400,7 +18400,7 @@
       "description": "New chart in Analytics: 'Speed Progress'. Show BPM over time for technique skills. Each skill is a line. Y axis: BPM value. X axis: date. Skill selector dropdown if more than 3 skills have BPM logs (avoid chart spaghetti). If no BPM data exists, show empty state: 'Log your BPM after technique practice to track speed gains'. This is a differentiating feature — no mainstream guitar app shows this.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -18453,7 +18453,7 @@
       "description": "Show a breakdown of practice time by skill category: Chords / Technique / Songs / Theory. Source: practice_plan_items.skill_category (or join with skills table). Render as a horizontal bar or simple donut chart. Surfaces whether the user is over-indexing on one category (e.g. all chords, no technique). Actionable: if 0% technique in last 30d, show a gentle suggestion in the caption.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -18502,7 +18502,7 @@
       "description": "Replace or augment the Analytics page header with a prominent total hours display. 'This week: 3.5h  This month: 12h  All time: 47h' — in a single clean header row. This is the first thing users should see when they open Analytics. Values from GET /api/analytics/summary (CARD-437). Large enough to feel significant but not noisy — use a clean 3-column stat layout.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -18547,7 +18547,7 @@
       "description": "Server-side tests for the new analytics endpoints.",
       "epic": "analytics-v3",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "testing",
@@ -18600,7 +18600,7 @@
       "description": "Dashboard is the most-visited page. It must feel calm and prioritized, not like a dashboard packed with widgets. Audit and fix: section-to-section vertical spacing (target 24px between logical sections, 16px within), card internal padding (20px internal, not 16 which is tight), stat widget density. Primary action (Today's Plan) must have visual breathing room above and below it. Secondary content (stats, insights) should feel quieter — lighter weight text, smaller font. 8px grid: all px values should be multiples of 4 at minimum, 8 preferred.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -18650,7 +18650,7 @@
       "description": "Phase cards expand to show all skills. When 5+ skills are shown, the card can feel dense. Audit: skill row height (min 48px for comfortable reading), card-to-card spacing (24px), phase header clarity (phase name should be the clear primary text, completion % secondary). Expand/collapse animation should not cause layout shift. On mobile, skill rows should not wrap unexpectedly.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -18700,7 +18700,7 @@
       "description": "Active practice mode is the most used feature and must work perfectly on mobile. Audit at 375px width (iPhone SE — smallest common viewport): Timer display readable and centered, skill title not truncated, confidence rating buttons 44px minimum tap target with sufficient spacing, skip/done buttons not overlapping, no content clipped by browser bottom bar. Audit at 390px (iPhone 15) and 430px (iPhone 15 Pro Max) as secondary checks.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "critical",
       "labels": [
         "frontend",
@@ -18754,7 +18754,7 @@
       "description": "Charts are cognitively demanding. They need more breathing room than regular content. Audit: section title + subtitle spacing before each chart (24px gap), chart container internal padding (16px on all sides), legend readability on mobile (font size >= 11px, not truncated), axis label legibility on 375px width (reduce tick count on small viewports).",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -18804,7 +18804,7 @@
       "description": "Skill tree nodes on mobile can be tiny and hard to tap. Audit at 375px: node minimum size 40x40px, label font size >= 11px, inter-node spacing sufficient to not feel claustrophobic, horizontal scrolling if needed (better than shrinking nodes below usability threshold).",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -18850,7 +18850,7 @@
       "description": "Resources and Tools pages use MUI Grid with cards. Audit: card inner padding (16px minimum), section header spacing (24px below header, 16px above), mobile grid (cards should be full-width on xs, 2-col on sm). Mark Complete and Toggle buttons: 44px touch target minimum.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "low",
       "labels": [
         "frontend",
@@ -18896,7 +18896,7 @@
       "description": "Ad-hoc typography overrides (random fontWeight, sx={{ fontSize: '0.65rem' }} etc) create visual inconsistency and make the app feel patchwork. Establish and enforce the hierarchy: h4 → page title, h5/subtitle1 → section title, body1 → primary content, body2 → secondary content, caption → metadata. Audit every page and replace ad-hoc fontSize/fontWeight with correct MUI variant. Result: the app reads as a single design system, not assembled from parts.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -18953,7 +18953,7 @@
       "description": "Empty states are frequently the first screen a new user sees. They must be helpful, not blank. Audit every component and page for zero-data conditions: no practice sessions, no skills completed, no resources in filter, no tools saved, analytics with no data, roadmap with no curriculum. Each empty state: short human message, relevant CTA, no illustration required (text + icon is fine). No 'No data found.' — every message should guide the user to take action.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -19006,7 +19006,7 @@
       "description": "Inconsistent loading states break perceived quality. Rule: Skeletons for page-level content loads (replaces layout). CircularProgress for button actions (inside the button). LinearProgress for background syncing (top of screen, non-blocking). Audit every loading state and enforce this rule. Skeleton height must match the actual content height (prevents layout shift on load).",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -19051,7 +19051,7 @@
       "description": "On iOS Safari, the browser toolbar (address bar + bottom bar) consumes ~100px of viewport. The app's bottom navigation tab bar adds another ~56px. Content at the bottom of the screen is easily clipped. Audit every page's scroll behavior: ensure the last item on each page has paddingBottom >= 80px to clear the nav bar. Specifically at risk: Practice session form submit button, Settings save button, Active Practice Mode exit.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -19101,7 +19101,7 @@
       "description": "Overuse of colored chips makes pages feel noisy. Every chip competes for attention. Audit: where chips carry metadata that is not the primary information, replace with muted text or outlined chip. Keep colored chips only for: active/selected state, important status (completed, error). Specifically audit: Roadmap phase completion chips, Curriculum style chips, Practice plan status chips, skill category chips.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -19146,7 +19146,7 @@
       "description": "Cards with variant='outlined' and cards with elevation={X} are mixed throughout the app. This creates visual inconsistency. Decide on one approach and enforce it. Recommended: variant='outlined' for all content cards (cleaner, works in both dark/light). Elevated cards only for: modals, drawers, floating panels. Audit all Card usages and normalize.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "low",
       "labels": [
         "frontend",
@@ -19191,7 +19191,7 @@
       "description": "Keyboard navigation and visible focus states are baseline accessibility. Audit: every interactive element has a visible focus ring (not just browser default), all modals trap focus correctly, Escape closes all modals and drawers, form fields are navigable in logical tab order. This affects desktop and external keyboard users on mobile.",
       "epic": "ux-breathing-room",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "low",
       "labels": [
         "frontend",
@@ -19241,7 +19241,7 @@
       "description": "The intermediate plateau (6-18 months) is the second biggest dropout zone and virtually unaddressed by every competing app. Before writing migrations, audit existing Phase 4-5 content for all 3 curricula: count entries per phase, identify thin phases (< 8 skills), list skills that should be there based on standard guitar pedagogy (CAGED system, minor pentatonic positions 2-5, vibrato, legato, chord extensions, ii-V-I progressions, blues soloing, fingerstyle Travis picking patterns, common intermediate songs). Output: a gap-fill list ready for migration authoring.",
       "epic": "intermediate-depth",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "research",
@@ -19286,7 +19286,7 @@
       "description": "Expand JustinGuitar curriculum Phase 4 and 5 to 10+ skills each. Phase 4 targets: CAGED system, chord extensions (7th, maj7, min7), fingerpicking patterns, intermediate song repertoire (Hotel California intro, Wish You Were Here). Phase 5 targets: minor pentatonic positions 2-5, legato technique, vibrato, blues soloing context, advanced rhythm patterns, modes introduction. All entries with Justin-style practice tips and video IDs where available.",
       "epic": "intermediate-depth",
       "story": "",
-      "column": "backlog",
+      "column": "in_progress",
       "priority": "high",
       "labels": [
         "migration",
@@ -19331,7 +19331,7 @@
       "description": "Expand Marty Music and Best of All Phase 4-5 similarly. Marty targets: song-first approach — intermediate songs like Wish You Were Here, Comfortably Numb solo intro, fingerstyle arrangement. Best of All targets: synthesized across both styles — CAGED + song vocabulary + pentatonic lead + vibrato. Both curricula should reach 10+ skills in Phase 4 and 5.",
       "epic": "intermediate-depth",
       "story": "",
-      "column": "backlog",
+      "column": "in_progress",
       "priority": "high",
       "labels": [
         "migration",
@@ -19372,7 +19372,7 @@
       "description": "Many Phase 3-5 skills currently have NULL video_youtube_id. Research and verify YouTube IDs for intermediate skills across all curricula. Priority: JustinGuitar-specific skills (Justin's own YouTube channel), Marty Music skills (Marty's YouTube channel), technique skills (vibrato, bending, legato — find high-quality tutorials). Only use verified 11-char IDs (test that the video exists and is publicly accessible).",
       "epic": "intermediate-depth",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "research",
@@ -19417,7 +19417,7 @@
       "description": "Backfill verified video IDs from CARD-482 research into curriculum_skill_entries. UPDATE WHERE video_youtube_id IS NULL AND curriculum_id = X AND skill_id = Y. Idempotent. Apply and verify.",
       "epic": "intermediate-depth",
       "story": "",
-      "column": "backlog",
+      "column": "in_progress",
       "priority": "medium",
       "labels": [
         "migration",
@@ -19458,7 +19458,7 @@
       "description": "Phase 4 and above represent intermediate-to-advanced content. Show a subtle level badge ('Intermediate' or 'Advanced') on these phase cards so users understand the difficulty jump. This sets expectations and validates progress ('I'm now in intermediate territory — that's real!') rather than leaving all phases looking identical. Phase 1-2: no badge. Phase 3: optional 'Building' badge. Phase 4: 'Intermediate'. Phase 5: 'Advanced'.",
       "epic": "intermediate-depth",
       "story": "",
-      "column": "backlog",
+      "column": "in_progress",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -19507,7 +19507,7 @@
       "description": "When the CurriculumPicker is shown in non-compact mode (e.g. a future curriculum detail page), show phase count and total skill count per curriculum. This helps users choose: 'JustinGuitar has 5 phases and 50 skills' vs 'Best of All has 5 phases and 47 skills'. Small detail but reduces uncertainty when switching. Data comes from the existing /api/curriculum/:key endpoint.",
       "epic": "intermediate-depth",
       "story": "",
-      "column": "backlog",
+      "column": "in_progress",
       "priority": "low",
       "labels": [
         "frontend",
@@ -19552,7 +19552,7 @@
       "description": "Create a private Supabase Storage bucket named 'skill-recordings'. Policy: only the bucket owner (user_id) can read/write their own recordings. File size limit: 20MB per file (sufficient for a 60-second mobile audio/video clip). MIME types: audio/*, video/*, to support both audio-only and video recording. This is the only infrastructure prerequisite for the self-recording feature.",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "devops",
@@ -19601,7 +19601,7 @@
       "description": "skill_recordings(id uuid PK DEFAULT gen_random_uuid(), user_id uuid FK auth.users NOT NULL, skill_key text NOT NULL, curriculum_key text NOT NULL, storage_path text NOT NULL, duration_sec integer, notes text, recorded_at timestamptz DEFAULT now()). RLS: all operations WHERE user_id = auth.uid(). Index on (user_id, skill_key, recorded_at DESC). Max 10 recordings per user per skill (enforced at application layer).",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "db",
@@ -19646,7 +19646,7 @@
       "description": "Idempotent migration for skill_recordings table and Storage bucket policy.",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "migration",
@@ -19691,7 +19691,7 @@
       "description": "Endpoint returns a presigned Supabase Storage upload URL. Client uploads directly to Storage (not through the Express server — avoids large payload transit). Body: { duration_sec: number, notes: string | null, content_type: string }. Creates a skill_recordings DB row with storage_path (before upload completes) and returns { recording_id, upload_url } to the client. Client uploads file to upload_url, then calls PATCH /api/skills/:key/recordings/:id to confirm.",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "backend",
@@ -19744,7 +19744,7 @@
       "description": "Returns a list of recordings for the authenticated user's given skill. Ordered by recorded_at DESC, limit 10. Each recording includes a short-lived signed URL for playback (Supabase Storage createSignedUrl). Response: [{ id, skill_key, duration_sec, notes, recorded_at, signed_url }].",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "backend",
@@ -19789,7 +19789,7 @@
       "description": "Deletes a recording by ID. Verifies ownership (recording.user_id = auth.uid()). Deletes from both skill_recordings table and Supabase Storage. Returns 204 No Content on success.",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "backend",
@@ -19838,7 +19838,7 @@
       "description": "Add a 'Record' tab to SkillDetailDrawer alongside the existing content. Tab content: a large 'Record yourself playing this' button (uses MediaRecorder API), OR a file upload for existing recordings. Below the record button: list of past recordings (newest first) each showing date, duration, and notes. Each recording: play button (audio/video), delete button. Before/after comparison: if 2+ recordings exist, 'Compare' button opens comparison view (CARD-493).",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "frontend",
@@ -19899,7 +19899,7 @@
       "description": "When user clicks 'Compare' in the Record tab, show a comparison view with the two most-separated recordings (oldest and newest) side by side. Each side: date label, duration, play button. Simple audio player with play/pause. No need for a video player unless recording is video. The side-by-side layout collapses to stacked on mobile (xs).",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -19948,7 +19948,7 @@
       "description": "Server tests for all recording endpoints.",
       "epic": "self-recording",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "high",
       "labels": [
         "testing",
@@ -20005,7 +20005,7 @@
       "description": "Generate a shareable milestone card as a downloadable PNG. Content: 'I just completed Phase N on Guitar Mastery Hub', curriculum name, skills mastered count, days practiced, and a subtle guitar icon or waveform. Use HTML Canvas or html2canvas to render. Design: clean, dark background, primary color accent, white text. Size: 1200x630 (OG image standard for sharing on Twitter/Instagram). No user's name or email visible on the card (privacy).",
       "epic": "milestone-sharing",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -20015,27 +20015,27 @@
       "checklist": [
         {
           "text": "MilestoneCard.tsx: renders hidden canvas element from phase data",
-          "done": false
+          "done": true
         },
         {
           "text": "Props: phase_number, phase_title, skills_count, days_practiced, curriculum_name",
-          "done": false
+          "done": true
         },
         {
           "text": "Canvas: 1200x630, dark bg (#0f172a), primary color accent line, white text",
-          "done": false
+          "done": true
         },
         {
           "text": "Use html2canvas or direct Canvas API for generation",
-          "done": false
+          "done": true
         },
         {
           "text": "Export as PNG (toDataURL → download link)",
-          "done": false
+          "done": true
         },
         {
           "text": "Preview of card before download",
-          "done": false
+          "done": true
         }
       ],
       "executionPlan": "Frontend: MilestoneCard.tsx. html2canvas or Canvas API.",
@@ -20055,7 +20055,7 @@
       "description": "Add a 'Share your achievement' button to PhaseCompleteModal. On click: generates the MilestoneCard PNG. Uses Web Share API (navigator.share) if available (iOS Safari, Android Chrome). Falls back to download-PNG button if Web Share not available (desktop browsers). Copy link button as a secondary action.",
       "epic": "milestone-sharing",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -20064,27 +20064,27 @@
       "checklist": [
         {
           "text": "Share button in PhaseCompleteModal footer",
-          "done": false
+          "done": true
         },
         {
           "text": "On click: call MilestoneCard to generate PNG blob",
-          "done": false
+          "done": true
         },
         {
           "text": "navigator.share available → use it with title, text, files=[png]",
-          "done": false
+          "done": true
         },
         {
           "text": "Fallback: download link with PNG",
-          "done": false
+          "done": true
         },
         {
           "text": "Copy link fallback: copies a URL to the public milestone page (CARD-498)",
-          "done": false
+          "done": true
         },
         {
           "text": "Loading state while PNG generates (300-500ms)",
-          "done": false
+          "done": true
         }
       ],
       "executionPlan": "Frontend: PhaseCompleteModal.tsx + MilestoneCard integration.",
@@ -20104,7 +20104,7 @@
       "description": "Public endpoint (no auth required) returning the most recently completed phase for a user. Used by the public share page (CARD-498). Response: { user_display_name, curriculum_name, phase_number, phase_title, skills_count, completed_at }. Do not expose email or any PII. Cache: 60 second response cache (not real-time, prevents scraping).",
       "epic": "milestone-sharing",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "backend",
@@ -20113,31 +20113,31 @@
       "checklist": [
         {
           "text": "Route: GET /api/milestones/:userId/latest (no auth middleware)",
-          "done": false
+          "done": true
         },
         {
           "text": "Query: latest completed phase from skill_progress for userId",
-          "done": false
+          "done": true
         },
         {
           "text": "Join: curriculum_sources for name, skills for count",
-          "done": false
+          "done": true
         },
         {
           "text": "Return only non-PII fields",
-          "done": false
+          "done": true
         },
         {
           "text": "404 if userId has no completed phases",
-          "done": false
+          "done": true
         },
         {
           "text": "Cache-Control: max-age=60 header",
-          "done": false
+          "done": true
         },
         {
           "text": "Rate limit: 10 req/min per IP",
-          "done": false
+          "done": true
         }
       ],
       "executionPlan": "Backend: milestones public route. No auth middleware, but rate-limited.",
@@ -20157,7 +20157,7 @@
       "description": "Public page accessible without login. URL: /share/:userId. Shows the user's latest completed phase milestone as a visual card. Meta tags for OG sharing (og:title, og:image pointing to the milestone card). CTA: 'Start your journey on Guitar Mastery Hub' → /register. This is the organic acquisition loop: user shares → friend sees milestone → friend signs up.",
       "epic": "milestone-sharing",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -20166,31 +20166,31 @@
       "checklist": [
         {
           "text": "Route: /share/:userId in React Router (public, no auth guard)",
-          "done": false
+          "done": true
         },
         {
           "text": "Fetch GET /api/milestones/:userId/latest",
-          "done": false
+          "done": true
         },
         {
           "text": "Render milestone card (phase, curriculum, stats)",
-          "done": false
+          "done": true
         },
         {
           "text": "OG meta tags via react-helmet or document.head manipulation",
-          "done": false
+          "done": true
         },
         {
           "text": "CTA button → /register",
-          "done": false
+          "done": true
         },
         {
           "text": "404 state: 'This user has no public milestones yet'",
-          "done": false
+          "done": true
         },
         {
           "text": "Mobile: full-screen card, large CTA",
-          "done": false
+          "done": true
         }
       ],
       "executionPlan": "Frontend: new public page. React Router public route. No auth context needed.",
@@ -20210,7 +20210,7 @@
       "description": "After a user passes a meaningful milestone (e.g. 50 total hours, phase completion, 30-day streak), show a non-intrusive prompt in Analytics: 'You've practiced 50 hours — share this milestone'. Single-dismiss, never shown twice for the same milestone. Dismisses with × and sets a localStorage flag so it doesn't re-appear.",
       "epic": "milestone-sharing",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "low",
       "labels": [
         "frontend",
@@ -20219,27 +20219,27 @@
       "checklist": [
         {
           "text": "Detect milestone thresholds: 10h, 25h, 50h, 100h total practice",
-          "done": false
+          "done": true
         },
         {
           "text": "Show inline prompt card in Analytics (below hero stats)",
-          "done": false
+          "done": true
         },
         {
           "text": "Prompt: milestone description + 'Share' button + '×' dismiss",
-          "done": false
+          "done": true
         },
         {
           "text": "Dismiss sets localStorage: `shared_milestone_50h = dismissed`",
-          "done": false
+          "done": true
         },
         {
           "text": "Never re-show after dismiss",
-          "done": false
+          "done": true
         },
         {
           "text": "Share button → MilestoneCard generation + Web Share API / download",
-          "done": false
+          "done": true
         }
       ],
       "executionPlan": "Frontend: Analytics.tsx milestone detector + MilestoneCard integration.",
@@ -20259,7 +20259,7 @@
       "description": "Install and configure vite-plugin-pwa (the standard Vite PWA solution). Configure: app name, short_name, theme_color (matches primary theme), background_color, icons (192x192 and 512x512 — see CARD-505), display: standalone, start_url: /app, scope: /. Service worker: auto-generated using Workbox. Strategy: precache app shell, network-first for API calls with fallback to cache.",
       "epic": "pwa-offline",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "devops",
@@ -20309,7 +20309,7 @@
       "description": "Define Workbox caching strategies in the PWA config: Cache-First for static assets (JS/CSS/images — long cache, versioned). Stale-While-Revalidate for GET /api/roadmap and GET /api/practice/plan/today (show cached version immediately, update in background). Network-First for POST/PATCH/DELETE (mutation endpoints — cannot cache). Offline fallback: serve cached roadmap and plan; show offline indicator banner.",
       "epic": "pwa-offline",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -20358,7 +20358,7 @@
       "description": "When the app is offline (navigator.onLine = false or fetch fails), show a non-blocking banner at the top: 'You're offline — showing saved content. Changes will sync when you reconnect.' Banner auto-dismisses when connection is restored (listen to online event). Never show a full-screen error — the cached content should still be visible and usable.",
       "epic": "pwa-offline",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -20407,7 +20407,7 @@
       "description": "On successful load of roadmap and today's plan data, explicitly store in Cache API for offline access (in addition to Workbox SWR). This ensures the data is available even on first offline visit after prior online session. Clear and replace cache on successful fresh fetch (no stale data beyond 24h).",
       "epic": "pwa-offline",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -20452,7 +20452,7 @@
       "description": "Show a native install prompt on mobile browsers after the user has logged in and visited the app at least 2 times (to ensure genuine interest). Listen for the beforeinstallprompt event, defer it, then show a custom banner: 'Add Guitar Mastery Hub to your home screen for offline access and a full-screen experience'. Dismiss with × and don't show again for 30 days (localStorage flag). On iOS Safari (which doesn't support beforeinstallprompt): show manual instructions modal.",
       "epic": "pwa-offline",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "medium",
       "labels": [
         "frontend",
@@ -20505,7 +20505,7 @@
       "description": "Generate the required PWA icon set: 192x192, 512x512, and maskable (safe area). Icons should use the app's primary color (helix purple) background with a guitar or 'G' monogram. Required formats: PNG. Maskable icon must have padding (safe zone = center 80% of icon area). Place in client/public/icons/. Reference from manifest in vite-plugin-pwa config.",
       "epic": "pwa-offline",
       "story": "",
-      "column": "backlog",
+      "column": "done",
       "priority": "low",
       "labels": [
         "frontend",
