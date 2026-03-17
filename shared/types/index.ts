@@ -78,3 +78,10 @@ export type {
 export type { ToolCategory, ToolPrice, Tool, UserTool, ToolsResponse } from './tools';
 
 export type { PublicStats, PublicStatsResponse } from './public-stats';
+
+export type {
+  BpmLog,
+  BpmHistoryResponse,
+  ConfidenceTrendEntry,
+  ConfidenceTrendsResponse,
+} from './bpm';
