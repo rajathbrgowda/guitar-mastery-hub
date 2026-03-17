@@ -19,6 +19,7 @@ import toolsRouter from './routes/tools';
 import publicStatsRouter from './routes/public-stats';
 import publicMilestonesRouter from './routes/public-milestones';
 import bpmRouter from './routes/bpm';
+import recordingsRouter from './routes/recordings';
 import { errorHandler } from './middleware/error';
 
 const app = express();
@@ -46,6 +47,7 @@ app.use('/api/milestones', milestonesRouter);
 app.use('/api/roadmap', roadmapRouter);
 app.use('/api/mastery', masteryRouter);
 app.use('/api/tools', toolsRouter);
+app.use('/api/skills', recordingsRouter);
 
 app.use(errorHandler);
 
