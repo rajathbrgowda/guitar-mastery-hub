@@ -85,3 +85,5 @@ export type {
   ConfidenceTrendEntry,
   ConfidenceTrendsResponse,
 } from './bpm';
+
+export type { SkillRecording, CreateRecordingResponse, RecordingsListResponse } from './recording';
