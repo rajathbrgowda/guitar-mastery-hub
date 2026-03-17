@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CloseIcon from '@mui/icons-material/Close';
+import ShareIcon from '@mui/icons-material/Share';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useAnalyticsStore } from '../store/analyticsStore';
 import { YearHeatmap } from '../components/YearHeatmap';
@@ -19,7 +24,16 @@ import { BpmTrendChart } from '../components/BpmTrendChart';
 import { useMilestoneStore } from '../store/milestoneStore';
 import { MilestoneBadge } from '../components/MilestoneBadge';
 import { api } from '../services/api';
+import { shareOrDownloadMilestoneCard } from '../components/MilestoneCard';
 import type { AnalyticsSummary } from '@gmh/shared/types/analytics';
+
+// Hour thresholds for share prompts — in minutes
+const HOUR_THRESHOLDS: Array<{ mins: number; label: string }> = [
+  { mins: 600, label: '10 hours' },
+  { mins: 1500, label: '25 hours' },
+  { mins: 3000, label: '50 hours' },
+  { mins: 6000, label: '100 hours' },
+];
 
 function formatHours(hours: number): string {
   if (hours === 0) return '0';
@@ -84,6 +98,16 @@ export default function Analytics() {
   const milestoneStore = useMilestoneStore();
 
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [dismissedThresholds, setDismissedThresholds] = useState<Set<number>>(() => {
+    const dismissed = new Set<number>();
+    for (const t of HOUR_THRESHOLDS) {
+      if (localStorage.getItem(`gmh_milestone_dismissed_${t.mins}`) === 'dismissed') {
+        dismissed.add(t.mins);
+      }
+    }
+    return dismissed;
+  });
 
   useEffect(() => {
     fetchSkillsAnalytics();
@@ -105,6 +129,13 @@ export default function Analytics() {
 
   const totalMins = activityHistory.reduce((s, d) => s + d.duration_min, 0);
   const activeDays = activityHistory.filter((d) => d.duration_min > 0).length;
+  const activePrompt = (() => {
+    for (let i = HOUR_THRESHOLDS.length - 1; i >= 0; i--) {
+      const t = HOUR_THRESHOLDS[i];
+      if (totalMins >= t.mins && !dismissedThresholds.has(t.mins)) return t;
+    }
+    return null;
+  })();
   const totalSessions = skillsData?.skills.reduce((s, sk) => s + sk.practice_count, 0) ?? 0;
 
   // Technique skill keys for BPM chart
@@ -167,6 +198,77 @@ export default function Analytics() {
           {error}
         </Alert>
       )}
+
+      {/* ─── Milestone share prompt ────────────────────────────── */}
+      <Collapse in={Boolean(activePrompt) && !loading} unmountOnExit>
+        {activePrompt && (
+          <Box
+            sx={{
+              mb: 3,
+              p: 2,
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'primary.main',
+              bgcolor: alpha(theme.palette.primary.main, 0.06),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 1,
+              flexWrap: 'wrap',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flex: 1 }}>
+              <AccessTimeIcon sx={{ fontSize: 18, color: 'primary.main', flexShrink: 0 }} />
+              <Typography variant="body2" fontWeight={500}>
+                You've practiced {activePrompt.label} — share this milestone!
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={shareLoading ? undefined : <ShareIcon sx={{ fontSize: 15 }} />}
+                disabled={shareLoading}
+                onClick={async () => {
+                  setShareLoading(true);
+                  try {
+                    await shareOrDownloadMilestoneCard(
+                      {
+                        headline: `${activePrompt.label} Practiced`,
+                        detail: 'Guitar Mastery Hub',
+                        stat: activePrompt.label.split(' ')[0],
+                        statLabel: 'total hours practiced',
+                      },
+                      `I've practiced ${activePrompt.label} on Guitar Mastery Hub!`,
+                      `${activePrompt.label} of guitar practice and counting.`,
+                      `milestone-${activePrompt.label.replace(/\s+/g, '-')}.png`,
+                    );
+                  } catch (err) {
+                    if (!(err instanceof Error && err.name === 'AbortError')) {
+                      // ignore
+                    }
+                  } finally {
+                    setShareLoading(false);
+                  }
+                }}
+                sx={{ fontSize: '0.7rem', textTransform: 'none', height: 28 }}
+              >
+                {shareLoading ? 'Generating…' : 'Share'}
+              </Button>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  localStorage.setItem(`gmh_milestone_dismissed_${activePrompt.mins}`, 'dismissed');
+                  setDismissedThresholds((prev) => new Set([...prev, activePrompt.mins]));
+                }}
+                sx={{ color: 'text.secondary' }}
+              >
+                <CloseIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Box>
+          </Box>
+        )}
+      </Collapse>
 
       {/* ─── Stat tiles ──────────────────────────────────────────── */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
