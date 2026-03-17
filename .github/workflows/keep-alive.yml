@@ -2,23 +2,34 @@ name: Keep Alive
 
 on:
   schedule:
-    # Every 10 minutes — keeps Render free tier from sleeping (sleeps after 15 min idle)
-    - cron: '*/10 * * * *'
+    # Every 8 minutes — tighter margin against Render's 15-min sleep threshold
+    - cron: '*/8 * * * *'
   workflow_dispatch: # allow manual trigger
 
 jobs:
   ping:
     name: Ping services
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
-      - name: Ping Render API health
+      - name: Ping Render API health (with retry)
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://guitar-mastery-hub.onrender.com/api/health)
-          echo "Render /api/health → HTTP $STATUS"
-          [ "$STATUS" = "200" ] && echo "OK" || echo "WARN: unexpected status $STATUS"
+          for i in 1 2 3; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://guitar-mastery-hub.onrender.com/api/health)
+            echo "Attempt $i: Render /api/health → HTTP $STATUS"
+            [ "$STATUS" = "200" ] && echo "OK" && exit 0
+            echo "Retrying in 10s..."
+            sleep 10
+          done
+          echo "WARN: all 3 attempts failed"
 
-      - name: Ping Render DB health
+      - name: Ping Render DB health (with retry)
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://guitar-mastery-hub.onrender.com/api/health/db)
-          echo "Render /api/health/db → HTTP $STATUS"
-          [ "$STATUS" = "200" ] && echo "OK" || echo "WARN: unexpected status $STATUS"
+          for i in 1 2 3; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://guitar-mastery-hub.onrender.com/api/health/db)
+            echo "Attempt $i: Render /api/health/db → HTTP $STATUS"
+            [ "$STATUS" = "200" ] && echo "OK" && exit 0
+            echo "Retrying in 10s..."
+            sleep 10
+          done
+          echo "WARN: all 3 attempts failed"
