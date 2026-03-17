@@ -57,7 +57,7 @@ router.get('/', async (req: AuthRequest, res) => {
   const { data: entries, error } = await supabase
     .from('curriculum_skill_entries')
     .select(
-      'phase_number, phase_title, sort_order, practice_tip, common_mistake, practice_exercise, video_youtube_id, video_title, skills ( id, key, title, category )',
+      'phase_number, phase_title, sort_order, practice_tip, common_mistake, practice_exercise, video_youtube_id, video_title, skills ( id, key, title, category, is_song, song_artist )',
     )
     .eq('curriculum_id', curriculumSource.id)
     .order('phase_number', { ascending: true })
@@ -147,7 +147,14 @@ router.get('/', async (req: AuthRequest, res) => {
     practice_exercise: string | null;
     video_youtube_id: string | null;
     video_title: string | null;
-    skills: { id: string; key: string; title: string; category: string } | null;
+    skills: {
+      id: string;
+      key: string;
+      title: string;
+      category: string;
+      is_song: boolean;
+      song_artist: string | null;
+    } | null;
   };
 
   type SkillRow = {
@@ -163,6 +170,8 @@ router.get('/', async (req: AuthRequest, res) => {
     completed: boolean;
     confidence: number | null;
     last_practiced_at: string | null;
+    is_song: boolean;
+    song_artist: string | null;
   };
 
   type PhaseAccumulator = {
@@ -218,6 +227,8 @@ router.get('/', async (req: AuthRequest, res) => {
       completed,
       confidence,
       last_practiced_at: lastPracticedMap.get(skill.title) ?? null,
+      is_song: skill.is_song ?? false,
+      song_artist: skill.song_artist ?? null,
     });
 
     phase.total_skills++;

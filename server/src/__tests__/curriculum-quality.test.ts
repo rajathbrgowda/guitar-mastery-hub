@@ -48,6 +48,8 @@ function makeEntry(opts: {
   skillTitle: string;
   practiceTip?: string | null;
   videoId?: string | null;
+  isSong?: boolean;
+  songArtist?: string | null;
 }) {
   return {
     phase_number: opts.phase,
@@ -60,6 +62,8 @@ function makeEntry(opts: {
       key: opts.skillKey,
       title: opts.skillTitle,
       category: 'chord',
+      is_song: opts.isSong ?? false,
+      song_artist: opts.songArtist ?? null,
     },
   };
 }

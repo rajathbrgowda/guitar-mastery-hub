@@ -5,11 +5,16 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import LockIcon from '@mui/icons-material/Lock';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { alpha, useTheme } from '@mui/material/styles';
 import { SkillRow } from './SkillRow';
@@ -175,21 +180,140 @@ export function RoadmapPhaseCard({
 
         {/* Skills list */}
         <Collapse in={expanded}>
-          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            {phase.skills.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                No skills in this phase yet.
-              </Typography>
-            ) : (
-              phase.skills.map((skill) => (
-                <SkillRow
-                  key={skill.skill_id}
-                  skill={skill}
-                  onClick={onSkillClick ? () => onSkillClick(skill) : undefined}
-                />
-              ))
-            )}
-          </Box>
+          {(() => {
+            const techSkills = phase.skills.filter((s) => !s.is_song);
+            const songSkills = phase.skills.filter((s) => s.is_song);
+
+            return (
+              <>
+                {/* Technique skills */}
+                <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  {techSkills.length === 0 && songSkills.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary">
+                      No skills in this phase yet.
+                    </Typography>
+                  ) : (
+                    techSkills.map((skill) => (
+                      <SkillRow
+                        key={skill.skill_id}
+                        skill={skill}
+                        onClick={onSkillClick ? () => onSkillClick(skill) : undefined}
+                      />
+                    ))
+                  )}
+                </Box>
+
+                {/* Songs sub-section */}
+                {songSkills.length > 0 && (
+                  <Box sx={{ mt: 2 }}>
+                    <Divider sx={{ mb: 1.25 }} />
+                    <Typography
+                      variant="caption"
+                      fontWeight={700}
+                      sx={{
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.5,
+                        fontSize: '0.6rem',
+                        color: 'text.secondary',
+                        display: 'block',
+                        mb: 0.75,
+                      }}
+                    >
+                      {isFuture
+                        ? `${songSkills.length} song${songSkills.length > 1 ? 's' : ''} unlocked when you complete this phase`
+                        : 'Songs in this phase'}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                      {songSkills.map((song) => {
+                        const isCompleted = song.completed;
+                        const isLocked = isFuture;
+
+                        const row = (
+                          <Box
+                            key={song.skill_id}
+                            onClick={
+                              !isLocked && onSkillClick ? () => onSkillClick(song) : undefined
+                            }
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                              minHeight: 44,
+                              px: 0.5,
+                              borderRadius: 1,
+                              cursor: isLocked ? 'default' : onSkillClick ? 'pointer' : 'default',
+                              opacity: isLocked ? 0.45 : 1,
+                              '&:hover':
+                                !isLocked && onSkillClick ? { bgcolor: 'action.hover' } : {},
+                            }}
+                          >
+                            {isLocked ? (
+                              <LockIcon
+                                sx={{ fontSize: 14, color: 'text.disabled', flexShrink: 0 }}
+                              />
+                            ) : isCompleted ? (
+                              <CheckCircleIcon
+                                sx={{ fontSize: 14, color: 'success.main', flexShrink: 0 }}
+                              />
+                            ) : (
+                              <MusicNoteIcon
+                                sx={{ fontSize: 14, color: 'primary.main', flexShrink: 0 }}
+                              />
+                            )}
+
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                              <Typography
+                                variant="body2"
+                                noWrap
+                                sx={{
+                                  color: isLocked
+                                    ? 'text.disabled'
+                                    : isCompleted
+                                      ? 'success.main'
+                                      : 'text.primary',
+                                  fontWeight: isCompleted ? 600 : 400,
+                                }}
+                              >
+                                {song.skill_title}
+                              </Typography>
+                              {song.song_artist && (
+                                <Typography variant="caption" color="text.disabled" noWrap>
+                                  {song.song_artist}
+                                </Typography>
+                              )}
+                            </Box>
+
+                            {isCompleted && (
+                              <Chip
+                                label="Learned"
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                                sx={{ fontSize: '0.6rem', height: 18, flexShrink: 0 }}
+                              />
+                            )}
+                          </Box>
+                        );
+
+                        return isLocked ? (
+                          <Tooltip
+                            key={song.skill_id}
+                            title={`Complete Phase ${phase.phase_number} to unlock`}
+                            placement="right"
+                          >
+                            <span>{row}</span>
+                          </Tooltip>
+                        ) : (
+                          row
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                )}
+              </>
+            );
+          })()}
         </Collapse>
       </CardContent>
     </Card>
