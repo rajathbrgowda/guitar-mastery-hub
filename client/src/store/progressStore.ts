@@ -12,9 +12,12 @@ interface ProgressStoreState {
   currentPhase: number;
   loading: boolean;
   error: string | null;
+  /** Set to the phase_index of a phase when the server signals phase_completed=true. Cleared after modal is dismissed. */
+  phaseJustCompleted: number | null;
   fetchProgress: () => Promise<void>;
   toggleSkill: (phase_index: number, skill_index: number, completed: boolean) => Promise<void>;
   setPhase: (phase: number) => Promise<void>;
+  clearPhaseCompleted: () => void;
   reset: () => void;
 }
 
@@ -23,6 +26,7 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
   currentPhase: 0,
   loading: false,
   error: null,
+  phaseJustCompleted: null,
 
   fetchProgress: async () => {
     set({ loading: true, error: null });
@@ -80,6 +84,7 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
         ),
         currentPhase:
           data.phase_completed && data.new_phase != null ? data.new_phase : state.currentPhase,
+        phaseJustCompleted: data.phase_completed ? phase_index : state.phaseJustCompleted,
       }));
     } catch {
       // Roll back
@@ -97,5 +102,8 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
     }
   },
 
-  reset: () => set({ skills: [], currentPhase: 0, loading: false, error: null }),
+  clearPhaseCompleted: () => set({ phaseJustCompleted: null }),
+
+  reset: () =>
+    set({ skills: [], currentPhase: 0, loading: false, error: null, phaseJustCompleted: null }),
 }));

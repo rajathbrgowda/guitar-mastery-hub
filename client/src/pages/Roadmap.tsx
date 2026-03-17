@@ -8,19 +8,28 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useNavigate } from 'react-router-dom';
 import { useRoadmapStore } from '../store/roadmapStore';
 import { useCurriculumStore } from '../store/curriculumStore';
+import { useProgressStore } from '../store/progressStore';
 import { RoadmapPhaseCard } from '../components/RoadmapPhaseCard';
 import { PhasePreviewDrawer } from '../components/PhasePreviewDrawer';
 import { WeeklyPaceEstimate } from '../components/WeeklyPaceEstimate';
 import { PhaseProgressStrip } from '../components/PhaseProgressStrip';
 import { SkillDetailDrawer } from '../components/SkillDetailDrawer';
+import { PhaseCompleteModal } from '../components/PhaseCompleteModal';
 import type { RoadmapSkill } from '@gmh/shared/types/roadmap';
 
 export default function Roadmap() {
   const { data, loading, error, fetchRoadmap } = useRoadmapStore();
   const { isSwitching } = useCurriculumStore();
+  const { phaseJustCompleted, clearPhaseCompleted } = useProgressStore();
   const [drawerPhase, setDrawerPhase] = useState<number | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<RoadmapSkill | null>(null);
   const navigate = useNavigate();
+
+  const completedPhase = data?.phases.find((p) => p.phase_number === phaseJustCompleted) ?? null;
+  const nextPhase =
+    completedPhase != null
+      ? (data?.phases.find((p) => p.phase_number === completedPhase.phase_number + 1) ?? null)
+      : null;
 
   useEffect(() => {
     fetchRoadmap();
@@ -145,6 +154,16 @@ export default function Roadmap() {
         onClose={() => setSelectedSkill(null)}
         curriculumKey={data?.curriculum_key ?? ''}
       />
+
+      {completedPhase && (
+        <PhaseCompleteModal
+          open={Boolean(completedPhase)}
+          phase={completedPhase}
+          nextPhase={nextPhase}
+          onClose={clearPhaseCompleted}
+          onSongClick={setSelectedSkill}
+        />
+      )}
     </Box>
   );
 }

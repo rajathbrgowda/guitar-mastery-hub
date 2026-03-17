@@ -340,6 +340,17 @@ export default function Dashboard() {
                   storePhase === 4 ? phasePct : 0,
                 ]}
               />
+              {storePhase > 0 && (
+                <Box sx={{ mt: 0.75, display: 'flex', justifyContent: 'center' }}>
+                  <Chip
+                    label={`${storePhase} ${storePhase === 1 ? 'phase' : 'phases'} complete`}
+                    size="small"
+                    color="success"
+                    variant="outlined"
+                    sx={{ fontSize: '0.6rem', height: 18 }}
+                  />
+                </Box>
+              )}
             </CardContent>
           </Card>
 

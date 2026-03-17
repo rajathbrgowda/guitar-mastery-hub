@@ -13,6 +13,7 @@ export interface RoadmapSkill {
   completed: boolean;
   confidence: ConfidenceRating | null;
   last_practiced_at: string | null;
+  is_song?: boolean;
 }
 
 export interface RoadmapPhase {
