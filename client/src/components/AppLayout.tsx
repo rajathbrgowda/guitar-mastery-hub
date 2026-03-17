@@ -267,7 +267,7 @@ export default function AppLayout() {
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
           pt: { xs: 9, sm: 3 },
-          pb: { xs: 9, sm: 3 },
+          pb: { xs: 11, sm: 3 }, // xs: extra clearance for bottom nav + iOS Safari toolbar
           backgroundColor: WAVE_BACKGROUND_ENABLED ? 'transparent' : 'background.default',
           maxWidth: '100%',
           overflowX: 'hidden',

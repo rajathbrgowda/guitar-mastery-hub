@@ -292,7 +292,7 @@ export default function Analytics() {
               <Typography
                 variant="overline"
                 color="text.secondary"
-                sx={{ display: 'block', mb: 2 }}
+                sx={{ display: 'block', mb: 2.5 }}
               >
                 Streak
               </Typography>
@@ -327,7 +327,7 @@ export default function Analytics() {
       {/* 52-week heatmap */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2.5 }}>
             52-Week Activity
           </Typography>
           {loading ? (
@@ -345,7 +345,7 @@ export default function Analytics() {
       {/* Confidence trend chart */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2.5 }}>
             Confidence Over Time
           </Typography>
           <ConfidenceTrendChart />
@@ -355,7 +355,7 @@ export default function Analytics() {
       {/* BPM trend chart */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 2.5 }}>
             Speed Progress (BPM)
           </Typography>
           <BpmTrendChart techniqueSkillKeys={techniqueSkillKeys} />
@@ -370,7 +370,7 @@ export default function Analytics() {
               <Typography
                 variant="overline"
                 color="text.secondary"
-                sx={{ display: 'block', mb: 2 }}
+                sx={{ display: 'block', mb: 2.5 }}
               >
                 By Category
               </Typography>
@@ -388,7 +388,7 @@ export default function Analytics() {
               <Typography
                 variant="overline"
                 color="text.secondary"
-                sx={{ display: 'block', mb: 2 }}
+                sx={{ display: 'block', mb: 2.5 }}
               >
                 Per-Skill Confidence
               </Typography>

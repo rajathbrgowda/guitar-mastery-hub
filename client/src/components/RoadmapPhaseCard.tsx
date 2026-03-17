@@ -64,7 +64,7 @@ export function RoadmapPhaseCard({
   return (
     <Card
       sx={{
-        mb: 2,
+        mb: 2.5,
         borderLeft: '3px solid',
         borderLeftColor: isCurrentPhase ? 'primary.main' : isComplete ? 'success.main' : 'divider',
         bgcolor: isCurrentPhase ? alpha(theme.palette.primary.main, 0.03) : 'background.paper',
