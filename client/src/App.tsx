@@ -9,11 +9,18 @@ import { useUserStore } from './store/userStore';
 import { useLocalThemeMode } from './hooks/useLocalThemeMode';
 import { router } from './router';
 import ErrorBoundary from './components/ErrorBoundary';
+import { preflightHealthCheck } from './store/backendStatusStore';
 
 function ThemedApp() {
   const { user } = useAuth();
   const { profile, fetchProfile } = useUserStore();
   const [localMode] = useLocalThemeMode();
+
+  // Proactively ping backend health on SPA load — detects cold-start before
+  // any authenticated API call, allowing the warming banner to show immediately.
+  useEffect(() => {
+    preflightHealthCheck();
+  }, []);
 
   // Fetch profile as soon as auth resolves — not waiting for AppLayout to mount.
   // This eliminates the flash of Helix orange on login/refresh for users with a
